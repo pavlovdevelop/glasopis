@@ -52,6 +52,22 @@ already has, which keeps the installer in the tens of megabytes and the idle mem
 the backend stays plain Rust — where the Windows APIs we need (SendInput, clipboard,
 foreground window) are one call away.
 
+### Two engines, one interface
+
+`speech::groq` sends the recording to Groq; `speech::whisper_engine` runs whisper.cpp locally
+behind the `whisper` cargo feature. The dictation flow picks one based on
+`settings.voice.engine`, and everything after the transcript — dictionary, commands,
+normalisation, injection — is identical either way.
+
+Groq is the default because speed decides whether a voice typing tool gets used: recognition
+comes back in well under a second instead of the seconds a CPU needs for the same model. The
+price is an account, an API key, an internet connection for every dictation, and the recording
+leaving the machine. That trade-off is the user's to make, so the interface states it plainly
+and the local engine stays a supported build option rather than a historical curiosity.
+
+The default build does not compile whisper.cpp at all, which is why the installer is small and
+the build needs no C/C++ toolchain.
+
 ### Why whisper.cpp through `whisper-rs`
 
 Bulgarian support in free, locally executable speech recognition is effectively Whisper.
@@ -59,8 +75,8 @@ whisper.cpp runs Whisper on the CPU with no Python, no CUDA and no service. `whi
 (Unlicense) is a maintained binding and links the library statically, so the installer ships one
 executable. The trade-off is a C/C++ toolchain requirement when building from source.
 
-No cloud backend exists in the code. The `SpeechEngine` trait would allow another local engine
-later; it is not a hook for a paid API.
+The `SpeechEngine` trait keeps the local engine swappable; the cloud engine is a plain function
+because it holds no state between dictations.
 
 ### Why the clipboard is the primary insertion strategy
 

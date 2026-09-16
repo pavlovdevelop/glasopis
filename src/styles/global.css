@@ -376,6 +376,16 @@ code {
   color: var(--accent-dark);
 }
 
+.key {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.key .input {
+  font-family: "Cascadia Mono", Consolas, monospace;
+}
+
 /* --- банери ----------------------------------------------------------- */
 .banner {
   border-radius: 10px;

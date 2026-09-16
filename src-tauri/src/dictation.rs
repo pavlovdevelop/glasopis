@@ -12,7 +12,7 @@
 use std::sync::atomic::Ordering;
 
 use glasopis_core::pipeline::{process_transcript, PipelineOptions};
-use glasopis_core::settings::Settings;
+use glasopis_core::settings::{Settings, SpeechEngineKind};
 use tauri::{AppHandle, Emitter, Manager};
 
 use crate::errors::{GlasopisError, Result};
@@ -49,11 +49,11 @@ pub fn start(app: &AppHandle) {
     }
     let settings = state.settings();
 
-    // Fail early and clearly if there is no model — recording first and
-    // complaining afterwards would lose the user's words.
-    if let Err(err) = models_manager::active_model_path(app, settings.voice.model_id.as_deref()) {
+    // Проверката е преди записа: да запишем и чак после да кажем „няма ключ“
+    // означава да загубим казаното.
+    if let Err((err, route)) = check_ready(app, &settings) {
         report_error(app, err);
-        let _ = ui::show_main_window_at(app, "#/models");
+        let _ = ui::show_main_window_at(app, route);
         return;
     }
 
@@ -72,6 +72,28 @@ pub fn start(app: &AppHandle) {
         ui::show_overlay(app);
     }
     spawn_level_reporter(app);
+}
+
+/// Проверява, че избраният двигател може да работи. При грешка връща и
+/// страницата от настройките, която я решава.
+fn check_ready(
+    app: &AppHandle,
+    settings: &Settings,
+) -> std::result::Result<(), (GlasopisError, &'static str)> {
+    match settings.voice.engine {
+        SpeechEngineKind::Groq => {
+            if settings.cloud.has_key() {
+                Ok(())
+            } else {
+                Err((GlasopisError::MissingApiKey, "#/recognition"))
+            }
+        }
+        SpeechEngineKind::Local => {
+            models_manager::active_model_path(app, settings.voice.model_id.as_deref())
+                .map(|_| ())
+                .map_err(|err| (err, "#/models"))
+        }
+    }
 }
 
 /// The microphone the user selected, or `None` for the Windows default.
@@ -191,22 +213,32 @@ fn transcribe_and_insert(
         ));
     }
 
-    let model_path = models_manager::active_model_path(app, settings.voice.model_id.as_deref())?;
-    let threads = settings.voice.threads.unwrap_or_else(default_threads);
-
-    // whisper.cpp needs at least a second of audio; a one-word dictation is
-    // padded with silence rather than rejected.
+    // Кратък запис се допълва с тишина: и whisper.cpp, и API-то се справят
+    // по-добре с поне секунда аудио.
     let samples = glasopis_core::audio::pad_to_min_duration(
         samples,
         glasopis_core::audio::WHISPER_SAMPLE_RATE,
         MIN_TRANSCRIPTION_SECONDS,
     );
 
-    let state = app.state::<AppState>();
-    let raw = state
-        .engine
-        .transcribe(&model_path, &samples, &settings.voice.language, threads)?;
-    // The audio buffer is no longer needed — drop it as early as possible.
+    let raw = match settings.voice.engine {
+        SpeechEngineKind::Groq => crate::speech::groq::transcribe(
+            &samples,
+            &settings.voice.language,
+            &settings.cloud.api_key,
+            &settings.cloud.model,
+        )?,
+        SpeechEngineKind::Local => {
+            let model_path =
+                models_manager::active_model_path(app, settings.voice.model_id.as_deref())?;
+            let threads = settings.voice.threads.unwrap_or_else(default_threads);
+            let state = app.state::<AppState>();
+            state
+                .engine
+                .transcribe(&model_path, &samples, &settings.voice.language, threads)?
+        }
+    };
+    // Записът вече не е нужен — освобождава се възможно най-рано.
     drop(samples);
 
     let text = process_transcript(&raw, &PipelineOptions::from(settings));

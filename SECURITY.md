@@ -29,13 +29,19 @@ ship. This is a volunteer project; there is no bug bounty.
 
 What Glasopis is designed to protect:
 
-- **Your voice.** Audio is processed locally and kept in memory. A build that uploads audio
-  would be a critical vulnerability.
+- **Your voice.** It is kept in memory and never written to disk. In the default mode it is sent
+  over HTTPS to `api.groq.com` for recognition and nowhere else; sending it anywhere other than
+  the configured recognition provider would be a critical vulnerability. A build with the
+  `whisper` feature uploads nothing at all.
+- **Your API key.** It is stored in the settings file in plain text and sent only to Groq, as a
+  bearer token over HTTPS. Leaking it anywhere else — logs, telemetry, error messages — is a
+  vulnerability. Revoke a leaked key at console.groq.com/keys.
 - **Your dictated text.** It goes to the clipboard and the focused window, and — only if you
   enable history — to a local file. It is never sent anywhere.
-- **The model download.** Downloads only happen over HTTPS from the whisper.cpp model repository
-  and every file is verified against a SHA-256 checksum compiled into the application. A URL
-  outside the expected host is refused.
+- **The model download** (local mode). Downloads only happen over HTTPS from the whisper.cpp
+  model repository and every file is verified against a SHA-256 checksum compiled into the
+  application. A URL outside the expected host is refused. The same applies to the two URLs the
+  interface can open in a browser.
 
 What it deliberately does not do:
 

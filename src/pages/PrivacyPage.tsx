@@ -9,15 +9,26 @@ export function PrivacyPage() {
   const update = (patch: Partial<typeof privacy>) =>
     void save({ ...settings, privacy: { ...privacy, ...patch } });
 
+  const cloud = settings.voice.engine === "groq";
+
   return (
     <Card title={t("privacy.title")}>
-      <Banner kind="success">
-        <strong>{t("privacy.local")}</strong>
-        <br />
-        {t("privacy.localText")}
-      </Banner>
+      {cloud ? (
+        <Banner kind="info">
+          <strong>{t("privacy.cloud")}</strong>
+          <br />
+          {t("privacy.cloudText")}
+        </Banner>
+      ) : (
+        <Banner kind="success">
+          <strong>{t("privacy.local")}</strong>
+          <br />
+          {t("privacy.localText")}
+        </Banner>
+      )}
       <p className="hint">{t("privacy.noTelemetry")}</p>
       <p className="hint">{t("privacy.audioDeleted")}</p>
+      {cloud && <p className="hint">{t("privacy.switchToLocal")}</p>}
       <Toggle
         id="keep-history"
         label={t("privacy.keepHistory")}

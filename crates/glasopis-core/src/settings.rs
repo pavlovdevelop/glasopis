@@ -34,6 +34,44 @@ pub enum RecordingMode {
     PushToTalk,
 }
 
+/// Кой двигател разпознава речта.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SpeechEngineKind {
+    /// Groq (whisper-large-v3-turbo през техния API). Изисква интернет и ключ.
+    #[default]
+    Groq,
+    /// whisper.cpp на този компютър. Налично само в компилация с `whisper`.
+    Local,
+}
+
+/// Настройки за облачното разпознаване.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct CloudSettings {
+    /// API ключ от console.groq.com/keys.
+    pub api_key: String,
+    /// Идентификатор на модела при доставчика.
+    pub model: String,
+}
+
+impl Default for CloudSettings {
+    fn default() -> Self {
+        Self {
+            api_key: String::new(),
+            model: DEFAULT_CLOUD_MODEL.to_string(),
+        }
+    }
+}
+
+impl CloudSettings {
+    pub fn has_key(&self) -> bool {
+        !self.api_key.trim().is_empty()
+    }
+}
+
+pub const DEFAULT_CLOUD_MODEL: &str = "whisper-large-v3-turbo";
+
 /// Microphone selection. `Default` follows the Windows default device.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", content = "name", rename_all = "snake_case")]
@@ -69,6 +107,7 @@ impl Default for GeneralSettings {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct VoiceSettings {
+    pub engine: SpeechEngineKind,
     pub microphone: MicrophoneChoice,
     /// Spoken language, BCP-47 style. Bulgarian is the default.
     pub language: String,
@@ -84,6 +123,7 @@ pub struct VoiceSettings {
 impl Default for VoiceSettings {
     fn default() -> Self {
         Self {
+            engine: SpeechEngineKind::default(),
             microphone: MicrophoneChoice::Default,
             language: "bg".to_string(),
             model_id: None,
@@ -167,6 +207,7 @@ pub struct Settings {
     pub hotkeys: HotkeySettings,
     pub injection: InjectionSettings,
     pub privacy: PrivacySettings,
+    pub cloud: CloudSettings,
     pub dictionary: Dictionary,
     pub recording_mode: RecordingMode,
     /// Set to true once the onboarding wizard has been completed.
@@ -182,6 +223,7 @@ impl Default for Settings {
             hotkeys: HotkeySettings::default(),
             injection: InjectionSettings::default(),
             privacy: PrivacySettings::default(),
+            cloud: CloudSettings::default(),
             dictionary: Dictionary::default(),
             recording_mode: RecordingMode::default(),
             onboarding_completed: false,
@@ -229,6 +271,9 @@ impl Settings {
         if self.hotkeys.toggle.trim().is_empty() {
             self.hotkeys.toggle = DEFAULT_TOGGLE_HOTKEY.into();
         }
+        if self.cloud.model.trim().is_empty() {
+            self.cloud.model = DEFAULT_CLOUD_MODEL.into();
+        }
     }
 
     pub fn load_from(path: &std::path::Path) -> Result<Self, SettingsError> {
@@ -273,6 +318,23 @@ fn log_broken_settings(path: &std::path::Path, err: &SettingsError) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cloud_is_the_default_engine_and_starts_without_a_key() {
+        let s = Settings::default();
+        assert_eq!(s.voice.engine, SpeechEngineKind::Groq);
+        assert!(!s.cloud.has_key());
+        assert_eq!(s.cloud.model, DEFAULT_CLOUD_MODEL);
+    }
+
+    #[test]
+    fn a_whitespace_key_does_not_count_as_a_key() {
+        let mut s = Settings::default();
+        s.cloud.api_key = "   ".into();
+        assert!(!s.cloud.has_key());
+        s.cloud.api_key = "gsk_нещо".into();
+        assert!(s.cloud.has_key());
+    }
 
     #[test]
     fn defaults_are_bulgarian_and_private() {

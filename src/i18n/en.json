@@ -33,7 +33,8 @@
     "microphone": "Microphone",
     "privacy": "Privacy",
     "history": "History",
-    "about": "About Glasopis"
+    "about": "About Glasopis",
+    "recognition": "Recognition"
   },
   "dictation": {
     "start": "Start dictation",
@@ -125,7 +126,10 @@
     "audioDeleted": "The recording only exists in memory during recognition and is released immediately afterwards.",
     "keepHistory": "Keep a history of dictations",
     "historyOff": "History is off by default.",
-    "historyLimit": "Maximum number of entries"
+    "historyLimit": "Maximum number of entries",
+    "cloud": "Cloud processing",
+    "cloudText": "Recognition is currently performed by Groq. The recording is sent to their servers and processed there under their terms. No audio is written to your disk.",
+    "switchToLocal": "For processing that never leaves this computer, switch the engine in the Recognition section (requires a build with the local model)."
   },
   "history": {
     "title": "Dictation history",
@@ -139,14 +143,15 @@
     "version": "Version",
     "license": "License",
     "openSource": "Glasopis is free and open-source software (MIT).",
-    "free": "100% free: no subscription, no API key, no cloud, no limits.",
+    "free": "Free and open-source software. The default recognition engine is Groq, which needs a free account and an API key.",
     "repository": "Repository",
     "logs": "Logs folder",
     "config": "Settings folder",
     "models": "Models folder",
     "speechEngine": "Speech recognition",
     "speechEngineLocal": "Local (whisper.cpp)",
-    "speechEngineMissing": "Not available in this build"
+    "speechEngineMissing": "Local recognition is not included in this build",
+    "speechEngineCloud": "Groq (cloud)"
   },
   "onboarding": {
     "welcomeTitle": "Welcome to Glasopis",
@@ -162,7 +167,9 @@
     "testPlaceholder": "The recognized text will appear here...",
     "doneTitle": "Glasopis is ready.",
     "doneText": "Glasopis runs in the system tray. Put the cursor in any text field and start speaking.",
-    "step": "Step {current} of {total}"
+    "step": "Step {current} of {total}",
+    "keyTitle": "Groq API key",
+    "keyText": "Glasopis recognizes speech through Groq. Create a free key and paste it here."
   },
   "status": {
     "idle": "Ready",
@@ -180,5 +187,23 @@
     "empty": "No words added yet.",
     "spokenPlaceholder": "гит хъб",
     "writtenPlaceholder": "GitHub"
+  },
+  "recognition": {
+    "title": "Speech recognition",
+    "engine": "Where speech is recognized",
+    "engineGroq": "Groq (cloud, fast)",
+    "engineLocal": "Locally on this computer",
+    "engineLocalMissing": "Local recognition is not included in this build.",
+    "apiKey": "Groq API key",
+    "apiKeyPlaceholder": "gsk_...",
+    "apiKeyHint": "Create a key for free at console.groq.com/keys; it is kept on this computer only.",
+    "getKey": "Open console.groq.com/keys",
+    "check": "Check the key",
+    "checking": "Checking...",
+    "keyValid": "The key works.",
+    "model": "Provider model",
+    "cloudWarning": "In this mode the recording is sent to Groq's servers for recognition. Do not dictate anything that must not leave your computer.",
+    "show": "Show",
+    "hide": "Hide"
   }
 }

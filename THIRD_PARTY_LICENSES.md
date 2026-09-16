@@ -8,7 +8,15 @@ an API key or a subscription.
 Versions are the ones pinned when v0.1.0 was prepared; run `cargo metadata` and `npm ls` for the
 exact set in your checkout.
 
-## Speech recognition
+## Speech recognition service
+
+The default engine is [Groq](https://groq.com), used through its OpenAI-compatible
+`/openai/v1/audio/transcriptions` endpoint with the `whisper-large-v3-turbo` model. Groq is a
+third-party service, not a dependency of this repository: no Groq code is distributed with
+Glasopis. Use is governed by Groq's own terms of service and privacy policy, and requires an
+account and an API key that the user creates and holds.
+
+## Local speech recognition (optional `whisper` feature)
 
 | Component | Version | License | Notes |
 | --- | --- | --- | --- |
@@ -19,8 +27,8 @@ exact set in your checkout.
 
 ### Speech models
 
-Glasopis downloads OpenAI Whisper weights converted to the ggml format and published by the
-whisper.cpp project:
+In a build with the `whisper` feature, Glasopis downloads OpenAI Whisper weights converted to
+the ggml format and published by the whisper.cpp project:
 
 | Model | File | License |
 | --- | --- | --- |

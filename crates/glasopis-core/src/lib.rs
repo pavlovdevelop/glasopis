@@ -10,6 +10,7 @@
 //! * [`models`] — the speech model catalogue and its metadata
 //! * [`history`] — the optional local dictation history
 //! * [`audio`] — pure audio helpers (mixdown, resampling, level metering)
+//! * [`wav`] — WAV encoding for the cloud transcription request
 
 pub mod audio;
 pub mod commands;
@@ -19,5 +20,6 @@ pub mod models;
 pub mod pipeline;
 pub mod settings;
 pub mod text;
+pub mod wav;
 
 pub use pipeline::{process_transcript, PipelineOptions};

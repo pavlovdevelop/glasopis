@@ -1,15 +1,20 @@
-//! Local speech recognition.
+//! Разпознаване на реч.
 //!
-//! The engine is abstracted behind [`SpeechEngine`] so the rest of the
-//! application never talks to whisper.cpp directly. Today there is exactly one
-//! implementation — local whisper.cpp through `whisper-rs`. There is no cloud
-//! backend and no API key anywhere in Glasopis: audio never leaves the machine.
+//! Два двигателя зад един интерфейс:
+//!
+//! * [`groq`] — `whisper-large-v3-turbo` през API на Groq. Това е двигателят
+//!   по подразбиране: бърз е, защото смятането е на техния хардуер, но иска
+//!   интернет, акаунт и API ключ, а записът напуска компютъра.
+//! * whisper.cpp на този компютър — налично само в компилация с feature
+//!   `whisper`. Бавно е на процесор, но не изисква нищо външно.
 
 use std::path::{Path, PathBuf};
 
 use parking_lot::Mutex;
 
 use crate::errors::{GlasopisError, Result};
+
+pub mod groq;
 
 #[cfg(feature = "whisper")]
 mod whisper_engine;
