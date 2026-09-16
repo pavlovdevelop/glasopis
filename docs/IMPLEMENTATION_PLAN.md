@@ -46,7 +46,7 @@ to antivirus software).
   — type-checks the Windows-specific code (clipboard, SendInput, tray, hotkeys) without a C++
   toolchain. This is what the Linux part of CI runs.
 - The Windows CI job compiles the complete application **with** whisper.cpp and runs the backend
-  tests.
+  tests. All three CI jobs (frontend, core/cross-check, Windows) pass on the current commit.
 
 ## What still needs a real Windows desktop
 
