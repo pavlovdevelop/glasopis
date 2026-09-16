@@ -111,7 +111,7 @@ git clone https://github.com/pavlovdevelop/glasopis.git
 cd glasopis
 npm install
 npm run tauri dev      # development
-npm run tauri build    # Windows installer in src-tauri/target/release/bundle/nsis/
+npm run tauri build    # Windows installer in target/release/bundle/nsis/
 ```
 
 Prerequisites (Windows): Git, Node.js 20+, Rust (MSVC toolchain), Visual Studio Build Tools

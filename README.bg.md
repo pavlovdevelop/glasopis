@@ -103,7 +103,7 @@ git clone https://github.com/pavlovdevelop/glasopis.git
 cd glasopis
 npm install
 npm run tauri dev      # разработка
-npm run tauri build    # инсталатор в src-tauri/target/release/bundle/nsis/
+npm run tauri build    # инсталатор в target/release/bundle/nsis/
 ```
 
 Необходими са Git, Node.js 20+, Rust (MSVC), Visual Studio Build Tools със C++ компонент,
