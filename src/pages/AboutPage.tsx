@@ -6,7 +6,7 @@ import { api, errorMessage, type AppInfo } from "../services/api";
 const REPOSITORY = "https://github.com/pavlovdevelop/glasopis";
 
 export function AboutPage() {
-  const { t, setError } = useAppState();
+  const { t, setError, settings } = useAppState();
   const [info, setInfo] = useState<AppInfo | null>(null);
 
   useEffect(() => {
@@ -26,7 +26,11 @@ export function AboutPage() {
       </Row>
       <Row label={t("about.speechEngine")}>
         <span>
-          {info?.speech_available ? t("about.speechEngineLocal") : t("about.speechEngineMissing")}
+          {settings?.voice.engine === "local"
+            ? info?.local_engine_available
+              ? t("about.speechEngineLocal")
+              : t("about.speechEngineMissing")
+            : t("about.speechEngineCloud")}
         </span>
       </Row>
       <Row label={t("about.license")}>

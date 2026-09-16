@@ -34,19 +34,21 @@ export function VoicePage() {
         options={LANGUAGES}
         onChange={(language) => update({ language })}
       />
-      <Select
-        id="active-model"
-        label={t("voice.model")}
-        value={voice.model_id ?? ""}
-        options={[
-          { value: "", label: t("common.notSelected") },
-          ...downloaded.map((model) => ({
-            value: model.id,
-            label: `${model.label} — ${model.technical_name}`,
-          })),
-        ]}
-        onChange={(model_id) => update({ model_id: model_id === "" ? null : model_id })}
-      />
+      {voice.engine === "local" && (
+        <Select
+          id="active-model"
+          label={t("voice.model")}
+          value={voice.model_id ?? ""}
+          options={[
+            { value: "", label: t("common.notSelected") },
+            ...downloaded.map((model) => ({
+              value: model.id,
+              label: `${model.label} — ${model.technical_name}`,
+            })),
+          ]}
+          onChange={(model_id) => update({ model_id: model_id === "" ? null : model_id })}
+        />
+      )}
       <Toggle
         id="auto-punctuation"
         label={t("voice.autoPunctuation")}
@@ -66,16 +68,18 @@ export function VoicePage() {
         checked={voice.capitalize_sentences}
         onChange={(capitalize_sentences) => update({ capitalize_sentences })}
       />
-      <Select
-        id="threads"
-        label={t("voice.threads")}
-        value={voice.threads === null ? "auto" : String(voice.threads)}
-        options={[
-          { value: "auto", label: t("voice.threadsAuto") },
-          ...[1, 2, 4, 6, 8].map((n) => ({ value: String(n), label: String(n) })),
-        ]}
-        onChange={(value) => update({ threads: value === "auto" ? null : Number(value) })}
-      />
+      {voice.engine === "local" && (
+        <Select
+          id="threads"
+          label={t("voice.threads")}
+          value={voice.threads === null ? "auto" : String(voice.threads)}
+          options={[
+            { value: "auto", label: t("voice.threadsAuto") },
+            ...[1, 2, 4, 6, 8].map((n) => ({ value: String(n), label: String(n) })),
+          ]}
+          onChange={(value) => update({ threads: value === "auto" ? null : Number(value) })}
+        />
+      )}
       </Card>
       <DictionaryEditor />
     </>

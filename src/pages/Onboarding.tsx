@@ -55,6 +55,7 @@ export function Onboarding({ onFinished }: { onFinished: () => void }) {
 
   const hasModel = models.some((model) => model.downloaded);
   const recommended = models.find((model) => model.recommended) ?? models[0];
+  const cloud = settings.voice.engine === "groq";
 
   const steps = [
     {
@@ -119,7 +120,44 @@ export function Onboarding({ onFinished }: { onFinished: () => void }) {
       ),
       canContinue: devices.length > 0,
     },
-    {
+    cloud
+      ? {
+          title: t("onboarding.keyTitle"),
+          text: t("onboarding.keyText"),
+          body: (
+            <>
+              <Banner kind="info">{t("recognition.cloudWarning")}</Banner>
+              <input
+                className="input"
+                type="password"
+                value={settings.cloud.api_key}
+                placeholder={t("recognition.apiKeyPlaceholder")}
+                autoComplete="off"
+                spellCheck={false}
+                onChange={(event) =>
+                  void save({
+                    ...settings,
+                    cloud: { ...settings.cloud, api_key: event.target.value },
+                  })
+                }
+              />
+              <p className="hint">{t("recognition.apiKeyHint")}</p>
+              <div className="actions">
+                <Button
+                  onClick={() => {
+                    api
+                      .openUrl("https://console.groq.com/keys")
+                      .catch((err) => setError(errorMessage(err)));
+                  }}
+                >
+                  {t("recognition.getKey")}
+                </Button>
+              </div>
+            </>
+          ),
+          canContinue: settings.cloud.api_key.trim().length > 0,
+        }
+      : {
       title: t("onboarding.modelTitle"),
       text: t("onboarding.modelText"),
       body: (

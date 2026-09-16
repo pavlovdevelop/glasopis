@@ -14,10 +14,12 @@ name = "glasopis_lib"
 crate-type = ["lib"]
 
 [features]
-# Local speech recognition through whisper.cpp. Enabled in every real build;
-# it can be turned off so the rest of the application can be type-checked on a
-# machine without a C/C++ toolchain (see docs/building.md).
-default = ["whisper"]
+# По подразбиране Glasopis разпознава речта през Groq и не носи whisper.cpp:
+# инсталаторът е малък и компилацията не изисква C/C++ инструменти.
+#
+# `whisper` добавя локално разпознаване на този компютър (whisper.cpp). За него
+# са нужни CMake и Visual Studio Build Tools — вижте docs/building.md.
+default = []
 whisper = ["dep:whisper-rs"]
 
 [build-dependencies]
@@ -39,6 +41,8 @@ cpal = "0.17"
 # tooling, and the system certificate store is used.
 reqwest = { version = "0.13", default-features = false, features = [
   "blocking",
+  "multipart",
+  "json",
   "native-tls",
   "charset",
   "http2",

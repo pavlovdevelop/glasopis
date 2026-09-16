@@ -15,23 +15,25 @@ text field — Chrome, Word, Outlook, VS Code, Discord, an ERP form — press a 
 speak Bulgarian, and the recognized text is typed into that field. There is no per-app
 integration: Glasopis inserts text the way Windows itself does.
 
-Speech recognition runs **locally** with [whisper.cpp](https://github.com/ggml-org/whisper.cpp).
-Your voice never leaves your computer.
+Speech recognition runs through [Groq](https://groq.com) (`whisper-large-v3-turbo`), which
+returns a sentence in well under a second. A local engine — [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
+running on your own CPU — is available as a build option.
 
-## 100% Free
+## What it costs, and what it requires
 
-Glasopis is designed to remain completely free for everyday use.
+Glasopis itself is free and open source, and there is no subscription, no upgrade screen and no
+telemetry. The default recognition engine, however, is a cloud service:
 
-- No subscription
-- No API key
-- No paid speech recognition
-- No cloud required
-- No usage limits
-- No account required
-- Local/offline speech recognition
+| | Groq (default) | Local build |
+| --- | --- | --- |
+| Speed | a sentence in well under a second | seconds, depending on your CPU |
+| Account | a free Groq account and an API key | none |
+| Internet | required for every dictation | only to download a model, once |
+| Your voice | uploaded to Groq for recognition | never leaves the computer |
+| Limits | Groq's free-tier rate limits apply | none |
 
-Once a speech model is downloaded, Glasopis performs its core voice-typing functionality
-locally on your computer. Internet is only needed to download the application and a model.
+If your audio must not leave your machine, build with the `whisper` feature and switch the engine
+to "Локално" in Settings → Разпознаване; see [docs/building.md](docs/building.md).
 
 ## Screenshots
 
@@ -45,6 +47,7 @@ locally on your computer. Internet is only needed to download the application an
 
 - **System-wide voice typing** — works in any Windows application that accepts keyboard input.
 - **Bulgarian first** — `bg-BG` is the default language; the interface is Bulgarian by default.
+- **Two engines** — Groq in the cloud for speed, whisper.cpp locally for privacy.
 - **Layout independent Cyrillic** — text is inserted as Unicode, so Cyrillic arrives correctly
   even when the active Windows keyboard layout is English.
 - **Two recording modes** — toggle (`Ctrl+Alt+Space`) and push-to-talk (`Ctrl+Alt+D`).
@@ -54,14 +57,14 @@ locally on your computer. Internet is only needed to download the application an
 - **Personal dictionary** — map what you say to how it should be written (`гит хъб` → `GitHub`).
 - **Model manager** — download, verify (SHA-256), select and delete speech models.
 - **Floating microphone overlay** with a live level meter that never steals keyboard focus.
-- **Private by design** — no telemetry, no accounts, history off by default, audio kept in memory.
+- **No telemetry**, history off by default, audio kept in memory and never written to disk.
 
 ## Installation
 
 1. Download `GlasopisSetup.exe` from the [Releases](https://github.com/pavlovdevelop/glasopis/releases) page.
 2. Run it. The installer does not require administrator rights (per-user install).
-3. On first launch the onboarding wizard helps you pick a microphone, download a speech model
-   and confirm the hotkey.
+3. On first launch the onboarding wizard helps you pick a microphone, paste a Groq API key
+   (free, from [console.groq.com/keys](https://console.groq.com/keys)) and confirm the hotkey.
 
 > Community builds are **not code-signed** (a certificate costs money, and Glasopis is free).
 > Windows SmartScreen may therefore show "Windows protected your PC" — choose
@@ -94,15 +97,16 @@ cannot be used as a push-to-talk key.
 
 ## Privacy
 
-- Speech is recognized locally by whisper.cpp. Nothing is uploaded.
-- Recordings live in memory only and are released right after recognition.
+- In the default (Groq) mode the recording is uploaded to Groq's servers for recognition and
+  handled under their terms. Glasopis writes no audio to disk and keeps it in memory only.
+- In a local build nothing is uploaded at all.
 - Dictation history is **off** by default and never stores audio.
-- No telemetry, no accounts, no ads. See [docs/privacy.md](docs/privacy.md).
+- No telemetry, no accounts with us, no ads. See [docs/privacy.md](docs/privacy.md).
 
 ## Offline usage
 
-Internet is used for exactly two things: downloading Glasopis and downloading a speech model.
-After that, dictation works with the network cable unplugged.
+The default mode needs internet for every dictation. A build with the `whisper` feature works
+completely offline once a model has been downloaded.
 
 ## Building from source
 

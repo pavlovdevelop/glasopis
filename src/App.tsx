@@ -11,12 +11,14 @@ import { MicrophonePage } from "./pages/MicrophonePage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { AboutPage } from "./pages/AboutPage";
+import { RecognitionPage } from "./pages/RecognitionPage";
 import { Onboarding } from "./pages/Onboarding";
 import { Overlay } from "./pages/Overlay";
 import { Banner, Button } from "./components/ui";
 
 type Route =
   | "settings"
+  | "recognition"
   | "voice"
   | "hotkeys"
   | "insertion"
@@ -30,6 +32,7 @@ type Route =
 
 const ROUTES: { id: Route; labelKey: string }[] = [
   { id: "settings", labelKey: "nav.general" },
+  { id: "recognition", labelKey: "nav.recognition" },
   { id: "voice", labelKey: "nav.voice" },
   { id: "microphone", labelKey: "nav.microphone" },
   { id: "models", labelKey: "nav.models" },
@@ -64,6 +67,8 @@ function useRoute(): [Route, (route: Route) => void] {
 
 function Page({ route }: { route: Route }) {
   switch (route) {
+    case "recognition":
+      return <RecognitionPage />;
     case "voice":
       return <VoicePage />;
     case "hotkeys":
@@ -123,6 +128,14 @@ function StatusBar() {
 function Shell() {
   const { settings, t, error, setError } = useAppState();
   const [route, setRoute] = useRoute();
+  const [localAvailable, setLocalAvailable] = useState(false);
+
+  useEffect(() => {
+    api
+      .getAppInfo()
+      .then((info) => setLocalAvailable(info.local_engine_available))
+      .catch(() => setLocalAvailable(false));
+  }, []);
 
   if (route === "overlay") return <Overlay />;
   if (!settings) return <div className="loading">{t("common.loading")}</div>;
@@ -144,7 +157,7 @@ function Shell() {
           </div>
         </div>
         <nav className="nav" aria-label={t("nav.general")}>
-          {ROUTES.map((item) => (
+          {ROUTES.filter((item) => item.id !== "models" || localAvailable).map((item) => (
             <button
               key={item.id}
               type="button"

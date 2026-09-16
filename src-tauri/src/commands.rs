@@ -26,6 +26,8 @@ pub struct AppInfo {
     pub autostart_enabled: bool,
     /// True while a speech model is loaded in memory.
     pub model_loaded: bool,
+    /// Дали тази компилация носи локално разпознаване (whisper.cpp).
+    pub local_engine_available: bool,
 }
 
 #[tauri::command]
@@ -132,6 +134,13 @@ pub fn cancel_dictation(app: AppHandle) {
     dictation::cancel(&app);
 }
 
+/// Проверява дали въведеният ключ за Groq работи.
+#[tauri::command]
+pub fn check_api_key(state: State<'_, AppState>) -> Result<()> {
+    let settings = state.settings();
+    crate::speech::groq::check_api_key(&settings.cloud.api_key, &settings.cloud.model)
+}
+
 /// Records only for the level meter — no model and no text insertion.
 #[tauri::command]
 pub fn start_microphone_test(app: AppHandle) -> Result<()> {
@@ -183,6 +192,7 @@ pub fn get_app_info(app: AppHandle) -> Result<AppInfo> {
         logs_dir: paths::logs_dir(&app)?.to_string_lossy().to_string(),
         autostart_enabled: autostart::is_enabled(&app),
         model_loaded: state.engine.is_loaded(),
+        local_engine_available: cfg!(feature = "whisper"),
     })
 }
 
@@ -198,6 +208,23 @@ pub fn open_folder(app: AppHandle, which: String) -> Result<()> {
     app.opener()
         .open_path(dir.to_string_lossy(), None::<&str>)
         .map_err(|e| GlasopisError::other(format!("Папката не беше отворена: {e}")))
+}
+
+/// Отваря адрес в браузъра. Позволени са само адресите, които самият
+/// интерфейс показва — командата не е общ „отвори каквото ти кажат“.
+#[tauri::command]
+pub fn open_url(app: AppHandle, url: String) -> Result<()> {
+    const ALLOWED: &[&str] = &[
+        "https://console.groq.com/keys",
+        "https://github.com/pavlovdevelop/glasopis",
+    ];
+    if !ALLOWED.contains(&url.as_str()) {
+        return Err(GlasopisError::other(format!("Непозволен адрес: {url}")));
+    }
+    use tauri_plugin_opener::OpenerExt;
+    app.opener()
+        .open_url(url, None::<&str>)
+        .map_err(|e| GlasopisError::other(format!("Адресът не беше отворен: {e}")))
 }
 
 #[tauri::command]

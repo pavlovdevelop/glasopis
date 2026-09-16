@@ -4,10 +4,14 @@
 
 ## Ground rules
 
-Glasopis must stay **free and local**. A change is not acceptable if it makes the core workflow
-— microphone → recognition → text in the active application — depend on a paid service, an API
-key, an account, a usage quota or a cloud endpoint. Optional plugins may exist later; the
-default build stays offline.
+Glasopis must stay **free of charge and honest about what it does**. Recognition may run in the
+cloud (the default engine is Groq) or locally (whisper.cpp), but:
+
+- the local path must keep working — a change that makes local-only use impossible is not
+  acceptable;
+- nothing in the product may require payment, and a provider that costs money to use for normal
+  dictation does not belong in the default build;
+- whenever audio leaves the machine, the interface and the documentation must say so plainly.
 
 Two more rules that follow from the product:
 

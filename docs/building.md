@@ -12,8 +12,8 @@ Glasopis is a Windows application. A full build — the one that produces
 | [Git](https://git-scm.com/) | |
 | [Node.js 20+](https://nodejs.org/) | ships npm |
 | [Rust](https://rustup.rs/) | the default `x86_64-pc-windows-msvc` toolchain |
-| [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/) | workload *Desktop development with C++* — required by Rust and by whisper.cpp |
-| [CMake](https://cmake.org/download/) | whisper.cpp is built with CMake; "Add to PATH" |
+| [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/) | workload *Desktop development with C++* — required by Rust, and by whisper.cpp in a local build |
+| [CMake](https://cmake.org/download/) | only for `--features whisper`; "Add to PATH" |
 | WebView2 Runtime | already present on Windows 11 and updated Windows 10; otherwise [download it](https://developer.microsoft.com/microsoft-edge/webview2/) |
 
 ### Build
@@ -25,7 +25,16 @@ npm install
 npm run tauri dev
 ```
 
-The first `tauri dev` compiles whisper.cpp, which takes a few minutes. Later builds are cached.
+The default build uses the Groq engine and compiles in a couple of minutes.
+
+For local recognition on your own CPU, build with the feature:
+
+```bash
+npm run tauri build -- --features whisper
+```
+
+That one compiles whisper.cpp, which takes several minutes the first time and needs CMake and
+the C++ build tools. The engine is then selectable in Settings → Разпознаване.
 
 Release build with installer:
 

@@ -10,6 +10,12 @@ pub enum GlasopisError {
     MicrophoneUnavailable,
     #[error("Не е избран модел за разпознаване на реч.")]
     NoModelSelected,
+    #[error("Не е въведен API ключ за Groq. Отворете Настройки → Разпознаване.")]
+    MissingApiKey,
+    #[error("API ключът за Groq не е валиден. Проверете го в Настройки → Разпознаване.")]
+    InvalidApiKey,
+    #[error("Достигнат е лимитът на Groq за момента. Опитайте отново след малко.")]
+    RateLimited,
     #[error("Файлът на модела липсва или е повреден. Изтеглете модела отново.")]
     ModelMissingOrCorrupted,
     #[error("Неуспешно разпознаване на речта.")]

@@ -10,6 +10,8 @@ export type RecordingMode = "toggle" | "push_to_talk";
 
 export type MicrophoneChoice = { kind: "default" } | { kind: "device"; name: string };
 
+export type SpeechEngineKind = "groq" | "local";
+
 export interface DictionaryEntry {
   spoken: string;
   written: string;
@@ -25,6 +27,7 @@ export interface Settings {
     ui_language: string;
   };
   voice: {
+    engine: SpeechEngineKind;
     microphone: MicrophoneChoice;
     language: string;
     model_id: string | null;
@@ -46,6 +49,10 @@ export interface Settings {
   privacy: {
     keep_history: boolean;
     history_limit: number;
+  };
+  cloud: {
+    api_key: string;
+    model: string;
   };
   dictionary: { entries: DictionaryEntry[] };
   recording_mode: RecordingMode;
@@ -98,6 +105,7 @@ export interface AppInfo {
   logs_dir: string;
   autostart_enabled: boolean;
   model_loaded: boolean;
+  local_engine_available: boolean;
 }
 
 export const api = {
@@ -118,10 +126,12 @@ export const api = {
   getStatus: () => invoke<Status>("get_status"),
   getHistory: () => invoke<{ entries: HistoryEntry[] }>("get_history"),
   clearHistory: () => invoke<void>("clear_history"),
+  checkApiKey: () => invoke<void>("check_api_key"),
   validateHotkey: (accelerator: string) => invoke<boolean>("validate_hotkey", { accelerator }),
   completeOnboarding: () => invoke<Settings>("complete_onboarding"),
   getAppInfo: () => invoke<AppInfo>("get_app_info"),
   openFolder: (which: "models" | "logs" | "config") => invoke<void>("open_folder", { which }),
+  openUrl: (url: string) => invoke<void>("open_url", { url }),
   hideOverlay: () => invoke<void>("hide_overlay"),
   hideMainWindow: () => invoke<void>("hide_main_window"),
   quitApp: () => invoke<void>("quit_app"),
