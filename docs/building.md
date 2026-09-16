@@ -78,10 +78,21 @@ in. It exists purely as a type-checking aid; every release build has the feature
 `.cargo/config.toml` sets `GGML_NATIVE=OFF`. Without it, whisper.cpp is compiled with the
 instruction set of the *build* machine, so a binary produced on a server with AVX-512 dies with
 an illegal instruction — silently, the process simply disappears — on a CPU that lacks it.
-`OFF` keeps ggml's portable defaults (AVX2/FMA/F16C), which every x86-64 CPU since ~2013 has.
+`OFF` alone is not enough: ggml still enables AVX/AVX2/FMA/F16C by default, and there are plenty
+of machines without them (Celeron/Pentium N series, Atom, older desktops). The file therefore
+turns those off as well, so the distributed installer runs on any x86-64 CPU. It is slower;
+a binary that works everywhere is worth more than one that is fast on half the machines.
 
-If you build only for your own machine and want the last few percent of speed, set
-`GGML_NATIVE=ON` in your environment. Never do that for a binary you distribute.
+For your own machine, delete those lines or set `GGML_NATIVE=ON` — recognition gets noticeably
+faster. Never do that for a binary you distribute.
+
+Two traps when changing these flags:
+
+* `whisper-rs-sys` does not declare `cargo:rerun-if-env-changed` for `GGML_*`, so a cached
+  `target/` silently keeps the previous flags. The release workflow deliberately runs without a
+  Rust cache for this reason; locally, delete `target/` after changing them.
+* The log line "процесорни инструкции: ..." (written when a model is loaded) shows what ggml was
+  actually compiled with. Check it there rather than trusting the build configuration.
 
 ## Useful commands
 
