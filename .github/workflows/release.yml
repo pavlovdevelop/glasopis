@@ -3,9 +3,9 @@ name: Release
 on:
   push:
     tags: ["v*"]
-    # Временно, докато няма таг: произвежда инсталатор и за работния клон,
-    # за да може да се тества преди v0.1.0. Публикуване се прави само от таг.
-    branches: ["claude/**"]
+    # Всеки push в main произвежда инсталатор за изтегляне от Actions.
+    # Публикуване на release се прави само от таг.
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -22,9 +22,7 @@ jobs:
           node-version: 20
           cache: npm
       - uses: dtolnay/rust-toolchain@stable
-      # Нарочно без кеш на Rust: whisper-rs-sys не обявява зависимост от
-      # променливите GGML_*, затова кеширан build пренебрегва промяна в тях и
-      # инсталаторът излиза със стари процесорни инструкции.
+      - uses: Swatinem/rust-cache@v2
 
       - run: npm ci
       - name: Build the application and the installer
