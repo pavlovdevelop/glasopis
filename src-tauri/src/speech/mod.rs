@@ -103,15 +103,15 @@ fn create_engine(_model_path: &Path, _threads: u32) -> Result<Box<dyn SpeechEngi
 
 /// Number of threads to use when the user has not chosen a value.
 ///
-/// Whisper stops scaling well past a handful of threads, while every extra
-/// thread is more heat and more fan noise on a laptop. Half the logical cores,
-/// capped at four, keeps a dictation quick without the machine taking off; a
-/// user who wants more can raise it in the settings.
+/// Whisper stops scaling well past a handful of threads, and on a hybrid CPU
+/// the efficiency cores only slow the others down. Half the logical cores is a
+/// good approximation of "the fast cores", capped at eight because the gain
+/// past that is noise. The user can override it in the settings.
 pub fn default_threads() -> u32 {
     let cores = std::thread::available_parallelism()
         .map(|n| n.get() as u32)
         .unwrap_or(4);
-    (cores / 2).clamp(1, 4)
+    (cores / 2).clamp(1, 8)
 }
 
 #[cfg(test)]
@@ -121,7 +121,7 @@ mod tests {
     #[test]
     fn default_threads_is_sane() {
         let threads = default_threads();
-        assert!((1..=4).contains(&threads), "нишки: {threads}");
+        assert!((1..=8).contains(&threads), "нишки: {threads}");
     }
 
     #[test]
