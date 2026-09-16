@@ -141,8 +141,11 @@ pub fn pad_to_min_duration(mut samples: Vec<f32>, sample_rate: u32, min_seconds:
 pub fn whisper_audio_context(seconds: f32) -> i32 {
     const FULL_CONTEXT: f32 = 1500.0;
     const FULL_SECONDS: f32 = 30.0;
-    const MARGIN: f32 = 1.25;
-    const MINIMUM: f32 = 256.0;
+    // Двойна граница и висок минимум: твърде малък контекст кара модела да
+    // разпознае само началото на изречението и да отреже останалото. Загубата
+    // на малко скорост е за предпочитане пред загуба на думи.
+    const MARGIN: f32 = 2.0;
+    const MINIMUM: f32 = 768.0;
 
     if !seconds.is_finite() || seconds <= 0.0 {
         return FULL_CONTEXT as i32;
@@ -243,20 +246,32 @@ mod tests {
     }
 
     #[test]
-    fn audio_context_shrinks_for_short_recordings() {
-        // Три секунди реч не се нуждаят от контекста за трийсет.
-        assert!(whisper_audio_context(3.0) < 500);
-        // Но никога под разумния минимум.
-        assert_eq!(whisper_audio_context(0.5), 256);
-        // Дълъг запис ползва пълния контекст.
+    fn short_recordings_keep_a_safe_context() {
+        // Кратък запис не пада под минимума, иначе моделът реже думи.
+        assert_eq!(whisper_audio_context(0.5), 768);
+        assert_eq!(whisper_audio_context(3.0), 768);
+        assert_eq!(whisper_audio_context(7.0), 768);
+    }
+
+    #[test]
+    fn long_recordings_use_the_full_context() {
+        assert_eq!(whisper_audio_context(15.0), 1500);
         assert_eq!(whisper_audio_context(30.0), 1500);
         assert_eq!(whisper_audio_context(120.0), 1500);
     }
 
     #[test]
-    fn audio_context_grows_with_the_recording() {
-        assert!(whisper_audio_context(10.0) > whisper_audio_context(5.0));
-        assert!(whisper_audio_context(20.0) > whisper_audio_context(10.0));
+    fn context_never_shrinks_below_what_the_audio_needs() {
+        // Над 30 s whisper и без това работи на 30-секундни прозорци, затова
+        // 1500 е таванът по дефиниция.
+        for seconds in [1.0_f32, 3.0, 5.0, 8.0, 12.0, 20.0, 30.0] {
+            let context = whisper_audio_context(seconds);
+            let needed = (seconds / 30.0) * 1500.0;
+            assert!(
+                context as f32 >= needed,
+                "{seconds} s се нуждае от {needed}, а получава {context}"
+            );
+        }
     }
 
     #[test]
