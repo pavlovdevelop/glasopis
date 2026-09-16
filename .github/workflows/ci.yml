@@ -45,7 +45,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y llvm
           command -v llvm-rc || sudo ln -s "$(ls /usr/bin/llvm-rc-* | head -1)" /usr/local/bin/llvm-rc
-          llvm-rc --version
       # tauri-build needs the frontend bundle to exist before it can run.
       - run: npm ci
       - run: npm run build
