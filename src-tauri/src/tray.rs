@@ -96,10 +96,9 @@ fn toggle_autostart(app: &AppHandle) {
             state.replace_settings(settings.clone());
             let _ = crate::settings_store::save(app, &settings);
             // Rebuild the menu so the label matches the new state.
-            if let Some(tray) = app.tray_by_id(TRAY_ID) {
-                let _ = tray.set_visible(true);
+            if let Err(err) = refresh(app) {
+                log::error!("менюто в трея не беше обновено: {err}");
             }
-            let _ = refresh(app);
         }
         Err(err) => log::error!("{err}"),
     }

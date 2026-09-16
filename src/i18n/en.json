@@ -170,5 +170,15 @@
     "processing": "Processing...",
     "done": "Done",
     "error": "Error"
+  },
+  "dictionary": {
+    "title": "Personal dictionary",
+    "hint": "Define how words the model gets wrong should be written. For example „гит хъб“ → GitHub.",
+    "spoken": "I say",
+    "written": "Write it as",
+    "add": "Add",
+    "empty": "No words added yet.",
+    "spokenPlaceholder": "гит хъб",
+    "writtenPlaceholder": "GitHub"
   }
 }
