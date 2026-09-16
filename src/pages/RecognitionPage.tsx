@@ -24,6 +24,7 @@ export function RecognitionPage() {
   const [valid, setValid] = useState(false);
   const [key, setKey] = useState("");
   const [models, setModels] = useState<CloudModelInfo[]>([]);
+  const [terms, setTerms] = useState("");
 
   useEffect(() => {
     api
@@ -33,7 +34,10 @@ export function RecognitionPage() {
   }, []);
 
   useEffect(() => {
-    if (settings) setKey(settings.cloud.api_key);
+    if (settings) {
+      setKey(settings.cloud.api_key);
+      setTerms(settings.cloud.terms);
+    }
   }, [settings]);
 
   useEffect(() => {
@@ -122,6 +126,23 @@ export function RecognitionPage() {
                 {visible ? t("recognition.hide") : t("recognition.show")}
               </Button>
             </div>
+          </Row>
+          <Row
+            label={t("recognition.terms")}
+            hint={t("recognition.termsHint")}
+            htmlFor="cloud-terms"
+          >
+            <textarea
+              id="cloud-terms"
+              className="input input--textarea"
+              rows={2}
+              value={terms}
+              placeholder={t("recognition.termsPlaceholder")}
+              onChange={(event) => setTerms(event.target.value)}
+              onBlur={() =>
+                void save({ ...settings, cloud: { ...settings.cloud, terms } })
+              }
+            />
           </Row>
           <div className="actions">
             <Button variant="primary" disabled={checking || !key.trim()} onClick={() => void check()}>

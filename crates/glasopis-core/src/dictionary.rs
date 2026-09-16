@@ -72,6 +72,52 @@ impl Dictionary {
     }
 }
 
+/// Whisper приема кратък текст като контекст и се старае да следва
+/// изписването в него. Ограничението е около 224 токена, затова подсказката
+/// се реже.
+const MAX_PROMPT_CHARS: usize = 600;
+
+/// Сглобява подсказката за разпознаването: думите, които потребителят иска
+/// изписани по определен начин, плюс допълнителни термини.
+///
+/// Точно това кара модела да напише `dev сървъра`, а не `дев сървъра`.
+pub fn build_prompt(dictionary: &Dictionary, extra_terms: &str) -> String {
+    let mut terms: Vec<String> = Vec::new();
+    let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+
+    let mut push =
+        |term: &str, terms: &mut Vec<String>, seen: &mut std::collections::HashSet<String>| {
+            let term = term.trim();
+            if term.is_empty() {
+                return;
+            }
+            if seen.insert(term.to_lowercase()) {
+                terms.push(term.to_string());
+            }
+        };
+
+    for entry in &dictionary.entries {
+        push(&entry.written, &mut terms, &mut seen);
+    }
+    for term in extra_terms.split([',', '\n', ';']) {
+        push(term, &mut terms, &mut seen);
+    }
+
+    let mut prompt = String::new();
+    for term in terms {
+        let addition = if prompt.is_empty() {
+            term
+        } else {
+            format!(", {term}")
+        };
+        if prompt.len() + addition.len() > MAX_PROMPT_CHARS {
+            break;
+        }
+        prompt.push_str(&addition);
+    }
+    prompt
+}
+
 const PUNCT: &[char] = &[
     '.', ',', '!', '?', ';', ':', '…', '"', '„', '“', '\'', '(', ')',
 ];
@@ -125,6 +171,41 @@ mod tests {
     #[test]
     fn keeps_trailing_punctuation() {
         assert_eq!(dict().apply("отвори гласопис."), "отвори Glasopis.");
+    }
+
+    #[test]
+    fn prompt_lists_the_preferred_spellings() {
+        let prompt = build_prompt(&dict(), "");
+        assert!(prompt.contains("GitHub"));
+        assert!(prompt.contains("SoftProNeo"));
+        assert!(prompt.contains("Glasopis"));
+    }
+
+    #[test]
+    fn prompt_takes_extra_terms_and_deduplicates() {
+        let prompt = build_prompt(&dict(), "dev, npm, github, React");
+        assert!(prompt.contains("dev"));
+        assert!(prompt.contains("npm"));
+        assert!(prompt.contains("React"));
+        assert_eq!(
+            prompt.to_lowercase().matches("github").count(),
+            1,
+            "повтореният термин влиза веднъж: {prompt}"
+        );
+    }
+
+    #[test]
+    fn prompt_is_empty_without_input() {
+        assert_eq!(build_prompt(&Dictionary::default(), "   "), "");
+    }
+
+    #[test]
+    fn prompt_is_capped() {
+        let long = (0..200)
+            .map(|i| format!("термин{i}"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        assert!(build_prompt(&Dictionary::default(), &long).len() <= 600);
     }
 
     #[test]
