@@ -53,9 +53,10 @@ impl Dictionary {
                 if phrase.is_empty() || i + phrase.len() > tokens.len() {
                     continue;
                 }
-                let matches = phrase.iter().enumerate().all(|(k, word)| {
-                    normalize_token(tokens[i + k]) == *word
-                });
+                let matches = phrase
+                    .iter()
+                    .enumerate()
+                    .all(|(k, word)| normalize_token(tokens[i + k]) == *word);
                 if matches {
                     // Keep trailing punctuation of the last matched token.
                     let tail = trailing_punctuation(tokens[i + phrase.len() - 1]);
@@ -71,7 +72,9 @@ impl Dictionary {
     }
 }
 
-const PUNCT: &[char] = &['.', ',', '!', '?', ';', ':', '…', '"', '„', '“', '\'', '(', ')'];
+const PUNCT: &[char] = &[
+    '.', ',', '!', '?', ';', ':', '…', '"', '„', '“', '\'', '(', ')',
+];
 
 fn normalize_token(token: &str) -> String {
     token.trim_matches(PUNCT).to_lowercase()
@@ -94,9 +97,18 @@ mod tests {
 
     fn dict() -> Dictionary {
         Dictionary::new(vec![
-            DictionaryEntry { spoken: "гит хъб".into(), written: "GitHub".into() },
-            DictionaryEntry { spoken: "софт про нео".into(), written: "SoftProNeo".into() },
-            DictionaryEntry { spoken: "гласопис".into(), written: "Glasopis".into() },
+            DictionaryEntry {
+                spoken: "гит хъб".into(),
+                written: "GitHub".into(),
+            },
+            DictionaryEntry {
+                spoken: "софт про нео".into(),
+                written: "SoftProNeo".into(),
+            },
+            DictionaryEntry {
+                spoken: "гласопис".into(),
+                written: "Glasopis".into(),
+            },
         ])
     }
 
@@ -117,7 +129,10 @@ mod tests {
 
     #[test]
     fn empty_dictionary_is_identity() {
-        assert_eq!(Dictionary::default().apply("нищо не се сменя"), "нищо не се сменя");
+        assert_eq!(
+            Dictionary::default().apply("нищо не се сменя"),
+            "нищо не се сменя"
+        );
     }
 
     #[test]

@@ -164,7 +164,9 @@ mod tests {
 
     #[test]
     fn prepare_produces_16k_mono() {
-        let stereo: Vec<f32> = (0..96_000).map(|i| if i % 2 == 0 { 0.5 } else { -0.5 }).collect();
+        let stereo: Vec<f32> = (0..96_000)
+            .map(|i| if i % 2 == 0 { 0.5 } else { -0.5 })
+            .collect();
         let out = prepare_for_whisper(&stereo, 2, 48_000);
         assert_eq!(out.len(), 16_000);
     }

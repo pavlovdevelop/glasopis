@@ -92,12 +92,18 @@ mod tests {
 
     #[test]
     fn spacing_is_tidied() {
-        assert_eq!(tidy_spacing("  Здравей   ,  как си ?  "), "Здравей, как си?");
+        assert_eq!(
+            tidy_spacing("  Здравей   ,  как си ?  "),
+            "Здравей, как си?"
+        );
     }
 
     #[test]
     fn newlines_survive() {
-        assert_eq!(tidy_spacing("първи ред\n  втори ред"), "първи ред\nвтори ред");
+        assert_eq!(
+            tidy_spacing("първи ред\n  втори ред"),
+            "първи ред\nвтори ред"
+        );
     }
 
     #[test]

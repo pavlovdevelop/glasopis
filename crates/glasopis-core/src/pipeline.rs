@@ -86,7 +86,10 @@ mod tests {
     #[test]
     fn empty_input_produces_empty_output() {
         assert_eq!(process_transcript("   ", &PipelineOptions::default()), "");
-        assert_eq!(process_transcript("[музика]", &PipelineOptions::default()), "");
+        assert_eq!(
+            process_transcript("[музика]", &PipelineOptions::default()),
+            ""
+        );
     }
 
     #[test]

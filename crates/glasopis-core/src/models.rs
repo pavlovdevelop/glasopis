@@ -134,7 +134,11 @@ mod tests {
     fn every_model_has_a_checksum_and_trusted_url() {
         for m in CATALOG {
             assert_eq!(m.sha256.len(), 64, "{} has a malformed checksum", m.id);
-            assert!(is_trusted_url(m.url), "{} is not hosted on the trusted host", m.id);
+            assert!(
+                is_trusted_url(m.url),
+                "{} is not hosted on the trusted host",
+                m.id
+            );
             assert!(m.size_bytes > 0);
         }
     }
