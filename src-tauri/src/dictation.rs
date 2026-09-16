@@ -222,12 +222,19 @@ fn transcribe_and_insert(
     );
 
     let raw = match settings.voice.engine {
-        SpeechEngineKind::Groq => crate::speech::groq::transcribe(
-            &samples,
-            &settings.voice.language,
-            &settings.cloud.api_key,
-            &settings.cloud.model,
-        )?,
+        SpeechEngineKind::Groq => {
+            let prompt = glasopis_core::dictionary::build_prompt(
+                &settings.dictionary,
+                &settings.cloud.terms,
+            );
+            crate::speech::groq::transcribe(
+                &samples,
+                &settings.voice.language,
+                &settings.cloud.api_key,
+                &settings.cloud.model,
+                &prompt,
+            )?
+        }
         SpeechEngineKind::Local => {
             let model_path =
                 models_manager::active_model_path(app, settings.voice.model_id.as_deref())?;

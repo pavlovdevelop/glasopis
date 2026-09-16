@@ -53,6 +53,7 @@ export interface Settings {
   cloud: {
     api_key: string;
     model: string;
+    terms: string;
   };
   dictionary: { entries: DictionaryEntry[] };
   recording_mode: RecordingMode;

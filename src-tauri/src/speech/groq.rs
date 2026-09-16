@@ -11,7 +11,13 @@ const ENDPOINT: &str = "https://api.groq.com/openai/v1/audio/transcriptions";
 /// Достатъчно за дълга диктовка при бавна връзка, но не безкрайно.
 const TIMEOUT_SECONDS: u64 = 120;
 
-pub fn transcribe(samples: &[f32], language: &str, api_key: &str, model: &str) -> Result<String> {
+pub fn transcribe(
+    samples: &[f32],
+    language: &str,
+    api_key: &str,
+    model: &str,
+    prompt: &str,
+) -> Result<String> {
     let api_key = api_key.trim();
     if api_key.is_empty() {
         return Err(GlasopisError::MissingApiKey);
@@ -35,12 +41,18 @@ pub fn transcribe(samples: &[f32], language: &str, api_key: &str, model: &str) -
         .mime_str("audio/wav")
         .map_err(|err| GlasopisError::other(format!("Неуспешно подготвяне на записа: {err}")))?;
 
-    let form = reqwest::blocking::multipart::Form::new()
+    let mut form = reqwest::blocking::multipart::Form::new()
         .part("file", file)
         .text("model", model.to_string())
         .text("language", language.to_string())
         .text("response_format", "json")
         .text("temperature", "0");
+
+    // Контекстът кара модела да изпише „dev сървъра“ вместо „дев сървъра“.
+    if !prompt.trim().is_empty() {
+        log::debug!("контекст за модела: {prompt}");
+        form = form.text("prompt", prompt.to_string());
+    }
 
     let started = std::time::Instant::now();
     let response = client
@@ -117,5 +129,5 @@ fn api_error(status: reqwest::StatusCode, body: &str) -> GlasopisError {
 pub fn check_api_key(api_key: &str, model: &str) -> Result<()> {
     // Половин секунда тишина е достатъчна за валидна заявка.
     let silence = vec![0.0f32; glasopis_core::audio::WHISPER_SAMPLE_RATE as usize / 2];
-    transcribe(&silence, "bg", api_key, model).map(|_| ())
+    transcribe(&silence, "bg", api_key, model, "").map(|_| ())
 }

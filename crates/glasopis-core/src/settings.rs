@@ -53,6 +53,9 @@ pub struct CloudSettings {
     pub api_key: String,
     /// Идентификатор на модела при доставчика.
     pub model: String,
+    /// Термини и имена, които моделът да изписва правилно: `dev, npm, React`.
+    /// Изпращат се като контекст при всяка заявка.
+    pub terms: String,
 }
 
 impl Default for CloudSettings {
@@ -60,6 +63,7 @@ impl Default for CloudSettings {
         Self {
             api_key: String::new(),
             model: DEFAULT_CLOUD_MODEL.to_string(),
+            terms: String::new(),
         }
     }
 }
