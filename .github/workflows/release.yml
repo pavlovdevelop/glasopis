@@ -3,7 +3,9 @@ name: Release
 on:
   push:
     tags: ["v*"]
-  workflow_dispatch:
+    # Временно, докато няма таг: произвежда инсталатор и за работния клон,
+    # за да може да се тества преди v0.1.0. Публикуване се прави само от таг.
+      workflow_dispatch:
 
 permissions:
   contents: write
