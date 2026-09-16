@@ -66,7 +66,10 @@ mod tests {
     use super::*;
 
     fn entry(ts: u64, text: &str) -> HistoryEntry {
-        HistoryEntry { timestamp: ts, text: text.to_string() }
+        HistoryEntry {
+            timestamp: ts,
+            text: text.to_string(),
+        }
     }
 
     #[test]

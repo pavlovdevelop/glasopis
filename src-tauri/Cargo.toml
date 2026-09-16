@@ -35,10 +35,11 @@ thiserror.workspace = true
 parking_lot = "0.12"
 sha2 = "0.10"
 cpal = "0.17"
+# TLS through Windows Schannel (native-tls): no OpenSSL, no extra build
+# tooling, and the system certificate store is used.
 reqwest = { version = "0.13", default-features = false, features = [
   "blocking",
-  "rustls",
-  "webpki-roots",
+  "native-tls",
   "charset",
   "http2",
 ] }
@@ -60,6 +61,8 @@ windows = { version = "0.62", features = [
   "Win32_System_Memory",
   "Win32_System_Threading",
   "Win32_System_Com",
+  "Win32_System_Ole",
+  "Win32_System_Diagnostics_Debug",
   "Win32_UI_Input_KeyboardAndMouse",
   "Win32_UI_WindowsAndMessaging",
   "Win32_Media_Audio",

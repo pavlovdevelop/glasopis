@@ -12,10 +12,11 @@ use crate::dictionary::Dictionary;
 /// Bumped whenever a migration is needed.
 pub const CURRENT_VERSION: u32 = 1;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum InjectionMode {
     /// Clipboard first, keyboard simulation as a fallback. The default.
+    #[default]
     Automatic,
     /// Always paste through the clipboard.
     Clipboard,
@@ -23,39 +24,23 @@ pub enum InjectionMode {
     Keyboard,
 }
 
-impl Default for InjectionMode {
-    fn default() -> Self {
-        Self::Automatic
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RecordingMode {
     /// Press once to start, press again to stop.
+    #[default]
     Toggle,
     /// Record while the push-to-talk key is held down.
     PushToTalk,
 }
 
-impl Default for RecordingMode {
-    fn default() -> Self {
-        Self::Toggle
-    }
-}
-
 /// Microphone selection. `Default` follows the Windows default device.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "kind", content = "name", rename_all = "snake_case")]
 pub enum MicrophoneChoice {
+    #[default]
     Default,
     Device(String),
-}
-
-impl Default for MicrophoneChoice {
-    fn default() -> Self {
-        Self::Default
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -115,7 +100,9 @@ impl Default for VoiceSettings {
 pub struct HotkeySettings {
     /// Accelerator for start/stop recording, e.g. `Ctrl+Alt+Space`.
     pub toggle: String,
-    /// Push-to-talk key, e.g. `RControl`. Empty string disables it.
+    /// Push-to-talk accelerator, e.g. `Ctrl+Alt+D`. Held down while speaking.
+    /// A bare modifier such as Right Ctrl is not supported by the Windows
+    /// hotkey API, so a combination is used (see docs/architecture.md).
     pub push_to_talk: String,
     pub push_to_talk_enabled: bool,
 }
@@ -131,7 +118,7 @@ impl Default for HotkeySettings {
 }
 
 pub const DEFAULT_TOGGLE_HOTKEY: &str = "Ctrl+Alt+Space";
-pub const DEFAULT_PUSH_TO_TALK: &str = "RControl";
+pub const DEFAULT_PUSH_TO_TALK: &str = "Ctrl+Alt+D";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
@@ -292,7 +279,10 @@ mod tests {
         let s = Settings::default();
         assert_eq!(s.general.ui_language, "bg");
         assert_eq!(s.voice.language, "bg");
-        assert!(!s.privacy.keep_history, "историята трябва да е изключена по подразбиране");
+        assert!(
+            !s.privacy.keep_history,
+            "историята трябва да е изключена по подразбиране"
+        );
         assert_eq!(s.injection.mode, InjectionMode::Automatic);
         assert_eq!(s.hotkeys.toggle, "Ctrl+Alt+Space");
         assert!(s.voice.auto_punctuation);
