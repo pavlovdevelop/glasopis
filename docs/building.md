@@ -99,8 +99,8 @@ For a CPU older than ~2013, or a Celeron/Pentium N or Atom, also set `GGML_AVX`,
 Two traps when changing these flags:
 
 * `whisper-rs-sys` does not declare `cargo:rerun-if-env-changed` for `GGML_*`, so a cached
-  `target/` silently keeps the previous flags. The release workflow deliberately runs without a
-  Rust cache for this reason; locally, delete `target/` after changing them.
+  `target/` silently keeps the previous flags — a build can look fixed while shipping the old
+  instruction set. Delete `target/` (and any CI cache) after changing them.
 * The log line "процесорни инструкции: ..." (written when a model is loaded) shows what ggml was
   actually compiled with. Check it there rather than trusting the build configuration.
 
