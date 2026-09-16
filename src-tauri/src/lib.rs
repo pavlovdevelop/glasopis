@@ -70,6 +70,7 @@ pub fn run() {
             commands::toggle_dictation,
             commands::cancel_dictation,
             commands::check_api_key,
+            commands::list_cloud_models,
             commands::start_microphone_test,
             commands::stop_microphone_test,
             commands::get_status,

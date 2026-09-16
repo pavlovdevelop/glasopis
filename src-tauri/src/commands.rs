@@ -134,6 +134,12 @@ pub fn cancel_dictation(app: AppHandle) {
     dictation::cancel(&app);
 }
 
+/// Моделите, между които потребителят може да избира в облачния режим.
+#[tauri::command]
+pub fn list_cloud_models() -> Vec<glasopis_core::cloud_models::CloudModelInfo> {
+    glasopis_core::cloud_models::CLOUD_CATALOG.to_vec()
+}
+
 /// Проверява дали въведеният ключ за Groq работи.
 #[tauri::command]
 pub fn check_api_key(state: State<'_, AppState>) -> Result<()> {
