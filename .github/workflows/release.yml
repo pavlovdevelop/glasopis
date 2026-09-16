@@ -22,7 +22,9 @@ jobs:
           node-version: 20
           cache: npm
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      # Нарочно без кеш на Rust: whisper-rs-sys не обявява зависимост от
+      # променливите GGML_*, затова кеширан build пренебрегва промяна в тях и
+      # инсталаторът излиза със стари процесорни инструкции.
 
       - run: npm ci
       - name: Build the application and the installer
