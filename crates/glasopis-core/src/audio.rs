@@ -119,6 +119,16 @@ pub fn is_silence(samples: &[f32]) -> bool {
     rms(samples) < 0.002
 }
 
+/// whisper.cpp refuses audio shorter than one second, so a very short
+/// dictation ("да") is padded with silence instead of failing.
+pub fn pad_to_min_duration(mut samples: Vec<f32>, sample_rate: u32, min_seconds: f32) -> Vec<f32> {
+    let needed = (sample_rate as f32 * min_seconds).ceil() as usize;
+    if samples.len() < needed {
+        samples.resize(needed, 0.0);
+    }
+    samples
+}
+
 /// Converts whatever the capture device produced into the mono 16 kHz float
 /// buffer whisper.cpp expects.
 pub fn prepare_for_whisper(samples: &[f32], channels: u16, sample_rate: u32) -> Vec<f32> {
@@ -190,6 +200,24 @@ mod tests {
     fn integer_conversion() {
         assert!((i16_to_f32(&[i16::MAX])[0] - 1.0).abs() < 1e-6);
         assert!((u16_to_f32(&[32_768])[0]).abs() < 1e-6);
+    }
+
+    #[test]
+    fn short_recordings_are_padded() {
+        let short = vec![0.5; 4_000]; // 0.25 s
+        let padded = pad_to_min_duration(short.clone(), WHISPER_SAMPLE_RATE, 1.2);
+        assert_eq!(padded.len(), 19_200);
+        assert_eq!(&padded[..4_000], &short[..]);
+        assert!(padded[18_000].abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn long_enough_recordings_are_untouched() {
+        let long = vec![0.1; 32_000];
+        assert_eq!(
+            pad_to_min_duration(long, WHISPER_SAMPLE_RATE, 1.2).len(),
+            32_000
+        );
     }
 
     #[test]

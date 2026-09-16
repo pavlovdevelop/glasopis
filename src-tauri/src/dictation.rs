@@ -24,6 +24,8 @@ use crate::{history_store, models_manager, sounds, ui};
 /// How long the "Готово" / error overlay stays on screen.
 const OVERLAY_LINGER_MS: u64 = 1_200;
 const OVERLAY_ERROR_LINGER_MS: u64 = 3_000;
+/// Shortest buffer whisper.cpp accepts, with a little margin.
+const MIN_TRANSCRIPTION_SECONDS: f32 = 1.2;
 
 /// Starts or stops the dictation, depending on the current state.
 pub fn toggle(app: &AppHandle) {
@@ -160,6 +162,14 @@ fn transcribe_and_insert(
 
     let model_path = models_manager::active_model_path(app, settings.voice.model_id.as_deref())?;
     let threads = settings.voice.threads.unwrap_or_else(default_threads);
+
+    // whisper.cpp needs at least a second of audio; a one-word dictation is
+    // padded with silence rather than rejected.
+    let samples = glasopis_core::audio::pad_to_min_duration(
+        samples,
+        glasopis_core::audio::WHISPER_SAMPLE_RATE,
+        MIN_TRANSCRIPTION_SECONDS,
+    );
 
     let state = app.state::<AppState>();
     let raw = state
