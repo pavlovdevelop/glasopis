@@ -36,9 +36,12 @@ npm run tauri build
 Output:
 
 ```text
-src-tauri/target/release/Glasopis.exe
-src-tauri/target/release/bundle/nsis/Glasopis_0.1.0_x64-setup.exe
+target/release/Glasopis.exe
+target/release/bundle/nsis/Glasopis_0.1.0_x64-setup.exe
 ```
+
+The paths are in `target/` at the root of the repository, not in `src-tauri/target/`, because
+Glasopis is a Cargo workspace and a workspace shares one build directory.
 
 The release workflow renames the installer to `GlasopisSetup.exe` before publishing it.
 

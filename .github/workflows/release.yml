@@ -31,7 +31,8 @@ jobs:
       - name: Rename the installer
         shell: pwsh
         run: |
-          $installer = Get-ChildItem -Path src-tauri/target/release/bundle/nsis -Filter *-setup.exe |
+          # Проектът е Cargo workspace, затова bundle излиза в target/ в корена.
+          $installer = Get-ChildItem -Path target -Recurse -Filter *-setup.exe |
             Select-Object -First 1
           if (-not $installer) { throw "NSIS installer not found" }
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
