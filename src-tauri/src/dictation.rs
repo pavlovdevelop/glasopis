@@ -59,12 +59,7 @@ pub fn start(app: &AppHandle) {
 
     remember_focused_window(app);
 
-    let device = match &settings.voice.microphone {
-        glasopis_core::settings::MicrophoneChoice::Default => None,
-        glasopis_core::settings::MicrophoneChoice::Device(name) => Some(name.clone()),
-    };
-
-    if let Err(err) = state.recorder.start(device) {
+    if let Err(err) = state.recorder.start(selected_device(&settings)) {
         report_error(app, err);
         return;
     }
@@ -77,6 +72,42 @@ pub fn start(app: &AppHandle) {
         ui::show_overlay(app);
     }
     spawn_level_reporter(app);
+}
+
+/// The microphone the user selected, or `None` for the Windows default.
+fn selected_device(settings: &Settings) -> Option<String> {
+    match &settings.voice.microphone {
+        glasopis_core::settings::MicrophoneChoice::Default => None,
+        glasopis_core::settings::MicrophoneChoice::Device(name) => Some(name.clone()),
+    }
+}
+
+/// Records **only** to drive the level meter in the settings window.
+///
+/// No model is needed, nothing is transcribed and nothing is inserted anywhere:
+/// this exists so the user can check that the microphone works before (or
+/// without) downloading a speech model.
+pub fn start_microphone_test(app: &AppHandle) -> Result<()> {
+    let state = app.state::<AppState>();
+    if state.is_busy() {
+        return Err(GlasopisError::other(
+            "Изчакайте текущата диктовка да приключи.".to_string(),
+        ));
+    }
+    if state.recorder.is_recording() {
+        return Ok(());
+    }
+    let settings = state.settings();
+    state.recorder.start(selected_device(&settings))?;
+    spawn_level_reporter(app);
+    log::info!("стартиран е тест на микрофона");
+    Ok(())
+}
+
+/// Stops the microphone test and throws the audio away.
+pub fn stop_microphone_test(app: &AppHandle) {
+    let state = app.state::<AppState>();
+    state.recorder.cancel();
 }
 
 /// Stops recording and runs the transcription.

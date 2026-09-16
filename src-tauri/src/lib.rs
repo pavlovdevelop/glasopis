@@ -69,6 +69,8 @@ pub fn run() {
             commands::stop_dictation,
             commands::toggle_dictation,
             commands::cancel_dictation,
+            commands::start_microphone_test,
+            commands::stop_microphone_test,
             commands::get_status,
             commands::get_history,
             commands::clear_history,

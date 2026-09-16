@@ -128,7 +128,14 @@ export function ModelsPage() {
                 </div>
                 <div className="model__actions">
                   {running ? (
-                    <Button variant="ghost" onClick={() => api.cancelModelDownload(model.id)}>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        api
+                          .cancelModelDownload(model.id)
+                          .catch((err) => setError(errorMessage(err)));
+                      }}
+                    >
                       {t("common.cancel")}
                     </Button>
                   ) : model.downloaded ? (
@@ -166,7 +173,12 @@ export function ModelsPage() {
       </ul>
       <p className="hint">
         {t("models.storedIn")}: <code>{modelsDir}</code>{" "}
-        <Button variant="ghost" onClick={() => api.openFolder("models")}>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            api.openFolder("models").catch((err) => setError(errorMessage(err)));
+          }}
+        >
           {t("common.openFolder")}
         </Button>
       </p>
