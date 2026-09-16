@@ -158,7 +158,10 @@ pub fn download(app: &AppHandle, id: &str) -> Result<()> {
         .spawn(move || {
             let info = models::find(&id).expect("моделът е проверен по-горе");
             let event = match run_download(&app, info, &target, &cancel_flag) {
-                Ok(true) => ModelEvent::Ready { id: id.clone() },
+                Ok(true) => {
+                    activate_if_none(&app, &id);
+                    ModelEvent::Ready { id: id.clone() }
+                }
                 Ok(false) => ModelEvent::Cancelled { id: id.clone() },
                 Err(err) => {
                     log::error!("изтеглянето на модел {id} не успя: {err}");
@@ -174,6 +177,24 @@ pub fn download(app: &AppHandle, id: &str) -> Result<()> {
         })
         .map_err(|e| GlasopisError::other(format!("Изтеглянето не може да започне: {e}")))?;
     Ok(())
+}
+
+/// A freshly downloaded model becomes the active one when nothing is selected
+/// yet — otherwise the user downloads a model, tries to dictate and is told
+/// that no model is selected.
+fn activate_if_none(app: &AppHandle, id: &str) {
+    let state = app.state::<AppState>();
+    let mut settings = state.settings();
+    if settings.voice.model_id.is_some() {
+        return;
+    }
+    settings.voice.model_id = Some(id.to_string());
+    state.replace_settings(settings.clone());
+    if let Err(err) = crate::settings_store::save(app, &settings) {
+        log::warn!("новият модел не беше записан като активен: {err}");
+    } else {
+        log::info!("моделът {id} е избран автоматично");
+    }
 }
 
 /// Returns `Ok(true)` when the model was downloaded and verified,
