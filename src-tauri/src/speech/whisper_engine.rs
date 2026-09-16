@@ -32,6 +32,11 @@ impl WhisperEngine {
 
 impl SpeechEngine for WhisperEngine {
     fn transcribe(&mut self, samples: &[f32], language: &str) -> Result<String> {
+        let started = std::time::Instant::now();
+        log::info!(
+            "започвам разпознаване: {:.1} s аудио",
+            samples.len() as f32 / 16_000.0
+        );
         let mut state = self.context.create_state().map_err(|err| {
             log::error!("неуспешно създаване на whisper състояние: {err}");
             GlasopisError::TranscriptionFailed
@@ -56,6 +61,11 @@ impl SpeechEngine for WhisperEngine {
             log::error!("неуспешно разпознаване: {err}");
             GlasopisError::TranscriptionFailed
         })?;
+
+        log::info!(
+            "разпознаването отне {:.1} s",
+            started.elapsed().as_secs_f32()
+        );
 
         let mut text = String::new();
         for segment in state.as_iter() {

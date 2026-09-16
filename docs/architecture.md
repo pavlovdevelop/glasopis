@@ -128,6 +128,10 @@ selects a different model, changes the thread count or deletes the file.
 - A bare modifier key cannot be a global hotkey, so push-to-talk uses a combination.
 - Recognition is batch, not streaming: the text appears after you stop speaking.
 - Recording is capped at 5 minutes per dictation.
+- whisper.cpp runs in-process, so a hard failure inside it (an unsupported CPU instruction, an
+  out-of-memory abort with a large model) terminates Glasopis instead of showing an error. This
+  is why release builds must keep `GGML_NATIVE=OFF` (see docs/building.md). Running the engine
+  in a separate process would make this recoverable and is on the roadmap.
 - Backend error messages are Bulgarian even when the interface language is English.
 - `нов ред` inside a single dictation is inserted as a line break in the text; the text is then
   pasted as a whole, so applications that submit on Enter are unaffected.
