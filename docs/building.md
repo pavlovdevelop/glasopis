@@ -78,13 +78,14 @@ in. It exists purely as a type-checking aid; every release build has the feature
 `.cargo/config.toml` sets `GGML_NATIVE=OFF`. Without it, whisper.cpp is compiled with the
 instruction set of the *build* machine, so a binary produced on a server with AVX-512 dies with
 an illegal instruction — silently, the process simply disappears — on a CPU that lacks it.
-`OFF` alone is not enough: ggml still enables AVX/AVX2/FMA/F16C by default, and there are plenty
-of machines without them (Celeron/Pentium N series, Atom, older desktops). The file therefore
-turns those off as well, so the distributed installer runs on any x86-64 CPU. It is slower;
-a binary that works everywhere is worth more than one that is fast on half the machines.
+The file then sets the instruction set explicitly: AVX2, FMA and F16C on (every x86-64 CPU since
+about 2013 has them, and they make recognition several times faster), AVX-512 off. The last one
+matters: build servers often have AVX-512 while consumer Intel CPUs from the 12th generation
+onwards (Alder Lake, Raptor Lake) do not, and that mismatch is exactly what kills the process.
 
-For your own machine, delete those lines or set `GGML_NATIVE=ON` — recognition gets noticeably
-faster. Never do that for a binary you distribute.
+For a CPU older than ~2013, or a Celeron/Pentium N or Atom, also set `GGML_AVX`, `GGML_AVX2`,
+`GGML_FMA` and `GGML_F16C` to `OFF` — slower, but it runs. For your own modern machine,
+`GGML_NATIVE=ON` squeezes out the last few percent. Never do that for a binary you distribute.
 
 Two traps when changing these flags:
 
