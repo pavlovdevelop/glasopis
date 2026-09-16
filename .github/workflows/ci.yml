@@ -38,6 +38,14 @@ jobs:
           components: rustfmt, clippy
           targets: x86_64-pc-windows-msvc
       - uses: Swatinem/rust-cache@v2
+      # tauri-build compiles the Windows resource file when cross-targeting,
+      # which needs llvm-rc.
+      - name: Install llvm-rc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y llvm
+          command -v llvm-rc || sudo ln -s "$(ls /usr/bin/llvm-rc-* | head -1)" /usr/local/bin/llvm-rc
+          llvm-rc --version
       # tauri-build needs the frontend bundle to exist before it can run.
       - run: npm ci
       - run: npm run build

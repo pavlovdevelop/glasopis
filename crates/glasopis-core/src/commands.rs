@@ -96,7 +96,7 @@ impl Table {
                 .insert(words.join(" "), action);
         }
         let mut by_len: Vec<(usize, HashMap<String, Action>)> = grouped.into_iter().collect();
-        by_len.sort_by(|a, b| b.0.cmp(&a.0)); // longest first
+        by_len.sort_by_key(|(len, _)| std::cmp::Reverse(*len)); // longest first
         Self { by_len, max_len }
     }
 
