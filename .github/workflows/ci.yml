@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  frontend:
+    name: Frontend (typecheck, tests, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  core:
+    name: Rust core + Windows type-check (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: x86_64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@v2
+      # tauri-build compiles the Windows resource file when cross-targeting,
+      # which needs llvm-rc.
+      - name: Install llvm-rc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y llvm
+          command -v llvm-rc || sudo ln -s "$(ls /usr/bin/llvm-rc-* | head -1)" /usr/local/bin/llvm-rc
+      # tauri-build needs the frontend bundle to exist before it can run.
+      - run: npm ci
+      - run: npm run build
+      - name: Formatting
+        run: cargo fmt --all --check
+      - name: Core tests
+        run: cargo test -p glasopis-core
+      # Type-checks the Windows-only code without a C/C++ toolchain.
+      # `--no-default-features` disables the whisper.cpp backend; the Windows
+      # job below builds the application with it enabled.
+      - name: Clippy (Windows target, no whisper)
+        run: cargo clippy --target x86_64-pc-windows-msvc --no-default-features --workspace -- -D warnings
+
+  windows:
+    name: Windows build and tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: npm ci
+      - run: npm run build
+      - name: Clippy (full application, with whisper.cpp)
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Tests
+        run: cargo test --workspace
+      - name: Tauri build validation
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        run: npx tauri build --no-bundle
