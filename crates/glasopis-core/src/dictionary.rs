@@ -85,7 +85,7 @@ pub fn build_prompt(dictionary: &Dictionary, extra_terms: &str) -> String {
     let mut terms: Vec<String> = Vec::new();
     let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
 
-    let mut push =
+    let push =
         |term: &str, terms: &mut Vec<String>, seen: &mut std::collections::HashSet<String>| {
             let term = term.trim();
             if term.is_empty() {
