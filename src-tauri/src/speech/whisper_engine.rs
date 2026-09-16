@@ -13,6 +13,10 @@ use crate::speech::SpeechEngine;
 pub struct WhisperEngine {
     context: WhisperContext,
     threads: i32,
+    /// Състоянието се преизползва между диктовките: създаването му заделя
+    /// килобайти памет за KV кеша всеки път, а с `no_context` нищо не се
+    /// пренася от предишния запис.
+    state: Option<whisper_rs::WhisperState>,
 }
 
 impl WhisperEngine {
@@ -26,6 +30,7 @@ impl WhisperEngine {
         Ok(Self {
             context,
             threads: threads.clamp(1, 16) as i32,
+            state: None,
         })
     }
 }
@@ -33,10 +38,16 @@ impl WhisperEngine {
 impl SpeechEngine for WhisperEngine {
     fn transcribe(&mut self, samples: &[f32], language: &str) -> Result<String> {
         let started = std::time::Instant::now();
-        let mut state = self.context.create_state().map_err(|err| {
-            log::error!("неуспешно създаване на whisper състояние: {err}");
-            GlasopisError::TranscriptionFailed
-        })?;
+        if self.state.is_none() {
+            self.state = Some(self.context.create_state().map_err(|err| {
+                log::error!("неуспешно създаване на whisper състояние: {err}");
+                GlasopisError::TranscriptionFailed
+            })?);
+        }
+        let state = self
+            .state
+            .as_mut()
+            .expect("състоянието току-що беше създадено");
 
         let seconds = samples.len() as f32 / 16_000.0;
         let mut params = FullParams::new(SamplingStrategy::Greedy { best_of: 1 });
@@ -55,6 +66,11 @@ impl SpeechEngine for WhisperEngine {
         // this avoids the model repeating an earlier sentence.
         params.set_no_context(true);
         params.set_suppress_blank(true);
+        // Whisper по подразбиране преразпознава записа до пет пъти с по-висока
+        // температура, когато не е уверен. За диктовка това означава секунди
+        // чакане за съмнителна печалба, затова остава един опит.
+        params.set_temperature(0.0);
+        params.set_temperature_inc(0.0);
 
         log::info!(
             "започвам разпознаване: {seconds:.1} s аудио, {} нишки, контекст {}",
