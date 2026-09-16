@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows-installer:
+    name: Build GlasopisSetup.exe
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - run: npm ci
+      - name: Build the application and the installer
+        run: npm run tauri build
+
+      - name: Rename the installer
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem -Path src-tauri/target/release/bundle/nsis -Filter *-setup.exe |
+            Select-Object -First 1
+          if (-not $installer) { throw "NSIS installer not found" }
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Copy-Item $installer.FullName artifacts/GlasopisSetup.exe
+          Get-FileHash artifacts/GlasopisSetup.exe -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash.ToLower())  GlasopisSetup.exe" } |
+            Out-File -Encoding ascii artifacts/GlasopisSetup.exe.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GlasopisSetup
+          path: artifacts/*
+
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          draft: true
+          generate_release_notes: true
+          body: |
+            **Говориш. То пише.**
+
+            Изтеглете `GlasopisSetup.exe` по-долу. Инсталацията е за текущия потребител и не
+            изисква администраторски права.
+
+            Компилацията **не е подписана с цифров сертификат**, затова Windows SmartScreen може
+            да покаже предупреждение — изберете „Повече информация → Изпълни въпреки това“.
+            Контролната сума на файла е в `GlasopisSetup.exe.sha256`.
+
+            ---
+
+            This build is **not code-signed**; Windows SmartScreen may warn about it.
+            Choose *More info → Run anyway*, or build from source.
