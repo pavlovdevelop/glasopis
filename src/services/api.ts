@@ -92,6 +92,13 @@ export type ModelEvent =
   | { state: "failed"; id: string; message: string }
   | { state: "deleted"; id: string };
 
+export interface CloudModelInfo {
+  id: string;
+  word_error_rate: number;
+  fast: boolean;
+  default: boolean;
+}
+
 export interface HistoryEntry {
   timestamp: number;
   text: string;
@@ -127,6 +134,7 @@ export const api = {
   getHistory: () => invoke<{ entries: HistoryEntry[] }>("get_history"),
   clearHistory: () => invoke<void>("clear_history"),
   checkApiKey: () => invoke<void>("check_api_key"),
+  listCloudModels: () => invoke<CloudModelInfo[]>("list_cloud_models"),
   validateHotkey: (accelerator: string) => invoke<boolean>("validate_hotkey", { accelerator }),
   completeOnboarding: () => invoke<Settings>("complete_onboarding"),
   getAppInfo: () => invoke<AppInfo>("get_app_info"),

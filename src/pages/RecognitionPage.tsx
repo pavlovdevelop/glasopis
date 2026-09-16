@@ -1,7 +1,18 @@
 import { useEffect, useState } from "react";
 import { Banner, Button, Card, Row, Select } from "../components/ui";
 import { useAppState } from "../hooks/useAppState";
-import { api, errorMessage, type SpeechEngineKind } from "../services/api";
+import {
+  api,
+  errorMessage,
+  type CloudModelInfo,
+  type SpeechEngineKind,
+} from "../services/api";
+
+/// Имената на моделите живеят в преводите, а не в бекенда.
+const MODEL_LABELS: Record<string, string> = {
+  "whisper-large-v3-turbo": "recognition.modelTurbo",
+  "whisper-large-v3": "recognition.modelLarge",
+};
 
 const KEYS_URL = "https://console.groq.com/keys";
 
@@ -12,6 +23,7 @@ export function RecognitionPage() {
   const [checking, setChecking] = useState(false);
   const [valid, setValid] = useState(false);
   const [key, setKey] = useState("");
+  const [models, setModels] = useState<CloudModelInfo[]>([]);
 
   useEffect(() => {
     api
@@ -23,6 +35,10 @@ export function RecognitionPage() {
   useEffect(() => {
     if (settings) setKey(settings.cloud.api_key);
   }, [settings]);
+
+  useEffect(() => {
+    api.listCloudModels().then(setModels).catch(() => setModels([]));
+  }, []);
 
   if (!settings) return null;
 
@@ -74,6 +90,21 @@ export function RecognitionPage() {
       {engine === "groq" && (
         <>
           <Banner kind="info">{t("recognition.cloudWarning")}</Banner>
+          <Select
+            id="cloud-model"
+            label={t("recognition.model")}
+            hint={t("recognition.modelHint")}
+            value={settings.cloud.model}
+            options={models.map((model) => ({
+              value: model.id,
+              label: `${t(MODEL_LABELS[model.id] ?? model.id)} — ${model.word_error_rate}% ${t(
+                "recognition.modelAccuracy",
+              )}`,
+            }))}
+            onChange={(model) =>
+              void save({ ...settings, cloud: { ...settings.cloud, model } })
+            }
+          />
           <Row label={t("recognition.apiKey")} hint={t("recognition.apiKeyHint")} htmlFor="api-key">
             <div className="key">
               <input

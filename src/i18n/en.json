@@ -201,9 +201,13 @@
     "check": "Check the key",
     "checking": "Checking...",
     "keyValid": "The key works.",
-    "model": "Provider model",
+    "model": "Model",
     "cloudWarning": "In this mode the recording is sent to Groq's servers for recognition. Do not dictate anything that must not leave your computer.",
     "show": "Show",
-    "hide": "Hide"
+    "hide": "Hide",
+    "modelTurbo": "Fast (whisper-large-v3-turbo)",
+    "modelLarge": "Most accurate (whisper-large-v3)",
+    "modelHint": "The accurate model gets about 10% of words wrong, the fast one about 12%, per Groq. The difference shows up mostly on names, technical terms and unclear speech.",
+    "modelAccuracy": "word errors"
   }
 }

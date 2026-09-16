@@ -271,7 +271,7 @@ impl Settings {
         if self.hotkeys.toggle.trim().is_empty() {
             self.hotkeys.toggle = DEFAULT_TOGGLE_HOTKEY.into();
         }
-        if self.cloud.model.trim().is_empty() {
+        if !crate::cloud_models::is_known(self.cloud.model.trim()) {
             self.cloud.model = DEFAULT_CLOUD_MODEL.into();
         }
     }
@@ -325,6 +325,15 @@ mod tests {
         assert_eq!(s.voice.engine, SpeechEngineKind::Groq);
         assert!(!s.cloud.has_key());
         assert_eq!(s.cloud.model, DEFAULT_CLOUD_MODEL);
+    }
+
+    #[test]
+    fn an_unknown_cloud_model_falls_back_to_the_default() {
+        let s = Settings::from_json(r#"{"cloud":{"model":"няма-такъв"}}"#).unwrap();
+        assert_eq!(s.cloud.model, DEFAULT_CLOUD_MODEL);
+
+        let s = Settings::from_json(r#"{"cloud":{"model":"whisper-large-v3"}}"#).unwrap();
+        assert_eq!(s.cloud.model, "whisper-large-v3", "познат модел се запазва");
     }
 
     #[test]
