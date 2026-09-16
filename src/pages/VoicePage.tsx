@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, Select, Toggle } from "../components/ui";
+import { DictionaryEditor } from "../components/DictionaryEditor";
 import { useAppState } from "../hooks/useAppState";
 import { api, errorMessage, type ModelStatus } from "../services/api";
 
@@ -24,7 +25,8 @@ export function VoicePage() {
   const downloaded = models.filter((model) => model.downloaded);
 
   return (
-    <Card title={t("voice.title")}>
+    <>
+      <Card title={t("voice.title")}>
       <Select
         id="speech-language"
         label={t("voice.language")}
@@ -74,6 +76,8 @@ export function VoicePage() {
         ]}
         onChange={(value) => update({ threads: value === "auto" ? null : Number(value) })}
       />
-    </Card>
+      </Card>
+      <DictionaryEditor />
+    </>
   );
 }

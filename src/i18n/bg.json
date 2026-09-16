@@ -170,5 +170,15 @@
     "processing": "Обработвам...",
     "done": "Готово",
     "error": "Грешка"
+  },
+  "dictionary": {
+    "title": "Личен речник",
+    "hint": "Задайте как да се изписват думи, които моделът обърква. Например „гит хъб“ → GitHub.",
+    "spoken": "Казвам",
+    "written": "Изписвай",
+    "add": "Добави",
+    "empty": "Няма добавени думи.",
+    "spokenPlaceholder": "гит хъб",
+    "writtenPlaceholder": "GitHub"
   }
 }
