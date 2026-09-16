@@ -70,7 +70,7 @@ pub const CATALOG: &[ModelInfo] = &[
         size_bytes: 190_085_487,
         sha256: "ae85e4a935d7a567bd102fe55afc16bb595bdb618e11b2fc7591bc08120411bb",
         ram_mb: 600,
-        recommended: false,
+        recommended: true,
     },
     ModelInfo {
         id: "large-v3-turbo-q5_0",
@@ -84,7 +84,7 @@ pub const CATALOG: &[ModelInfo] = &[
         size_bytes: 574_041_195,
         sha256: "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2",
         ram_mb: 1600,
-        recommended: true,
+        recommended: false,
     },
     ModelInfo {
         id: "medium",
@@ -103,8 +103,12 @@ pub const CATALOG: &[ModelInfo] = &[
 ];
 
 /// The model a fresh installation suggests.
+///
+/// The small model, not the most accurate one: on a laptop it transcribes a
+/// sentence in well under a second, and a voice typing tool that makes you wait
+/// is a tool you stop using.
 pub fn default_model() -> &'static ModelInfo {
-    find("large-v3-turbo-q5_0").expect("default model is part of the catalog")
+    find("small-q5_1").expect("default model is part of the catalog")
 }
 
 pub fn find(id: &str) -> Option<&'static ModelInfo> {
@@ -151,6 +155,6 @@ mod tests {
 
     #[test]
     fn size_mb_is_human_sized() {
-        assert_eq!(default_model().size_mb(), 547);
+        assert_eq!(default_model().size_mb(), 181);
     }
 }
