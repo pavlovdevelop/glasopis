@@ -13,6 +13,10 @@ export function AboutPage() {
     api.getAppInfo().then(setInfo).catch((err) => setError(errorMessage(err)));
   }, [setError]);
 
+  const openFolder = (which: "models" | "logs" | "config") => {
+    api.openFolder(which).catch((err) => setError(errorMessage(err)));
+  };
+
   return (
     <Card title={t("about.title")} description={t("app.tagline")}>
       <p className="hint">{t("about.openSource")}</p>
@@ -32,13 +36,13 @@ export function AboutPage() {
         <code>{REPOSITORY}</code>
       </Row>
       <Row label={t("about.config")} hint={info?.config_dir}>
-        <Button onClick={() => api.openFolder("config")}>{t("common.openFolder")}</Button>
+        <Button onClick={() => openFolder("config")}>{t("common.openFolder")}</Button>
       </Row>
       <Row label={t("about.models")} hint={info?.models_dir}>
-        <Button onClick={() => api.openFolder("models")}>{t("common.openFolder")}</Button>
+        <Button onClick={() => openFolder("models")}>{t("common.openFolder")}</Button>
       </Row>
       <Row label={t("about.logs")} hint={info?.logs_dir}>
-        <Button onClick={() => api.openFolder("logs")}>{t("common.openFolder")}</Button>
+        <Button onClick={() => openFolder("logs")}>{t("common.openFolder")}</Button>
       </Row>
     </Card>
   );

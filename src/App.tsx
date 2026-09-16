@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AppStateProvider, useAppState } from "./hooks/useAppState";
 import { useStatus } from "./hooks/useStatus";
-import { api } from "./services/api";
+import { api, errorMessage } from "./services/api";
 import { GeneralPage } from "./pages/GeneralPage";
 import { VoicePage } from "./pages/VoicePage";
 import { HotkeysPage } from "./pages/HotkeysPage";
@@ -86,7 +86,7 @@ function Page({ route }: { route: Route }) {
 }
 
 function StatusBar() {
-  const { t, settings } = useAppState();
+  const { t, settings, setError } = useAppState();
   const { status } = useStatus();
   if (!settings) return null;
 
@@ -110,7 +110,9 @@ function StatusBar() {
       </span>
       <Button
         variant={recording ? "danger" : "primary"}
-        onClick={() => api.toggleDictation()}
+        onClick={() => {
+          api.toggleDictation().catch((err) => setError(errorMessage(err)));
+        }}
       >
         {recording ? t("dictation.stop") : t("dictation.start")}
       </Button>

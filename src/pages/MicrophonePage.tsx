@@ -8,6 +8,7 @@ export function MicrophonePage() {
   const { settings, save, t, setError, error } = useAppState();
   const { status, level } = useStatus();
   const [devices, setDevices] = useState<InputDevice[]>([]);
+  const [testing, setTesting] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -37,7 +38,29 @@ export function MicrophonePage() {
       },
     });
 
-  const recording = status.state === "listening";
+  // Тестът на микрофона само записва — не изисква модел и не въвежда текст.
+  const toggleTest = async () => {
+    setError(null);
+    try {
+      if (testing) {
+        await api.stopMicrophoneTest();
+        setTesting(false);
+      } else {
+        await api.startMicrophoneTest();
+        setTesting(true);
+      }
+    } catch (err) {
+      setTesting(false);
+      setError(errorMessage(err));
+    }
+  };
+
+  // Ако диктовка спре записа, тестът също е приключил.
+  useEffect(() => {
+    if (testing && status.state !== "idle" && status.state !== "listening") {
+      setTesting(false);
+    }
+  }, [status, testing]);
 
   return (
     <Card title={t("microphone.title")}>
@@ -59,15 +82,12 @@ export function MicrophonePage() {
         <LevelMeter level={level} />
       </Row>
       <div className="actions">
-        <Button
-          variant={recording ? "danger" : "primary"}
-          onClick={() => (recording ? api.cancelDictation() : api.startDictation())}
-        >
-          {recording ? t("microphone.stopTest") : t("microphone.test")}
+        <Button variant={testing ? "danger" : "primary"} onClick={() => void toggleTest()}>
+          {testing ? t("microphone.stopTest") : t("microphone.test")}
         </Button>
         <Button onClick={() => void refresh()}>{t("microphone.reload")}</Button>
       </div>
-      {recording && <p className="hint">{t("microphone.testing")}</p>}
+      {testing && <p className="hint">{t("microphone.testing")}</p>}
     </Card>
   );
 }

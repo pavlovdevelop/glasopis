@@ -22,6 +22,7 @@ export function Onboarding({ onFinished }: { onFinished: () => void }) {
   const [models, setModels] = useState<ModelStatus[]>([]);
   const [progress, setProgress] = useState<number | null>(null);
   const [dictated, setDictated] = useState("");
+  const [testing, setTesting] = useState(false);
 
   useEffect(() => {
     api.listMicrophones().then(setDevices).catch((err) => setError(errorMessage(err)));
@@ -95,11 +96,23 @@ export function Onboarding({ onFinished }: { onFinished: () => void }) {
           <div className="actions">
             <LevelMeter level={level} />
             <Button
-              onClick={() =>
-                status.state === "listening" ? api.cancelDictation() : api.startDictation()
-              }
+              onClick={async () => {
+                setError(null);
+                try {
+                  if (testing) {
+                    await api.stopMicrophoneTest();
+                    setTesting(false);
+                  } else {
+                    await api.startMicrophoneTest();
+                    setTesting(true);
+                  }
+                } catch (err) {
+                  setTesting(false);
+                  setError(errorMessage(err));
+                }
+              }}
             >
-              {status.state === "listening" ? t("microphone.stopTest") : t("microphone.test")}
+              {testing ? t("microphone.stopTest") : t("microphone.test")}
             </Button>
           </div>
         </>

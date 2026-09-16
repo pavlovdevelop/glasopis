@@ -132,6 +132,17 @@ pub fn cancel_dictation(app: AppHandle) {
     dictation::cancel(&app);
 }
 
+/// Records only for the level meter — no model and no text insertion.
+#[tauri::command]
+pub fn start_microphone_test(app: AppHandle) -> Result<()> {
+    dictation::start_microphone_test(&app)
+}
+
+#[tauri::command]
+pub fn stop_microphone_test(app: AppHandle) {
+    dictation::stop_microphone_test(&app);
+}
+
 #[tauri::command]
 pub fn get_status(state: State<'_, AppState>) -> Status {
     state.status()

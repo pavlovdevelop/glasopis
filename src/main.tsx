@@ -11,6 +11,11 @@ if (window.location.hash.startsWith("#/overlay")) {
   document.body.classList.add("body--overlay");
 }
 
+// Без това едно забравено `catch` изглежда като „нищо не се случва“.
+window.addEventListener("unhandledrejection", (event) => {
+  console.error("Необработена грешка от бекенда:", event.reason);
+});
+
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <App />
