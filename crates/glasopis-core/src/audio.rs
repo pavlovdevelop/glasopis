@@ -129,6 +129,28 @@ pub fn pad_to_min_duration(mut samples: Vec<f32>, sample_rate: u32, min_seconds:
     samples
 }
 
+/// Size of the audio context whisper.cpp should use for a recording of
+/// `seconds`.
+///
+/// Whisper always pads audio to 30 seconds and, by default, runs the encoder
+/// over the full 1500-token context — a three second dictation costs as much
+/// as a thirty second one. Trimming the context to what the audio actually
+/// needs (with a margin, because cutting it too close degrades the text) makes
+/// short dictations several times cheaper, which is what a voice typing tool
+/// does all day.
+pub fn whisper_audio_context(seconds: f32) -> i32 {
+    const FULL_CONTEXT: f32 = 1500.0;
+    const FULL_SECONDS: f32 = 30.0;
+    const MARGIN: f32 = 1.25;
+    const MINIMUM: f32 = 256.0;
+
+    if !seconds.is_finite() || seconds <= 0.0 {
+        return FULL_CONTEXT as i32;
+    }
+    let needed = (seconds / FULL_SECONDS) * FULL_CONTEXT * MARGIN;
+    needed.ceil().clamp(MINIMUM, FULL_CONTEXT) as i32
+}
+
 /// Converts whatever the capture device produced into the mono 16 kHz float
 /// buffer whisper.cpp expects.
 pub fn prepare_for_whisper(samples: &[f32], channels: u16, sample_rate: u32) -> Vec<f32> {
@@ -218,6 +240,30 @@ mod tests {
             pad_to_min_duration(long, WHISPER_SAMPLE_RATE, 1.2).len(),
             32_000
         );
+    }
+
+    #[test]
+    fn audio_context_shrinks_for_short_recordings() {
+        // Три секунди реч не се нуждаят от контекста за трийсет.
+        assert!(whisper_audio_context(3.0) < 500);
+        // Но никога под разумния минимум.
+        assert_eq!(whisper_audio_context(0.5), 256);
+        // Дълъг запис ползва пълния контекст.
+        assert_eq!(whisper_audio_context(30.0), 1500);
+        assert_eq!(whisper_audio_context(120.0), 1500);
+    }
+
+    #[test]
+    fn audio_context_grows_with_the_recording() {
+        assert!(whisper_audio_context(10.0) > whisper_audio_context(5.0));
+        assert!(whisper_audio_context(20.0) > whisper_audio_context(10.0));
+    }
+
+    #[test]
+    fn audio_context_handles_nonsense_input() {
+        assert_eq!(whisper_audio_context(0.0), 1500);
+        assert_eq!(whisper_audio_context(f32::NAN), 1500);
+        assert_eq!(whisper_audio_context(-5.0), 1500);
     }
 
     #[test]
