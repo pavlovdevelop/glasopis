@@ -33,17 +33,16 @@ impl WhisperEngine {
 impl SpeechEngine for WhisperEngine {
     fn transcribe(&mut self, samples: &[f32], language: &str) -> Result<String> {
         let started = std::time::Instant::now();
-        log::info!(
-            "започвам разпознаване: {:.1} s аудио",
-            samples.len() as f32 / 16_000.0
-        );
         let mut state = self.context.create_state().map_err(|err| {
             log::error!("неуспешно създаване на whisper състояние: {err}");
             GlasopisError::TranscriptionFailed
         })?;
 
+        let seconds = samples.len() as f32 / 16_000.0;
         let mut params = FullParams::new(SamplingStrategy::Greedy { best_of: 1 });
         params.set_n_threads(self.threads);
+        // Без това всяка диктовка се смята като тридесетсекундна.
+        params.set_audio_ctx(glasopis_core::audio::whisper_audio_context(seconds));
         // Bulgarian (or whatever the user selected) — never auto-translate.
         params.set_language(Some(language));
         params.set_translate(false);
@@ -57,6 +56,11 @@ impl SpeechEngine for WhisperEngine {
         params.set_no_context(true);
         params.set_suppress_blank(true);
 
+        log::info!(
+            "започвам разпознаване: {seconds:.1} s аудио, {} нишки, контекст {}",
+            self.threads,
+            glasopis_core::audio::whisper_audio_context(seconds)
+        );
         state.full(params, samples).map_err(|err| {
             log::error!("неуспешно разпознаване: {err}");
             GlasopisError::TranscriptionFailed
