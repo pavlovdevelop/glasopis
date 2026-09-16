@@ -73,6 +73,16 @@ cargo clippy --target x86_64-pc-windows-msvc --no-default-features --workspace -
 application: transcription returns an explicit error saying the speech engine was not compiled
 in. It exists purely as a type-checking aid; every release build has the feature on.
 
+## Portable binaries
+
+`.cargo/config.toml` sets `GGML_NATIVE=OFF`. Without it, whisper.cpp is compiled with the
+instruction set of the *build* machine, so a binary produced on a server with AVX-512 dies with
+an illegal instruction — silently, the process simply disappears — on a CPU that lacks it.
+`OFF` keeps ggml's portable defaults (AVX2/FMA/F16C), which every x86-64 CPU since ~2013 has.
+
+If you build only for your own machine and want the last few percent of speed, set
+`GGML_NATIVE=ON` in your environment. Never do that for a binary you distribute.
+
 ## Useful commands
 
 | Command | What it does |
