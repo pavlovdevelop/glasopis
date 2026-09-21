@@ -620,19 +620,24 @@ code {
 /* --- плаваща топка (overlay) ------------------------------------------ */
 .overlay-ball {
   box-sizing: border-box;
-  width: 56px;
-  height: 56px;
-  margin: 4px;
+  width: 60px;
+  height: 60px;
+  margin: 6px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.97);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   box-shadow: 0 6px 20px rgba(15, 23, 42, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   cursor: grab;
+  color: var(--text-muted);
   animation: overlay-in 140ms ease-out;
+  transition:
+    box-shadow 120ms ease-out,
+    border-color 120ms ease-out,
+    color 120ms ease-out;
 }
 
 .overlay-ball:active {
@@ -651,39 +656,41 @@ code {
 }
 
 .overlay-ball__icon {
-  font-size: 20px;
-  line-height: 1;
+  display: flex;
   z-index: 1;
+}
+
+/* Нивото на звука идва като CSS custom property (--level, 0–1) от inline
+   style — глухо сияние вместо разширяващ се пръстен, защото прозорецът е
+   с фиксиран размер и всичко извън контура му просто се отрязва. */
+.overlay-ball--listening {
+  --level: 0;
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow:
+    0 6px 20px rgba(15, 23, 42, 0.2),
+    0 0 calc(4px + var(--level) * 8px) calc(0.5px + var(--level) * 1.5px)
+      rgba(37, 99, 234, calc(0.4 + var(--level) * 0.35));
+}
+
+.overlay-ball--listening .overlay-ball__icon {
+  transform: scale(calc(1 + var(--level) * 0.12));
+  transition: transform 80ms linear;
 }
 
 .overlay-ball--error {
   border-color: var(--danger);
-}
-
-.overlay-ball--error .overlay-ball__icon {
   color: var(--danger);
 }
 
 .overlay-ball--done {
   border-color: var(--success);
-}
-
-.overlay-ball--done .overlay-ball__icon {
   color: var(--success);
-}
-
-.overlay-ball__ring {
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  border: 3px solid var(--accent);
-  opacity: 0.55;
-  transition: transform 80ms linear;
 }
 
 .overlay-ball__spinner {
   position: absolute;
-  inset: 4px;
+  inset: 5px;
   border-radius: 50%;
   border: 3px solid var(--accent-soft);
   border-top-color: var(--accent);

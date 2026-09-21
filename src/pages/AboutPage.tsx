@@ -15,12 +15,6 @@ export function AboutPage() {
     api.getAppInfo().then(setInfo).catch((err) => setError(errorMessage(err)));
   }, [setError]);
 
-  const autoCheck = settings?.general.check_for_updates ?? false;
-  const { check } = updater;
-  useEffect(() => {
-    if (autoCheck) void check();
-  }, [autoCheck, check]);
-
   const openFolder = (which: "models" | "logs" | "config") => {
     api.openFolder(which).catch((err) => setError(errorMessage(err)));
   };

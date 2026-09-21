@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AppStateProvider, useAppState } from "./hooks/useAppState";
+import { UpdaterProvider, useUpdater } from "./hooks/useUpdater";
 import { useStatus } from "./hooks/useStatus";
 import { api, errorMessage } from "./services/api";
 import { GeneralPage } from "./pages/GeneralPage";
@@ -90,6 +91,36 @@ function Page({ route }: { route: Route }) {
   }
 }
 
+/** Compact, app-wide notice — the full details/progress live on the About page. */
+function UpdateBanner({ onOpenAbout }: { onOpenAbout: () => void }) {
+  const { t } = useAppState();
+  const { state } = useUpdater();
+
+  if (state.phase === "available") {
+    return (
+      <Banner kind="info">
+        {t("update.available", { version: state.version })}{" "}
+        <Button variant="primary" onClick={onOpenAbout}>
+          {t("update.install")}
+        </Button>
+      </Banner>
+    );
+  }
+  if (state.phase === "downloading") {
+    return (
+      <Banner kind="info">
+        {state.progress !== null
+          ? t("update.downloading", { percent: Math.round(state.progress * 100) })
+          : t("update.downloadingUnknown")}
+      </Banner>
+    );
+  }
+  if (state.phase === "ready") {
+    return <Banner kind="success">{t("update.ready")}</Banner>;
+  }
+  return null;
+}
+
 function StatusBar() {
   const { t, settings, setError } = useAppState();
   const { status } = useStatus();
@@ -145,44 +176,47 @@ function Shell() {
   }
 
   return (
-    <div className="shell">
-      <aside className="sidebar">
-        <div className="brand">
-          <span className="brand__mark" aria-hidden="true">
-            🎙
-          </span>
-          <div>
-            <p className="brand__name">{t("app.name")}</p>
-            <p className="brand__tagline">{t("app.tagline")}</p>
+    <UpdaterProvider>
+      <div className="shell">
+        <aside className="sidebar">
+          <div className="brand">
+            <span className="brand__mark" aria-hidden="true">
+              🎙
+            </span>
+            <div>
+              <p className="brand__name">{t("app.name")}</p>
+              <p className="brand__tagline">{t("app.tagline")}</p>
+            </div>
           </div>
-        </div>
-        <nav className="nav" aria-label={t("nav.general")}>
-          {ROUTES.filter((item) => item.id !== "models" || localAvailable).map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`nav__item ${route === item.id ? "nav__item--active" : ""}`}
-              aria-current={route === item.id ? "page" : undefined}
-              onClick={() => setRoute(item.id)}
-            >
-              {t(item.labelKey)}
-            </button>
-          ))}
-        </nav>
-      </aside>
-      <main className="content">
-        <StatusBar />
-        {error && (
-          <Banner kind="error">
-            {error}{" "}
-            <Button variant="ghost" onClick={() => setError(null)}>
-              {t("common.close")}
-            </Button>
-          </Banner>
-        )}
-        <Page route={route} />
-      </main>
-    </div>
+          <nav className="nav" aria-label={t("nav.general")}>
+            {ROUTES.filter((item) => item.id !== "models" || localAvailable).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={`nav__item ${route === item.id ? "nav__item--active" : ""}`}
+                aria-current={route === item.id ? "page" : undefined}
+                onClick={() => setRoute(item.id)}
+              >
+                {t(item.labelKey)}
+              </button>
+            ))}
+          </nav>
+        </aside>
+        <main className="content">
+          <StatusBar />
+          <UpdateBanner onOpenAbout={() => setRoute("about")} />
+          {error && (
+            <Banner kind="error">
+              {error}{" "}
+              <Button variant="ghost" onClick={() => setError(null)}>
+                {t("common.close")}
+              </Button>
+            </Banner>
+          )}
+          <Page route={route} />
+        </main>
+      </div>
+    </UpdaterProvider>
   );
 }
 

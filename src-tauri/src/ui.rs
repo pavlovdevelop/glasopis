@@ -9,8 +9,9 @@ pub const MAIN_WINDOW: &str = "main";
 pub const OVERLAY_WINDOW: &str = "overlay";
 
 /// A small draggable badge, not a window-sized panel — big enough for the
-/// icon and a thin level ring, small enough to stay out of the way.
-const OVERLAY_SIZE: f64 = 64.0;
+/// icon and a contained level glow (which must not exceed the window, or it
+/// gets visibly clipped), small enough to stay out of the way.
+const OVERLAY_SIZE: f64 = 72.0;
 /// Distance from the bottom edge of the monitor, used only the first time the
 /// overlay is shown (before the user has dragged it anywhere). `monitor.size()`
 /// is the full display resolution, not the work area — this has to clear the

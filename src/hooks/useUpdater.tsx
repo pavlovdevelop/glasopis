@@ -1,6 +1,15 @@
-import { useCallback, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { errorMessage } from "../services/api";
+import { useAppState } from "./useAppState";
 
 export type UpdateState =
   | { phase: "idle" }
@@ -12,13 +21,25 @@ export type UpdateState =
   | { phase: "ready" }
   | { phase: "error"; message: string };
 
+interface UpdaterValue {
+  state: UpdateState;
+  check: () => Promise<void>;
+  install: () => Promise<void>;
+}
+
+const UpdaterContext = createContext<UpdaterValue | null>(null);
+
 /**
  * Checks GitHub Releases for a newer build and installs it. On Windows,
  * `downloadAndInstall` hands off to the NSIS installer and exits Glasopis —
  * the installer restarts it, so there is nothing left for this hook to do
  * once installation starts.
+ *
+ * Lives as a single instance in `UpdaterProvider` (checks once, automatically,
+ * for the whole app) so every page — the sidebar banner and the About page's
+ * own button — shows the same state instead of triggering separate checks.
  */
-export function useUpdater() {
+function useUpdaterInternal() {
   const [state, setState] = useState<UpdateState>({ phase: "idle" });
   const pending = useRef<Update | null>(null);
 
@@ -64,4 +85,23 @@ export function useUpdater() {
   }, []);
 
   return { state, check: runCheck, install };
+}
+
+export function UpdaterProvider({ children }: { children: ReactNode }) {
+  const value = useUpdaterInternal();
+  const { settings } = useAppState();
+  const autoCheck = settings?.general.check_for_updates ?? false;
+  const { check: runCheck } = value;
+
+  useEffect(() => {
+    if (autoCheck) void runCheck();
+  }, [autoCheck, runCheck]);
+
+  return <UpdaterContext.Provider value={value}>{children}</UpdaterContext.Provider>;
+}
+
+export function useUpdater(): UpdaterValue {
+  const value = useContext(UpdaterContext);
+  if (!value) throw new Error("useUpdater трябва да е вътре в UpdaterProvider");
+  return value;
 }

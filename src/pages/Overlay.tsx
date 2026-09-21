@@ -1,7 +1,54 @@
+import type { CSSProperties } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppState } from "../hooks/useAppState";
 import { useOverlayDrag } from "../hooks/useOverlayDrag";
 import { useStatus } from "../hooks/useStatus";
+
+function MicIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor" />
+      <path
+        d="M5 10a7 7 0 0 0 14 0M12 19v3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <polyline
+        points="5 13 10 18 19 7"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function WarningIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        d="M12 3 22 20H2Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <line x1="12" y1="9.5" x2="12" y2="14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="12" cy="17" r="1" fill="currentColor" />
+    </svg>
+  );
+}
 
 /**
  * Малка плаваща „топка“, която се показва по време на диктовка. Влачи се
@@ -32,11 +79,24 @@ export function Overlay() {
           ? status.text
           : null;
 
-  const icon = status.state === "error" ? "⚠" : status.state === "done" ? "✓" : "🎙";
+  const icon =
+    status.state === "error" ? (
+      <WarningIcon />
+    ) : status.state === "done" ? (
+      <CheckIcon />
+    ) : (
+      <MicIcon />
+    );
+
+  const style =
+    status.state === "listening"
+      ? ({ "--level": level } as CSSProperties)
+      : undefined;
 
   return (
     <div
       className={`overlay-ball overlay-ball--${status.state}`}
+      style={style}
       title={detail ? `${title} — ${detail}` : title}
       onMouseDown={(event) => {
         if (event.button !== 0) return;
@@ -44,17 +104,8 @@ export function Overlay() {
         void getCurrentWindow().startDragging();
       }}
     >
-      {status.state === "listening" && (
-        <span
-          className="overlay-ball__ring"
-          style={{ transform: `scale(${1 + level * 0.35})` }}
-          aria-hidden="true"
-        />
-      )}
       {status.state === "processing" && <span className="overlay-ball__spinner" aria-hidden="true" />}
-      <span className="overlay-ball__icon" aria-hidden="true">
-        {icon}
-      </span>
+      <span className="overlay-ball__icon">{icon}</span>
       <span className="sr-only">{detail ? `${title} — ${detail}` : title}</span>
     </div>
   );
