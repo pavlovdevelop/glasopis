@@ -12,6 +12,7 @@
     "core:window:allow-scale-factor",
     "core:event:default",
     "log:default",
-    "opener:default"
+    "opener:default",
+    "updater:default"
   ]
 }

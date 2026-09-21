@@ -56,7 +56,8 @@
     "playSounds": "Звук при започване и спиране на записа",
     "uiLanguage": "Език на интерфейса",
     "languageBg": "Български",
-    "languageEn": "Английски"
+    "languageEn": "Английски",
+    "checkForUpdates": "Проверявай автоматично за нови версии"
   },
   "voice": {
     "title": "Глас и разпознаване",
@@ -152,6 +153,19 @@
     "speechEngineLocal": "Локално (whisper.cpp)",
     "speechEngineMissing": "Локалното разпознаване не е включено в тази компилация",
     "speechEngineCloud": "Groq (в облака)"
+  },
+  "update": {
+    "title": "Обновления",
+    "checkNow": "Провери за обновление",
+    "checking": "Проверка за нови версии...",
+    "upToDate": "Имате последната версия.",
+    "available": "Налична е нова версия {version}.",
+    "install": "Изтегли и инсталирай",
+    "downloading": "Изтегляне... {percent}%",
+    "downloadingUnknown": "Изтегляне...",
+    "ready": "Инсталирането започна — Glasopis ще се рестартира.",
+    "error": "Проверката за обновление не успя.",
+    "notes": "Какво е новото"
   },
   "onboarding": {
     "welcomeTitle": "Добре дошли в Glasopis",

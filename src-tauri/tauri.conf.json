@@ -19,6 +19,7 @@
   "bundle": {
     "active": true,
     "targets": ["nsis"],
+    "createUpdaterArtifacts": true,
     "publisher": "Pavel Pavlov",
     "copyright": "Copyright (c) 2026 Pavel Pavlov",
     "category": "Productivity",
@@ -37,6 +38,14 @@
         "languages": ["Bulgarian", "English"],
         "displayLanguageSelector": false
       }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYyNjhGQzkzOEQzM0Q3OTAKUldTUTF6T05rL3hvWWlHUmdDMDFLK2JVOWRKd1crUnYvc3YwQUJRK2dVUitXdXp3UWRla3JhZU8K",
+      "endpoints": [
+        "https://github.com/pavlovdevelop/glasopis/releases/latest/download/latest.json"
+      ]
     }
   }
 }

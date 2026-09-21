@@ -56,7 +56,8 @@
     "playSounds": "Play a sound when recording starts and stops",
     "uiLanguage": "Interface language",
     "languageBg": "Bulgarian",
-    "languageEn": "English"
+    "languageEn": "English",
+    "checkForUpdates": "Automatically check for new versions"
   },
   "voice": {
     "title": "Voice and recognition",
@@ -152,6 +153,19 @@
     "speechEngineLocal": "Local (whisper.cpp)",
     "speechEngineMissing": "Local recognition is not included in this build",
     "speechEngineCloud": "Groq (cloud)"
+  },
+  "update": {
+    "title": "Updates",
+    "checkNow": "Check for updates",
+    "checking": "Checking for a newer version...",
+    "upToDate": "You have the latest version.",
+    "available": "Version {version} is available.",
+    "install": "Download and install",
+    "downloading": "Downloading... {percent}%",
+    "downloadingUnknown": "Downloading...",
+    "ready": "Installing — Glasopis will restart.",
+    "error": "The update check failed.",
+    "notes": "What's new"
   },
   "onboarding": {
     "welcomeTitle": "Welcome to Glasopis",
