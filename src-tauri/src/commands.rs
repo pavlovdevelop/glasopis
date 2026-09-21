@@ -254,6 +254,14 @@ pub fn save_overlay_position(
     Ok(())
 }
 
+/// Reads (and clears) the "just updated to vX" notice set in `setup()`, so
+/// the frontend can show a one-time success banner after an update-driven
+/// relaunch instead of leaving the user to guess whether anything happened.
+#[tauri::command]
+pub fn take_update_notice(state: State<'_, AppState>) -> Option<String> {
+    state.take_update_notice()
+}
+
 /// Called right before the updater hands off to the silent installer. On
 /// Windows that installer relaunches Glasopis, but a normal launch starts
 /// minimized to the tray if the user has that setting on — leaving no

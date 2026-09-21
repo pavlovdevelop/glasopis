@@ -147,6 +147,7 @@ export const api = {
   saveOverlayPosition: (x: number, y: number) =>
     invoke<void>("save_overlay_position", { x, y }),
   markPendingRelaunch: () => invoke<void>("mark_pending_relaunch"),
+  takeUpdateNotice: () => invoke<string | null>("take_update_notice"),
   hideMainWindow: () => invoke<void>("hide_main_window"),
   quitApp: () => invoke<void>("quit_app"),
 };

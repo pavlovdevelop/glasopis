@@ -45,6 +45,10 @@ pub struct AppState {
     pub target_window: Mutex<Option<isize>>,
     /// Download cancellation flags, keyed by model id.
     pub cancel_flags: Mutex<std::collections::HashMap<String, Arc<AtomicBool>>>,
+    /// Set once in `setup()` when this launch follows an updater-driven
+    /// relaunch; the frontend reads it (via `take_update_notice`) to show a
+    /// one-time "updated to vX" banner, and reading it clears it.
+    just_updated: Mutex<Option<String>>,
 }
 
 impl AppState {
@@ -57,7 +61,16 @@ impl AppState {
             busy: AtomicBool::new(false),
             target_window: Mutex::new(None),
             cancel_flags: Mutex::new(std::collections::HashMap::new()),
+            just_updated: Mutex::new(None),
         }
+    }
+
+    pub fn set_just_updated(&self, version: String) {
+        *self.just_updated.lock() = Some(version);
+    }
+
+    pub fn take_update_notice(&self) -> Option<String> {
+        self.just_updated.lock().take()
     }
 
     pub fn settings(&self) -> Settings {

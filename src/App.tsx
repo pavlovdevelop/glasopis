@@ -160,12 +160,17 @@ function Shell() {
   const { settings, t, error, setError } = useAppState();
   const [route, setRoute] = useRoute();
   const [localAvailable, setLocalAvailable] = useState(false);
+  const [justUpdatedTo, setJustUpdatedTo] = useState<string | null>(null);
 
   useEffect(() => {
     api
       .getAppInfo()
       .then((info) => setLocalAvailable(info.local_engine_available))
       .catch(() => setLocalAvailable(false));
+  }, []);
+
+  useEffect(() => {
+    api.takeUpdateNotice().then(setJustUpdatedTo).catch(() => undefined);
   }, []);
 
   if (route === "overlay") return <Overlay />;
@@ -204,6 +209,14 @@ function Shell() {
         </aside>
         <main className="content">
           <StatusBar />
+          {justUpdatedTo && (
+            <Banner kind="success">
+              {t("update.justUpdated", { version: justUpdatedTo })}{" "}
+              <Button variant="ghost" onClick={() => setJustUpdatedTo(null)}>
+                {t("common.close")}
+              </Button>
+            </Banner>
+          )}
           <UpdateBanner onOpenAbout={() => setRoute("about")} />
           {error && (
             <Banner kind="error">

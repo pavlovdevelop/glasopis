@@ -85,6 +85,7 @@ pub fn run() {
             commands::hide_overlay,
             commands::save_overlay_position,
             commands::mark_pending_relaunch,
+            commands::take_update_notice,
             commands::hide_main_window,
             commands::quit_app,
         ])
@@ -115,6 +116,10 @@ pub fn run() {
             let just_updated = update_marker.as_ref().is_some_and(|path| path.exists());
             if let Some(path) = &update_marker {
                 let _ = std::fs::remove_file(path);
+            }
+            if just_updated {
+                let version = app.package_info().version.to_string();
+                app.state::<AppState>().set_just_updated(version);
             }
 
             // First run (or a run started by hand) opens the window; a start
