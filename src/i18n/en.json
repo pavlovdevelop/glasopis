@@ -222,7 +222,7 @@
     "hide": "Hide",
     "modelTurbo": "Fast (whisper-large-v3-turbo)",
     "modelLarge": "Most accurate (whisper-large-v3)",
-    "modelHint": "The accurate model gets about 10% of words wrong, the fast one about 12%, per Groq. The difference shows up mostly on names, technical terms and unclear speech.",
+    "modelHint": "The accurate model gets about 10% of words wrong, the fast one about 12%, per Groq — but those are general figures averaged across many languages, not Bulgarian-specific. In practice the result can go the other way depending on the language and voice; if \"Fast\" works better for you, feel free to stick with it.",
     "modelAccuracy": "word errors",
     "terms": "Terms and names",
     "termsHint": "Words you want spelled exactly like this, comma separated: dev, npm, React, GitHub, Docker. They are sent to the model as context so it does not transliterate them. Entries from the personal dictionary are added automatically.",
