@@ -25,6 +25,7 @@ export interface Settings {
     show_floating_window: boolean;
     play_sounds: boolean;
     ui_language: string;
+    overlay_position: [number, number] | null;
   };
   voice: {
     engine: SpeechEngineKind;
@@ -142,6 +143,8 @@ export const api = {
   openFolder: (which: "models" | "logs" | "config") => invoke<void>("open_folder", { which }),
   openUrl: (url: string) => invoke<void>("open_url", { url }),
   hideOverlay: () => invoke<void>("hide_overlay"),
+  saveOverlayPosition: (x: number, y: number) =>
+    invoke<void>("save_overlay_position", { x, y }),
   hideMainWindow: () => invoke<void>("hide_main_window"),
   quitApp: () => invoke<void>("quit_app"),
 };

@@ -3,14 +3,17 @@
 use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 
 use crate::errors::{GlasopisError, Result};
+use crate::state::AppState;
 
 pub const MAIN_WINDOW: &str = "main";
 pub const OVERLAY_WINDOW: &str = "overlay";
 
-const OVERLAY_WIDTH: f64 = 260.0;
-const OVERLAY_HEIGHT: f64 = 96.0;
-/// Distance from the bottom edge of the work area.
-const OVERLAY_BOTTOM_MARGIN: f64 = 80.0;
+/// A small draggable badge, not a window-sized panel — big enough for the
+/// icon and a thin level ring, small enough to stay out of the way.
+const OVERLAY_SIZE: f64 = 64.0;
+/// Distance from the bottom edge of the work area, used only the first time
+/// the overlay is shown (before the user has dragged it anywhere).
+const OVERLAY_BOTTOM_MARGIN: f64 = 96.0;
 
 /// Shows (and creates, if needed) the settings window.
 pub fn show_main_window(app: &AppHandle) -> Result<WebviewWindow> {
@@ -51,7 +54,7 @@ pub fn ensure_overlay(app: &AppHandle) -> Result<WebviewWindow> {
         WebviewUrl::App("index.html#/overlay".into()),
     )
     .title("Glasopis")
-    .inner_size(OVERLAY_WIDTH, OVERLAY_HEIGHT)
+    .inner_size(OVERLAY_SIZE, OVERLAY_SIZE)
     .decorations(false)
     .transparent(true)
     .always_on_top(true)
@@ -64,25 +67,43 @@ pub fn ensure_overlay(app: &AppHandle) -> Result<WebviewWindow> {
     .map_err(|e| {
         GlasopisError::other(format!("Плаващият прозорец не може да бъде създаден: {e}"))
     })?;
-    position_overlay(&window);
+    // Positioned once, here, at creation: after that the window stays where
+    // the user last dragged it (`show_overlay` never re-centres it).
+    let saved = app.state::<AppState>().settings().general.overlay_position;
+    position_overlay(&window, saved);
     Ok(window)
 }
 
-fn position_overlay(window: &WebviewWindow) {
-    // Bottom centre of the monitor the cursor is on, like a system toast.
-    if let Ok(Some(monitor)) = window.current_monitor() {
-        let size = monitor.size().to_logical::<f64>(monitor.scale_factor());
-        let position = monitor.position().to_logical::<f64>(monitor.scale_factor());
-        let x = position.x + (size.width - OVERLAY_WIDTH) / 2.0;
-        let y = position.y + size.height - OVERLAY_HEIGHT - OVERLAY_BOTTOM_MARGIN;
-        let _ = window.set_position(tauri::LogicalPosition::new(x, y));
-    }
+/// Places the overlay at `saved` (clamped to the current monitor, in case the
+/// screen configuration changed since it was saved) or, the first time, at
+/// the bottom centre of the monitor the cursor is on — like a system toast.
+fn position_overlay(window: &WebviewWindow, saved: Option<(i32, i32)>) {
+    let Ok(Some(monitor)) = window.current_monitor() else {
+        return;
+    };
+    let size = monitor.size().to_logical::<f64>(monitor.scale_factor());
+    let position = monitor.position().to_logical::<f64>(monitor.scale_factor());
+
+    let (x, y) = match saved {
+        Some((x, y)) => {
+            let max_x = position.x + size.width - OVERLAY_SIZE;
+            let max_y = position.y + size.height - OVERLAY_SIZE;
+            (
+                (x as f64).clamp(position.x, max_x.max(position.x)),
+                (y as f64).clamp(position.y, max_y.max(position.y)),
+            )
+        }
+        None => (
+            position.x + (size.width - OVERLAY_SIZE) / 2.0,
+            position.y + size.height - OVERLAY_SIZE - OVERLAY_BOTTOM_MARGIN,
+        ),
+    };
+    let _ = window.set_position(tauri::LogicalPosition::new(x, y));
 }
 
 pub fn show_overlay(app: &AppHandle) {
     match ensure_overlay(app) {
         Ok(window) => {
-            position_overlay(&window);
             // `show` must not steal the focus of the target application.
             let _ = window.show();
             let _ = window.set_always_on_top(true);

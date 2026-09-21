@@ -238,6 +238,22 @@ pub fn hide_overlay(app: AppHandle) {
     ui::hide_overlay(&app);
 }
 
+/// Remembers where the user dragged the floating overlay to, so it reopens
+/// in the same place next time.
+#[tauri::command]
+pub fn save_overlay_position(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    x: i32,
+    y: i32,
+) -> Result<()> {
+    let mut settings = state.settings();
+    settings.general.overlay_position = Some((x, y));
+    state.replace_settings(settings.clone());
+    settings_store::save(&app, &settings)?;
+    Ok(())
+}
+
 /// Hides the settings window to the tray instead of closing the application.
 #[tauri::command]
 pub fn hide_main_window(app: AppHandle) {

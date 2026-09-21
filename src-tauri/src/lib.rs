@@ -82,6 +82,7 @@ pub fn run() {
             commands::open_folder,
             commands::open_url,
             commands::hide_overlay,
+            commands::save_overlay_position,
             commands::hide_main_window,
             commands::quit_app,
         ])
