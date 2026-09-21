@@ -23,7 +23,7 @@ pub fn show_main_window(app: &AppHandle) -> Result<WebviewWindow> {
     if let Some(window) = app.get_webview_window(MAIN_WINDOW) {
         let _ = window.show();
         let _ = window.unminimize();
-        let _ = window.set_focus();
+        bring_to_front(&window);
         return Ok(window);
     }
     let window = WebviewWindowBuilder::new(app, MAIN_WINDOW, WebviewUrl::App("index.html".into()))
@@ -35,7 +35,19 @@ pub fn show_main_window(app: &AppHandle) -> Result<WebviewWindow> {
         .visible(true)
         .build()
         .map_err(|e| GlasopisError::other(format!("Прозорецът не може да бъде отворен: {e}")))?;
+    bring_to_front(&window);
     Ok(window)
+}
+
+/// `set_focus` alone often loses to Windows' foreground-lock: a process that
+/// wasn't just given input (e.g. relaunched by the updater's installer,
+/// rather than clicked by the user) is not allowed to steal focus from
+/// whatever window is currently active. Briefly forcing the window topmost
+/// bypasses that restriction, unlike `SetForegroundWindow`.
+fn bring_to_front(window: &WebviewWindow) {
+    let _ = window.set_focus();
+    let _ = window.set_always_on_top(true);
+    let _ = window.set_always_on_top(false);
 }
 
 /// Opens the settings window on a specific page (used by the tray menu).

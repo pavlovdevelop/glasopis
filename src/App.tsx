@@ -186,7 +186,7 @@ function Shell() {
         <aside className="sidebar">
           <div className="brand">
             <span className="brand__mark" aria-hidden="true">
-              🎙
+              <img src="/logo-mark-white.png" alt="" width="20" height="20" />
             </span>
             <div>
               <p className="brand__name">{t("app.name")}</p>
