@@ -84,6 +84,7 @@ pub fn run() {
             commands::open_url,
             commands::hide_overlay,
             commands::save_overlay_position,
+            commands::mark_pending_relaunch,
             commands::hide_main_window,
             commands::quit_app,
         ])
@@ -107,10 +108,20 @@ pub fn run() {
                 log::error!("{err}");
             }
 
+            // A relaunch straight after the updater's silent install shows the
+            // window once, even if the user normally starts minimized —
+            // otherwise the update looks like it silently did nothing.
+            let update_marker = paths::update_marker_file(&handle).ok();
+            let just_updated = update_marker.as_ref().is_some_and(|path| path.exists());
+            if let Some(path) = &update_marker {
+                let _ = std::fs::remove_file(path);
+            }
+
             // First run (or a run started by hand) opens the window; a start
             // with Windows goes straight to the tray.
             let started_minimized = std::env::args().any(|arg| arg == "--minimized");
             let show_window = !settings.onboarding_completed
+                || just_updated
                 || (!settings.general.start_minimized && !started_minimized);
             if show_window {
                 let route = if settings.onboarding_completed {

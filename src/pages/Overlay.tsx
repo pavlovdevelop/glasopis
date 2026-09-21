@@ -50,6 +50,28 @@ function WarningIcon() {
   );
 }
 
+/** Мини еквалайзер вместо статична икона, докато Glasopis слуша — реагира на
+ * нивото на звука и никога не спира да мърда, дори в пълна тишина. */
+function Waveform({ level }: { level: number }) {
+  const bars = [0, 1, 2, 3];
+  return (
+    <span className="overlay-ball__wave" aria-hidden="true">
+      {bars.map((i) => (
+        <span
+          key={i}
+          className="overlay-ball__wave-bar"
+          style={
+            {
+              "--level": level,
+              animationDelay: `${i * 130}ms`,
+            } as CSSProperties
+          }
+        />
+      ))}
+    </span>
+  );
+}
+
 /**
  * Малка плаваща „топка“, която се показва по време на диктовка. Влачи се
  * навсякъде по екрана (позицията се запомня) и не отнема клавиатурния фокус.
@@ -84,6 +106,8 @@ export function Overlay() {
       <WarningIcon />
     ) : status.state === "done" ? (
       <CheckIcon />
+    ) : status.state === "listening" ? (
+      <Waveform level={level} />
     ) : (
       <MicIcon />
     );
