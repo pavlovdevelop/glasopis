@@ -254,6 +254,17 @@ pub fn save_overlay_position(
     Ok(())
 }
 
+/// Called right before the updater hands off to the silent installer. On
+/// Windows that installer relaunches Glasopis, but a normal launch starts
+/// minimized to the tray if the user has that setting on — leaving no
+/// visible sign the update actually finished. The marker makes the next
+/// startup show the window once, regardless of that setting.
+#[tauri::command]
+pub fn mark_pending_relaunch(app: AppHandle) -> Result<()> {
+    std::fs::write(paths::update_marker_file(&app)?, "")?;
+    Ok(())
+}
+
 /// Hides the settings window to the tray instead of closing the application.
 #[tauri::command]
 pub fn hide_main_window(app: AppHandle) {

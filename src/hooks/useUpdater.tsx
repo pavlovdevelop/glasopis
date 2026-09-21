@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { check, type Update } from "@tauri-apps/plugin-updater";
-import { errorMessage } from "../services/api";
+import { api, errorMessage } from "../services/api";
 import { useAppState } from "./useAppState";
 
 export type UpdateState =
@@ -64,6 +64,10 @@ function useUpdaterInternal() {
     let total = 0;
     let downloaded = 0;
     try {
+      // Windows exits the app as soon as the installer launches successfully
+      // (see downloadAndInstall's docs) — write the marker first, or a crash
+      // between that exit and a later write would lose it.
+      await api.markPendingRelaunch().catch(() => undefined);
       await update.downloadAndInstall((event) => {
         if (event.event === "Started") {
           total = event.data.contentLength ?? 0;
