@@ -1,22 +1,22 @@
-# Building Glasopis
+# Компилиране на Glasopis
 
-## Windows (the real thing)
+## Windows (истинската работа)
 
-Glasopis is a Windows application. A full build — the one that produces
-`GlasopisSetup.exe` — must happen on Windows.
+Glasopis е Windows приложение. Пълна компилация — тази, която произвежда
+`GlasopisSetup.exe` — трябва да се случи на Windows.
 
-### Prerequisites
+### Предпоставки
 
-| Tool | Notes |
+| Инструмент | Бележки |
 | --- | --- |
 | [Git](https://git-scm.com/) | |
-| [Node.js 20+](https://nodejs.org/) | ships npm |
-| [Rust](https://rustup.rs/) | the default `x86_64-pc-windows-msvc` toolchain |
-| [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/) | workload *Desktop development with C++* — required by Rust, and by whisper.cpp in a local build |
-| [CMake](https://cmake.org/download/) | only for `--features whisper`; "Add to PATH" |
-| WebView2 Runtime | already present on Windows 11 and updated Windows 10; otherwise [download it](https://developer.microsoft.com/microsoft-edge/webview2/) |
+| [Node.js 20+](https://nodejs.org/) | доставя npm |
+| [Rust](https://rustup.rs/) | toolchain-ът по подразбиране `x86_64-pc-windows-msvc` |
+| [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/) | workload *Desktop development with C++* — необходим за Rust, и за whisper.cpp в локална компилация |
+| [CMake](https://cmake.org/download/) | само за `--features whisper`; „Add to PATH“ |
+| WebView2 Runtime | вече е наличен на Windows 11 и обновен Windows 10; иначе [изтеглете го](https://developer.microsoft.com/microsoft-edge/webview2/) |
 
-### Build
+### Компилиране
 
 ```bash
 git clone https://github.com/pavlovdevelop/glasopis.git
@@ -25,106 +25,109 @@ npm install
 npm run tauri dev
 ```
 
-The default build uses the Groq engine and compiles in a couple of minutes.
+Компилацията по подразбиране използва двигателя Groq и се компилира за няколко минути.
 
-For local recognition on your own CPU, build with the feature:
+За локално разпознаване на вашия процесор, компилирайте с feature-а:
 
 ```bash
 npm run tauri build -- --features whisper
 ```
 
-That one compiles whisper.cpp, which takes several minutes the first time and needs CMake and
-the C++ build tools. The engine is then selectable in Settings → Разпознаване.
+Тази компилира whisper.cpp, което отнема няколко минути при първо изпълнение и изисква CMake
+и C++ build tools. Двигателят след това може да се избере в Настройки → Разпознаване.
 
-Release build with installer:
+Release компилация с инсталатор:
 
 ```bash
 npm run tauri build
 ```
 
-Output:
+Резултат:
 
 ```text
 target/release/Glasopis.exe
 target/release/bundle/nsis/Glasopis_0.1.0_x64-setup.exe
 ```
 
-The paths are in `target/` at the root of the repository, not in `src-tauri/target/`, because
-Glasopis is a Cargo workspace and a workspace shares one build directory.
+Пътищата са в `target/` в корена на хранилището, не в `src-tauri/target/`, защото Glasopis е
+Cargo workspace, а workspace-ът споделя една build директория.
 
-The release workflow renames the installer to `GlasopisSetup.exe` before publishing it.
+Release workflow-ът преименува инсталатора на `GlasopisSetup.exe`, преди да го публикува.
 
-## Linux / macOS (partial)
+## Linux / macOS (частично)
 
-You cannot build the Windows application on Linux, but you can work on — and verify — a large
-part of the project:
+Не можете да компилирате Windows приложението на Linux, но можете да работите по — и да
+проверявате — голяма част от проекта:
 
 ```bash
 npm install
 npm run typecheck        # TypeScript
-npm test                 # frontend unit tests
-npm run build            # production frontend bundle
+npm test                 # frontend unit тестове
+npm run build             # production frontend bundle
 
 cargo fmt --all --check
-cargo test -p glasopis-core          # settings, commands, dictionary, models, audio math
+cargo test -p glasopis-core          # настройки, команди, речник, модели, аудио математика
 cargo clippy -p glasopis-core -- -D warnings
 ```
 
-The Windows-only Rust code can still be type-checked without a C/C++ toolchain by compiling for
-the Windows target with the speech engine feature disabled:
+Rust кодът, специфичен само за Windows, все пак може да се провери за типове без C/C++
+toolchain, като се компилира за Windows target с изключен feature за двигателя за реч:
 
 ```bash
 rustup target add x86_64-pc-windows-msvc
 cargo clippy --target x86_64-pc-windows-msvc --no-default-features --workspace -- -D warnings
 ```
 
-`--no-default-features` turns off the `whisper` feature. Such a build is **not** a usable
-application: transcription returns an explicit error saying the speech engine was not compiled
-in. It exists purely as a type-checking aid; every release build has the feature on.
+`--no-default-features` изключва feature-а `whisper`. Такава компилация **не е** използваемо
+приложение: транскрипцията връща изрична грешка, че двигателят за реч не е компилиран.
+Съществува единствено като помощно средство за проверка на типовете; всяка release
+компилация има feature-а включен.
 
-## Portable binaries
+## Преносими бинарни файлове
 
-`.cargo/config.toml` sets `GGML_NATIVE=OFF`. Without it, whisper.cpp is compiled with the
-instruction set of the *build* machine, so a binary produced on a server with AVX-512 dies with
-an illegal instruction — silently, the process simply disappears — on a CPU that lacks it.
-The file then sets the instruction set explicitly: AVX2, FMA and F16C on (every x86-64 CPU since
-about 2013 has them, and they make recognition several times faster), AVX-512 off. The last one
-matters: build servers often have AVX-512 while consumer Intel CPUs from the 12th generation
-onwards (Alder Lake, Raptor Lake) do not, and that mismatch is exactly what kills the process.
+`.cargo/config.toml` задава `GGML_NATIVE=OFF`. Без това, whisper.cpp се компилира с набора
+инструкции на *build* машината, така че бинарен файл, произведен на сървър с AVX-512, умира с
+нелегална инструкция — безшумно, процесът просто изчезва — на процесор, който няма тази
+инструкция. Файлът тогава задава набора инструкции изрично: AVX2, FMA и F16C включени (почти
+всеки x86-64 процесор от около 2013 г. насам ги има, и те правят разпознаването няколко пъти
+по-бързо), AVX-512 изключен. Последното има значение: build сървърите често имат AVX-512,
+докато потребителски Intel процесори от 12-то поколение нататък (Alder Lake, Raptor Lake) —
+не, и точно това несъответствие е това, което убива процеса.
 
-For a CPU older than ~2013, or a Celeron/Pentium N or Atom, also set `GGML_AVX`, `GGML_AVX2`,
-`GGML_FMA` and `GGML_F16C` to `OFF` — slower, but it runs. For your own modern machine,
-`GGML_NATIVE=ON` squeezes out the last few percent. Never do that for a binary you distribute.
+За процесор по-стар от ~2013 г., или Celeron/Pentium N или Atom, задайте и `GGML_AVX`,
+`GGML_AVX2`, `GGML_FMA` и `GGML_F16C` на `OFF` — по-бавно, но работи. За собствената ви
+съвременна машина, `GGML_NATIVE=ON` изстисква последните няколко процента. Никога не правете
+това за бинарен файл, който разпространявате.
 
-Two traps when changing these flags:
+Два капана при промяна на тези флагове:
 
-* `whisper-rs-sys` does not declare `cargo:rerun-if-env-changed` for `GGML_*`, so a cached
-  `target/` silently keeps the previous flags — a build can look fixed while shipping the old
-  instruction set. Delete `target/` (and any CI cache) after changing them.
-* The log line "процесорни инструкции: ..." (written when a model is loaded) shows what ggml was
-  actually compiled with. Check it there rather than trusting the build configuration.
+* `whisper-rs-sys` не декларира `cargo:rerun-if-env-changed` за `GGML_*`, така че кеширана
+  `target/` тихо пази предишните флагове — компилация може да изглежда поправена, докато
+  доставя стария набор инструкции. Изтрийте `target/` (и всеки CI кеш) след промяната им.
+* Логовият ред „процесорни инструкции: ...“ (изписан при зареждане на модел) показва с какво
+  всъщност е компилиран ggml. Проверявайте там, а не да се доверявате на build конфигурацията.
 
-## Useful commands
+## Полезни команди
 
-| Command | What it does |
+| Команда | Какво прави |
 | --- | --- |
-| `npm run tauri dev` | run the app with hot reload |
-| `npm run tauri build` | release build + NSIS installer |
-| `npm run build` | build only the frontend into `dist/` |
-| `npm test` | frontend tests (vitest) |
-| `cargo test -p glasopis-core` | core logic tests |
-| `cargo test -p glasopis` | backend tests (Windows) |
-| `cargo fmt --all` | format the Rust code |
+| `npm run tauri dev` | стартира приложението с hot reload |
+| `npm run tauri build` | release компилация + NSIS инсталатор |
+| `npm run build` | компилира само frontend-а в `dist/` |
+| `npm test` | frontend тестове (vitest) |
+| `cargo test -p glasopis-core` | тестове на основната логика |
+| `cargo test -p glasopis` | бекенд тестове (Windows) |
+| `cargo fmt --all` | форматира Rust кода |
 
-## Troubleshooting
+## Отстраняване на проблеми
 
-**`cmake` not found / whisper.cpp fails to build** — install CMake and the C++ workload of the
-Visual Studio Build Tools, then open a fresh terminal so `PATH` is updated.
+**`cmake` не е намерен / whisper.cpp не успява да се компилира** — инсталирайте CMake и C++
+workload-а на Visual Studio Build Tools, след което отворете нов терминал, за да се обнови
+`PATH`.
 
-**`error: linker link.exe not found`** — the MSVC build tools are missing; install the C++
-workload.
+**`error: linker link.exe not found`** — липсват MSVC build tools; инсталирайте C++ workload-а.
 
-**The build succeeds but the window is white** — the WebView2 runtime is missing or outdated.
+**Компилацията минава, но прозорецът е бял** — WebView2 runtime-ът липсва или е остарял.
 
-**Antivirus flags the fresh build** — unsigned binaries from an unknown publisher are a common
-false positive; see the SmartScreen note in the README.
+**Антивирус маркира новата компилация** — неподписани бинарни файлове от непознат издател са
+чест фалшив положителен резултат; вижте бележката за SmartScreen в README.

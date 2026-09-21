@@ -1,56 +1,58 @@
-# Security Policy
+# Политика за сигурност
 
-## Supported versions
+## Поддържани версии
 
-Glasopis is in early development. Security fixes are made on the latest released version.
+Glasopis е в ранна разработка. Поправки за сигурност се правят за последната публикувана версия.
 
-| Version | Supported |
+| Версия | Поддържана |
 | --- | --- |
 | 0.1.x | ✅ |
-| older | ❌ |
+| по-стари | ❌ |
 
-## Reporting a vulnerability
+## Докладване на уязвимост
 
-Please report security issues **privately** through GitHub's
-[private vulnerability reporting](https://github.com/pavlovdevelop/glasopis/security/advisories/new)
-rather than in a public issue. If that is not available to you, open an issue asking for a
-private contact channel without including details of the problem.
+Моля докладвайте проблеми със сигурността **лично**, чрез
+[частното докладване на уязвимости](https://github.com/pavlovdevelop/glasopis/security/advisories/new)
+на GitHub, а не в публичен issue. Ако това не е достъпно за вас, отворете issue, в което молите
+за частен канал за връзка, без да включвате подробности за проблема.
 
-Please include:
+Моля включете:
 
-- what an attacker can do,
-- the steps to reproduce it,
-- the affected version and your Windows version.
+- какво може да направи атакуващ,
+- стъпките за възпроизвеждане,
+- засегнатата версия и вашата версия на Windows.
 
-You can expect an acknowledgement within a few days and an honest estimate of when a fix will
-ship. This is a volunteer project; there is no bug bounty.
+Може да очаквате потвърждение в рамките на няколко дни и честна оценка кога ще излезе поправка.
+Това е доброволчески проект — няма bug bounty.
 
-## Threat model
+## Модел на заплахите
 
-What Glasopis is designed to protect:
+Какво е проектирано да защитава Glasopis:
 
-- **Your voice.** It is kept in memory and never written to disk. In the default mode it is sent
-  over HTTPS to `api.groq.com` for recognition and nowhere else; sending it anywhere other than
-  the configured recognition provider would be a critical vulnerability. A build with the
-  `whisper` feature uploads nothing at all.
-- **Your API key.** It is stored in the settings file in plain text and sent only to Groq, as a
-  bearer token over HTTPS. Leaking it anywhere else — logs, telemetry, error messages — is a
-  vulnerability. Revoke a leaked key at console.groq.com/keys.
-- **Your dictated text.** It goes to the clipboard and the focused window, and — only if you
-  enable history — to a local file. It is never sent anywhere.
-- **The model download** (local mode). Downloads only happen over HTTPS from the whisper.cpp
-  model repository and every file is verified against a SHA-256 checksum compiled into the
-  application. A URL outside the expected host is refused. The same applies to the two URLs the
-  interface can open in a browser.
+- **Вашият глас.** Пази се само в паметта и никога не се записва на диска. В режима по
+  подразбиране се изпраща през HTTPS до `api.groq.com` за разпознаване и никъде другаде;
+  изпращането му където и да било другаде освен към настроения доставчик на разпознаване би
+  било критична уязвимост. Компилация с feature `whisper` не качва нищо.
+- **Вашият API ключ.** Пази се във файла с настройки в чист текст и се изпраща само към Groq,
+  като bearer token през HTTPS. Изтичането му другаде — логове, телеметрия, съобщения за
+  грешка — е уязвимост. Отменете изтекъл ключ на console.groq.com/keys.
+- **Продиктуваният от вас текст.** Отива в клипборда и активния прозорец, и — само ако сте
+  включили историята — в локален файл. Никога не се изпраща никъде.
+- **Изтеглянето на модела** (локален режим). Изтеглянията стават само през HTTPS от хранилището
+  с модели на whisper.cpp и всеки файл се проверява спрямо SHA-256 контролна сума, вградена в
+  приложението. URL адрес извън очаквания хост се отхвърля. Същото важи за двата URL адреса,
+  които интерфейсът може да отвори в браузър.
 
-What it deliberately does not do:
+Какво умишлено не прави:
 
-- Glasopis never executes recognized text as a command and never presses Enter on your behalf.
-- Glasopis does not request administrator rights. As a result it cannot insert text into
-  applications running elevated; in that case the text is left on the clipboard.
+- Glasopis никога не изпълнява разпознатия текст като команда и никога не натиска Enter вместо
+  вас.
+- Glasopis не изисква администраторски права. В резултат на това не може да въвежда текст в
+  приложения, работещи с повишени права; в такъв случай текстът остава в клипборда.
 
-## Unsigned builds
+## Неподписани компилации
 
-Official release binaries are not code-signed, because a certificate costs money and the project
-is free. Verify what you download: prefer building from source, and treat any Glasopis installer
-that does not come from the GitHub Releases page of this repository as untrusted.
+Официалните release бинарни файлове не са подписани с цифров сертификат, защото сертификатът
+струва пари, а проектът е безплатен. Проверявайте това, което изтегляте: предпочитайте
+компилиране от изходния код, и третирайте всеки инсталатор на Glasopis, който не идва от
+страницата GitHub Releases на това хранилище, като ненадежден.

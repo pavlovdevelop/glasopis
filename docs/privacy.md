@@ -1,70 +1,65 @@
-# Поверителност / Privacy
+# Поверителност
 
-## Накратко (BG)
+## Накратко
 
 **В режима по подразбиране Glasopis изпраща записа към Groq за разпознаване.** Ако това не ви
 устройва, компилацията с feature `whisper` разпознава изцяло на вашия компютър.
 
-- По подразбиране разпознаването се извършва от Groq (`whisper-large-v3-turbo`) на техни сървъри,
-  според [техните условия](https://groq.com/privacy-policy/). Изпраща се самият запис и езикът,
-  нищо друго — нито името ви, нито кое приложение сте ползвали.
+- По подразбиране разпознаването се извършва от Groq (`whisper-large-v3-turbo`) на техни
+  сървъри, според [техните условия](https://groq.com/privacy-policy/). Изпраща се самият запис
+  и езикът, нищо друго — нито името ви, нито кое приложение сте ползвали.
 - В локален режим разпознаването се извършва от whisper.cpp на вашия процесор и нищо не се
   изпраща никъде.
 - Записът съществува само в оперативната памет по време на разпознаването и се освобождава
   веднага след това. Glasopis не записва аудио файлове на диска.
-- Няма телеметрия, няма профили, няма реклами, няма API ключове.
+- Няма телеметрия, няма профили, няма реклами, няма API ключове от наша страна.
 - Историята на диктовките е **изключена** по подразбиране. Когато я включите, се пази само
   текстът и часът — никога аудио. Може да я изчистите с един бутон.
 - Логовете съдържат техническа информация (например колко секунди е записът и коя грешка е
   възникнала), но не и разпознатия текст.
 
-## In short (EN)
+## Какво напуска компютъра ви, и кога
 
-By default Glasopis sends the recording to Groq for recognition. A build with the `whisper`
-feature recognizes everything locally and uploads nothing.
-
-## What leaves your computer, and when
-
-| Action | Network use |
+| Действие | Мрежова употреба |
 | --- | --- |
-| Installing Glasopis | download from GitHub Releases (your browser) |
-| A dictation in the default mode | HTTPS request to `api.groq.com` carrying the recording |
-| Downloading a speech model (local mode) | HTTPS request to `huggingface.co` for the model file |
-| A dictation in local mode | none |
-| Recording, text processing, text insertion | none |
+| Инсталиране на Glasopis | изтегляне от GitHub Releases (вашият браузър) |
+| Диктовка в режим по подразбиране | HTTPS заявка към `api.groq.com`, носеща записа |
+| Изтегляне на модел за реч (локален режим) | HTTPS заявка към `huggingface.co` за файла с модела |
+| Диктовка в локален режим | нищо |
+| Запис, обработка на текст, въвеждане на текст | нищо |
 
-Glasopis has no update checker, no crash reporter and no analytics in v0.1.0. If an update
-check is ever added it will be opt-in and documented here.
+Glasopis няма проверка за обновления, доклад за срив или анализи в v0.1.0. Ако някога бъде
+добавена проверка за обновления, тя ще е опционална и документирана тук.
 
-## The clipboard
+## Клипбордът
 
-The default insertion strategy puts the recognized text on the Windows clipboard and sends
-`Ctrl+V`. Consequences you should know about:
+Стратегията за въвеждане по подразбиране поставя разпознатия текст в клипборда на Windows и
+изпраща `Ctrl+V`. Последствия, които трябва да знаете:
 
-- Clipboard history (Win+V) and third-party clipboard managers will see the dictated text,
-  because that is how the Windows clipboard works.
-- The previous clipboard content is restored ~800 ms after pasting (configurable, can be
-  switched off).
-- If you prefer that nothing touches the clipboard, set the insertion mode to
-  „Симулация на клавиатура“ (keyboard simulation) in Settings → Въвеждане на текст.
+- Историята на клипборда (Win+V) и приложения на трети страни за клипборда ще видят
+  продиктувания текст, защото така работи клипбордът на Windows.
+- Предишното съдържание на клипборда се възстановява ~800 ms след поставянето (може да се
+  настрои, може да се изключи).
+- Ако предпочитате нищо да не докосва клипборда, задайте режима на въвеждане на
+  „Симулация на клавиатура“ в Настройки → Въвеждане на текст.
 
-## Files
+## Файлове
 
-| File | Contains |
+| Файл | Съдържа |
 | --- | --- |
-| `%APPDATA%\com.glasopis.app\settings.json` | your settings, the personal dictionary **and your Groq API key in plain text** |
-| `%APPDATA%\com.glasopis.app\history.json` | only if you enabled history: transcripts + timestamps |
-| `%LOCALAPPDATA%\com.glasopis.app\models\` | downloaded speech models |
-| `%LOCALAPPDATA%\com.glasopis.app\logs\` | technical logs, no transcripts |
+| `%APPDATA%\com.glasopis.app\settings.json` | вашите настройки, личния речник **и вашия Groq API ключ в чист текст** |
+| `%APPDATA%\com.glasopis.app\history.json` | само ако сте включили историята: транскрипти + времеви маркери |
+| `%LOCALAPPDATA%\com.glasopis.app\models\` | изтеглени модели за реч |
+| `%LOCALAPPDATA%\com.glasopis.app\logs\` | технически логове, без транскрипти |
 
-Deleting these folders removes everything Glasopis stores.
+Изтриването на тези папки премахва всичко, което Glasopis съхранява.
 
-The API key is stored unencrypted, like most desktop tools do it; anyone with access to your
-Windows account can read it. Protecting it with the Windows credential store is on the roadmap.
-If a key leaks, revoke it at [console.groq.com/keys](https://console.groq.com/keys).
+API ключът се пази некриптиран, както правят повечето десктоп инструменти; всеки с достъп до
+вашия акаунт в Windows може да го прочете. Защитата му чрез Windows credential store е в
+roadmap-а. Ако ключ изтече, отменете го на [console.groq.com/keys](https://console.groq.com/keys).
 
-## Microphone permission
+## Разрешение за микрофон
 
-Windows 10/11 asks for microphone access per application
-(Settings → Privacy & security → Microphone). If access is denied, Glasopis shows
-„Glasopis няма достъп до микрофона.“ and records nothing.
+Windows 10/11 пита за достъп до микрофона за всяко приложение поотделно
+(Настройки → Поверителност и защита → Микрофон). Ако достъпът е отказан, Glasopis показва
+„Glasopis няма достъп до микрофона.“ и не записва нищо.

@@ -1,71 +1,72 @@
-# Contributing to Glasopis
+# Принос към Glasopis
 
-Благодарим! / Thank you! Contributions in Bulgarian or English are equally welcome.
+Благодарим! Приносите на български или английски са еднакво добре дошли.
 
-## Ground rules
+## Основни правила
 
-Glasopis must stay **free of charge and honest about what it does**. Recognition may run in the
-cloud (the default engine is Groq) or locally (whisper.cpp), but:
+Glasopis трябва да остане **безплатен и честен за това какво прави**. Разпознаването може да
+работи в облака (двигателят по подразбиране е Groq) или локално (whisper.cpp), но:
 
-- the local path must keep working — a change that makes local-only use impossible is not
-  acceptable;
-- nothing in the product may require payment, and a provider that costs money to use for normal
-  dictation does not belong in the default build;
-- whenever audio leaves the machine, the interface and the documentation must say so plainly.
+- локалният път трябва да продължи да работи — промяна, която прави употребата само локално
+  невъзможна, не е приемлива;
+- нищо в продукта не може да изисква плащане, а доставчик, чиято употреба за нормална диктовка
+  струва пари, няма място в компилацията по подразбиране;
+- когато и да напуска машината аудио, интерфейсът и документацията трябва да го казват ясно.
 
-Two more rules that follow from the product:
+Още две правила, произтичащи от самия продукт:
 
-- No telemetry, no analytics, no crash reporting without explicit opt-in.
-- Recognized text is inserted, never executed. Glasopis does not press Enter for the user.
+- Без телеметрия, без анализи, без доклади за срив без изрично съгласие.
+- Разпознатият текст се въвежда, никога не се изпълнява. Glasopis не натиска Enter вместо
+  потребителя.
 
-## Getting started
+## Първи стъпки
 
-See [docs/building.md](docs/building.md) for the toolchain. In short:
+Вижте [docs/building.md](docs/building.md) за инструментите. Накратко:
 
 ```bash
 npm install
 npm run tauri dev
 ```
 
-Most logic that does not need Windows lives in `crates/glasopis-core` and can be developed and
-tested on any platform.
+По-голямата част от логиката, която не изисква Windows, живее в `crates/glasopis-core` и може
+да се разработва и тества на всяка платформа.
 
-## Before opening a pull request
+## Преди да отворите pull request
 
 ```bash
 cargo fmt --all
-cargo clippy --target x86_64-pc-windows-msvc --workspace -- -D warnings   # or the host target on Windows
+cargo clippy --target x86_64-pc-windows-msvc --workspace -- -D warnings   # или хост-таргетът на Windows
 cargo test --workspace
 npm run typecheck
 npm test
 npm run build
 ```
 
-Please also:
+Освен това:
 
-- Add tests for anything in `glasopis-core` — that crate is where the text behaviour lives.
-- Keep user-visible strings in `src/i18n/bg.json` **and** `src/i18n/en.json`; a test enforces
-  that both files have the same keys.
-- Write Bulgarian error messages for anything the user can see.
-- Explain *why* in the commit message when a change is not obvious.
+- Добавяйте тестове за всичко в `glasopis-core` — там живее поведението на текста.
+- Дръжте видимите за потребителя низове в `src/i18n/bg.json` **и** `src/i18n/en.json`; тест
+  проверява дали двата файла имат едни и същи ключове.
+- Пишете съобщенията за грешка на български за всичко, което потребителят вижда.
+- Обяснете *защо* в commit съобщението, когато промяната не е очевидна.
 
-## Reporting bugs
+## Докладване на грешки
 
-Open an issue with:
+Отворете issue със следната информация:
 
-- your Windows version and whether it is 10 or 11,
-- the target application (Chrome, Word, ...),
-- the selected model and microphone,
-- what you dictated and what appeared,
-- the relevant part of `%LOCALAPPDATA%\com.glasopis.app\logs\` (it contains no transcripts).
+- версията на Windows и дали е 10 или 11,
+- целевото приложение (Chrome, Word, ...),
+- избрания модел и микрофон,
+- какво сте продиктували и какво се е появило,
+- съответната част от `%LOCALAPPDATA%\com.glasopis.app\logs\` (не съдържа транскрипти).
 
-## Adding a speech model
+## Добавяне на модел за реч
 
-Models must be free to download, usable without an account or key, runnable locally, and
-compatible with redistribution of Glasopis. Add the entry to `crates/glasopis-core/src/models.rs`
-with the exact size and SHA-256 checksum, and record the license in
-[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+Моделите трябва да са безплатни за изтегляне, използваеми без акаунт или ключ, изпълними
+локално и съвместими с разпространението на Glasopis. Добавете записа в
+`crates/glasopis-core/src/models.rs` с точния размер и SHA-256 контролна сума, и отбележете
+лиценза в [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
 
-## Code of conduct
+## Кодекс на поведение
 
-By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
+С участието си се съгласявате с [Кодекса на поведение](CODE_OF_CONDUCT.md).

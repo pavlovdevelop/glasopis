@@ -1,30 +1,34 @@
 # Roadmap
 
-v0.1.0 is about one thing: hotkey → microphone → local Bulgarian recognition → text in the
-active application. Everything below comes after that works reliably, and none of it may
-weaken the free, local default.
+v0.1.0 е насочен към едно нещо: клавишна комбинация → микрофон → локално/облачно разпознаване
+на български → текст в активното приложение. Всичко по-долу идва, след като това работи
+надеждно, и нищо от него не може да отслаби безплатния локален вариант по подразбиране.
 
-## Next
+## Следващо
 
-- Streaming transcription (text appears while you speak)
-- Personal dictionary editor in the settings UI (the storage and the replacement engine exist)
-- Richer editing commands („изтрий изречението“, „с главна буква“, „поправи последната дума“)
-- Automatic text cleanup (filler words, repetitions)
-- Dictation history search
-- English UI polish and Bulgarian error messages translated for the English interface
+- Streaming транскрипция (текстът се появява, докато говорите)
+- Редактор на личния речник в интерфейса на настройките (съхранението и двигателят за замяна
+  вече съществуват)
+- По-богати команди за редакция („изтрий изречението“, „с главна буква“, „поправи последната
+  дума“)
+- Автоматично изчистване на текста (думи-запълнители, повторения)
+- Търсене в историята на диктовките
+- Изчистване на английския интерфейс и превод на българските съобщения за грешка за английския
+  интерфейс
 
-## Later
+## По-нататък
 
-- Optional GPU acceleration (Vulkan / CUDA builds of whisper.cpp)
-- Custom vocabulary passed to the model as an initial prompt
-- Custom voice commands and command macros
-- Accessibility mode
-- More languages beyond bg/en
-- macOS and Linux versions
+- Опционално GPU ускорение (Vulkan / CUDA компилации на whisper.cpp)
+- Персонализиран речник, подаван на модела като начален prompt
+- Персонализирани гласови команди и макроси от команди
+- Режим за достъпност
+- Повече езици извън bg/en
+- Версии за macOS и Linux
 
-## Deliberately optional, forever
+## Умишлено опционално, завинаги
 
-- AI text correction through a cloud model — only ever as an opt-in plugin, never a requirement,
-  never in the default build.
+- AI корекция на текст чрез облачен модел — само като опционален plugin, никога изискване,
+  никога в компилацията по подразбиране.
 
-Glasopis will not gain advertisements, premium tiers, locked features, usage quotas or accounts.
+Glasopis няма да получи реклами, платени нива, заключени функции, лимити на употреба или
+акаунти.
