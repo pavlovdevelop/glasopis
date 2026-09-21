@@ -36,7 +36,11 @@
       "nsis": {
         "installMode": "currentUser",
         "languages": ["Bulgarian", "English"],
-        "displayLanguageSelector": false
+        "displayLanguageSelector": false,
+        "headerImage": "installer/header.bmp",
+        "sidebarImage": "installer/sidebar.bmp",
+        "installerIcon": "icons/icon.ico",
+        "uninstallerIcon": "icons/icon.ico"
       }
     }
   },
