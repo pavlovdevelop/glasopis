@@ -54,7 +54,7 @@ impl SpeechEngine for WhisperEngine {
         params.set_n_threads(self.threads);
         // Без това всяка диктовка се смята като тридесетсекундна.
         params.set_audio_ctx(glasopis_core::audio::whisper_audio_context(seconds));
-        // Bulgarian (or whatever the user selected) — never auto-translate.
+        // Bulgarian (or whatever the user selected) - never auto-translate.
         params.set_language(Some(language));
         params.set_translate(false);
         params.set_no_timestamps(true);

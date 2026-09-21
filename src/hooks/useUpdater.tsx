@@ -31,13 +31,13 @@ const UpdaterContext = createContext<UpdaterValue | null>(null);
 
 /**
  * Checks GitHub Releases for a newer build and installs it. On Windows,
- * `downloadAndInstall` hands off to the NSIS installer and exits Glasopis —
+ * `downloadAndInstall` hands off to the NSIS installer and exits Glasopis -
  * the installer restarts it, so there is nothing left for this hook to do
  * once installation starts.
  *
  * Lives as a single instance in `UpdaterProvider` (checks once, automatically,
- * for the whole app) so every page — the sidebar banner and the About page's
- * own button — shows the same state instead of triggering separate checks.
+ * for the whole app) so every page - the sidebar banner and the About page's
+ * own button - shows the same state instead of triggering separate checks.
  */
 function useUpdaterInternal() {
   const [state, setState] = useState<UpdateState>({ phase: "idle" });
@@ -65,7 +65,7 @@ function useUpdaterInternal() {
     let downloaded = 0;
     try {
       // Windows exits the app as soon as the installer launches successfully
-      // (see downloadAndInstall's docs) — write the marker first, or a crash
+      // (see downloadAndInstall's docs) - write the marker first, or a crash
       // between that exit and a later write would lose it.
       await api.markPendingRelaunch().catch(() => undefined);
       await update.downloadAndInstall((event) => {

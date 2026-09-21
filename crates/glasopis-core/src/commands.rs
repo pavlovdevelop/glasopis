@@ -68,7 +68,7 @@ pub fn bulgarian_commands() -> Vec<(&'static str, Action)> {
 /// Characters that may surround a token as "decoration" produced by the
 /// automatic punctuation of the speech model.
 const TRIM: &[char] = &[
-    '.', ',', '!', '?', ';', ':', '…', '"', '„', '“', '\'', '(', ')', '-', '–', '—',
+    '.', ',', '!', '?', ';', ':', '…', '"', '„', '“', '\'', '(', ')', '-', '–', '-',
 ];
 
 /// Normalises a token before it is compared with the command table.

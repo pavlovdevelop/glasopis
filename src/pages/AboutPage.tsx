@@ -24,7 +24,7 @@ export function AboutPage() {
       <p className="hint">{t("about.openSource")}</p>
       <p className="hint">{t("about.free")}</p>
       <Row label={t("about.version")}>
-        <span>{info?.version ?? "—"}</span>
+        <span>{info?.version ?? "-"}</span>
       </Row>
       <Row label={t("update.title")}>
         {updater.state.phase === "idle" || updater.state.phase === "up-to-date" ? (

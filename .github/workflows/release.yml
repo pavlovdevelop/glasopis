@@ -4,7 +4,7 @@ on:
   push:
     tags: ["v*"]
     # Всеки push в main обновява GitHub Release "latest" с последния
-    # инсталатор — постоянен линк, без да се разчита на Actions artifacts.
+    # инсталатор - постоянен линк, без да се разчита на Actions artifacts.
     branches: ["main"]
   workflow_dispatch:
 
@@ -31,7 +31,7 @@ jobs:
         shell: pwsh
         run: |
           # Версионирани тагове (v0.2.0) носят точно тази версия. Всеки push в
-          # main получава 0.1.<run_number> — расте монотонно, за да може
+          # main получава 0.1.<run_number> - расте монотонно, за да може
           # updater-ът (сравнение по semver) винаги да разпознае "по-нова".
           if ("${{ github.ref }}" -like "refs/tags/v*") {
             $version = "${{ github.ref_name }}".TrimStart("v")
@@ -51,7 +51,7 @@ jobs:
 
       - name: Build the application and the installer
         # Задава двата GitHub secrets, за да подпише Tauri ъпдейт артефакта
-        # (updater/latest.json подпис) — виж https://v2.tauri.app/plugin/updater/.
+        # (updater/latest.json подпис) - виж https://v2.tauri.app/plugin/updater/.
         # Това НЕ е Windows Authenticode сертификат: SmartScreen продължава
         # да показва предупреждение, защото такъв сертификат струва пари.
         env:
@@ -109,7 +109,7 @@ jobs:
             изисква администраторски права.
 
             Компилацията **не е подписана с цифров сертификат**, затова Windows SmartScreen може
-            да покаже предупреждение — изберете „Повече информация → Изпълни въпреки това“.
+            да покаже предупреждение - изберете „Повече информация → Изпълни въпреки това“.
             Контролната сума на файла е в `GlasopisSetup.exe.sha256`.
 
             ---
@@ -127,24 +127,24 @@ jobs:
           files: artifacts/*
           draft: false
           # GitHub's /releases/latest (и от там /releases/latest/download/...)
-          # сочи само към release, който НЕ е prerelease и НЕ е draft — затова
+          # сочи само към release, който НЕ е prerelease и НЕ е draft - затова
           # тук трябва да е false, иначе линкът "latest" води до 404.
           prerelease: false
           body: |
             Автоматична компилация от последния commit в `main` (${{ github.sha }}).
-            Обновява се при всеки push — не е официално издание.
+            Обновява се при всеки push - не е официално издание.
 
             Изтеглете `GlasopisSetup.exe` по-долу. Инсталацията е за текущия потребител и не
             изисква администраторски права.
 
             Компилацията **не е подписана с цифров сертификат**, затова Windows SmartScreen може
-            да покаже предупреждение — изберете „Повече информация → Изпълни въпреки това“.
+            да покаже предупреждение - изберете „Повече информация → Изпълни въпреки това“.
             Контролната сума на файла е в `GlasopisSetup.exe.sha256`.
 
             За официални версии виж [Releases с таг `v*`](../../releases).
 
             ---
 
-            Automatic build from the latest commit on `main`. Updated on every push — not an
+            Automatic build from the latest commit on `main`. Updated on every push - not an
             official release. This build is **not code-signed**; Windows SmartScreen may warn
             about it. Choose *More info → Run anyway*, or build from source.

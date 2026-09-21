@@ -8,13 +8,13 @@ use crate::state::AppState;
 pub const MAIN_WINDOW: &str = "main";
 pub const OVERLAY_WINDOW: &str = "overlay";
 
-/// A small draggable badge, not a window-sized panel — big enough for the
+/// A small draggable badge, not a window-sized panel - big enough for the
 /// icon and a contained level glow (which must not exceed the window, or it
 /// gets visibly clipped), small enough to stay out of the way.
 const OVERLAY_SIZE: f64 = 72.0;
 /// Distance from the bottom edge of the monitor, used only the first time the
 /// overlay is shown (before the user has dragged it anywhere). `monitor.size()`
-/// is the full display resolution, not the work area — this has to clear the
+/// is the full display resolution, not the work area - this has to clear the
 /// Windows taskbar (and a taller one, at 150%+ scaling) on its own.
 const OVERLAY_BOTTOM_MARGIN: f64 = 160.0;
 
@@ -91,7 +91,7 @@ pub fn ensure_overlay(app: &AppHandle) -> Result<WebviewWindow> {
 
 /// Places the overlay at `saved` (clamped to the current monitor, in case the
 /// screen configuration changed since it was saved) or, the first time, at
-/// the bottom centre of the monitor the cursor is on — like a system toast.
+/// the bottom centre of the monitor the cursor is on - like a system toast.
 fn position_overlay(window: &WebviewWindow, saved: Option<(i32, i32)>) {
     let Ok(Some(monitor)) = window.current_monitor() else {
         return;

@@ -1,7 +1,7 @@
 //! Short feedback tones for the start and the end of a dictation.
 //!
 //! Deliberately tiny: no audio files are shipped and no playback library is
-//! pulled in — the two tones come from the Windows `Beep` API and are played on
+//! pulled in - the two tones come from the Windows `Beep` API and are played on
 //! a background thread so they never delay recording.
 
 #[cfg(windows)]

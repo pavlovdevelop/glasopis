@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "Glasopis",
-    "tagline": "You speak — I write.",
+    "tagline": "You speak - I write.",
     "description": "Free Bulgarian voice typing for Windows."
   },
   "common": {
@@ -46,7 +46,7 @@
     "processing": "Processing...",
     "done": "Done",
     "error": "Error",
-    "clipboardOnly": "The text is on the clipboard — press Ctrl+V."
+    "clipboardOnly": "The text is on the clipboard - press Ctrl+V."
   },
   "general": {
     "title": "General settings",
@@ -80,7 +80,7 @@
     "recordHint": "Press the combination you want.",
     "press": "Press a combination...",
     "invalid": "This combination is not valid.",
-    "modifierHint": "Windows requires a combination with Ctrl, Alt or Shift — a single key cannot be registered globally."
+    "modifierHint": "Windows requires a combination with Ctrl, Alt or Shift - a single key cannot be registered globally."
   },
   "insertion": {
     "title": "Text insertion",
@@ -163,8 +163,8 @@
     "install": "Download and install",
     "downloading": "Downloading... {percent}%",
     "downloadingUnknown": "Downloading...",
-    "ready": "Installing — Glasopis will restart.",
-    "justUpdated": "Glasopis was updated to version {version} — you're on the latest version.",
+    "ready": "Installing - Glasopis will restart.",
+    "justUpdated": "Glasopis was updated to version {version} - you're on the latest version.",
     "error": "The update check failed.",
     "notes": "What's new"
   },
@@ -222,7 +222,7 @@
     "hide": "Hide",
     "modelTurbo": "Fast (whisper-large-v3-turbo)",
     "modelLarge": "Most accurate (whisper-large-v3)",
-    "modelHint": "The accurate model gets about 10% of words wrong, the fast one about 12%, per Groq — but those are general figures averaged across many languages, not Bulgarian-specific. In practice the result can go the other way depending on the language and voice; if \"Fast\" works better for you, feel free to stick with it.",
+    "modelHint": "The accurate model gets about 10% of words wrong, the fast one about 12%, per Groq - but those are general figures averaged across many languages, not Bulgarian-specific. In practice the result can go the other way depending on the language and voice; if \"Fast\" works better for you, feel free to stick with it.",
     "modelAccuracy": "word errors",
     "terms": "Terms and names",
     "termsHint": "Words you want spelled exactly like this, comma separated: dev, npm, React, GitHub, Docker. They are sent to the model as context so it does not transliterate them. Entries from the personal dictionary are added automatically.",

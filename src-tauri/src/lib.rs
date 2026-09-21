@@ -1,6 +1,6 @@
-//! Glasopis — системно гласово въвеждане на български за Windows.
+//! Glasopis - системно гласово въвеждане на български за Windows.
 //!
-//! Ти говориш — Аз пиша.
+//! Ти говориш - Аз пиша.
 
 mod audio;
 mod autostart;
@@ -32,7 +32,7 @@ pub fn run() {
         // A second launch focuses the running instance instead of starting a
         // second tray icon and a second speech engine.
         builder = builder.plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
-            log::info!("вече има стартиран Glasopis — показвам съществуващия прозорец");
+            log::info!("вече има стартиран Glasopis - показвам съществуващия прозорец");
             let _ = ui::show_main_window(app);
         }));
         builder = builder.plugin(tauri_plugin_autostart::init(
@@ -110,7 +110,7 @@ pub fn run() {
             }
 
             // A relaunch straight after the updater's silent install shows the
-            // window once, even if the user normally starts minimized —
+            // window once, even if the user normally starts minimized -
             // otherwise the update looks like it silently did nothing.
             let update_marker = paths::update_marker_file(&handle).ok();
             let just_updated = update_marker.as_ref().is_some_and(|path| path.exists());

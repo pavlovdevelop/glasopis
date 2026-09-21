@@ -2,8 +2,8 @@
 
 ## Windows (истинската работа)
 
-Glasopis е Windows приложение. Пълна компилация — тази, която произвежда
-`GlasopisSetup.exe` — трябва да се случи на Windows.
+Glasopis е Windows приложение. Пълна компилация - тази, която произвежда
+`GlasopisSetup.exe` - трябва да се случи на Windows.
 
 ### Предпоставки
 
@@ -12,7 +12,7 @@ Glasopis е Windows приложение. Пълна компилация — т
 | [Git](https://git-scm.com/) | |
 | [Node.js 20+](https://nodejs.org/) | доставя npm |
 | [Rust](https://rustup.rs/) | toolchain-ът по подразбиране `x86_64-pc-windows-msvc` |
-| [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/) | workload *Desktop development with C++* — необходим за Rust, и за whisper.cpp в локална компилация |
+| [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/) | workload *Desktop development with C++* - необходим за Rust, и за whisper.cpp в локална компилация |
 | [CMake](https://cmake.org/download/) | само за `--features whisper`; „Add to PATH“ |
 | WebView2 Runtime | вече е наличен на Windows 11 и обновен Windows 10; иначе [изтеглете го](https://developer.microsoft.com/microsoft-edge/webview2/) |
 
@@ -56,8 +56,8 @@ Release workflow-ът преименува инсталатора на `Glasopis
 
 ## Linux / macOS (частично)
 
-Не можете да компилирате Windows приложението на Linux, но можете да работите по — и да
-проверявате — голяма част от проекта:
+Не можете да компилирате Windows приложението на Linux, но можете да работите по - и да
+проверявате - голяма част от проекта:
 
 ```bash
 npm install
@@ -87,22 +87,22 @@ cargo clippy --target x86_64-pc-windows-msvc --no-default-features --workspace -
 
 `.cargo/config.toml` задава `GGML_NATIVE=OFF`. Без това, whisper.cpp се компилира с набора
 инструкции на *build* машината, така че бинарен файл, произведен на сървър с AVX-512, умира с
-нелегална инструкция — безшумно, процесът просто изчезва — на процесор, който няма тази
+нелегална инструкция - безшумно, процесът просто изчезва - на процесор, който няма тази
 инструкция. Файлът тогава задава набора инструкции изрично: AVX2, FMA и F16C включени (почти
 всеки x86-64 процесор от около 2013 г. насам ги има, и те правят разпознаването няколко пъти
 по-бързо), AVX-512 изключен. Последното има значение: build сървърите често имат AVX-512,
-докато потребителски Intel процесори от 12-то поколение нататък (Alder Lake, Raptor Lake) —
+докато потребителски Intel процесори от 12-то поколение нататък (Alder Lake, Raptor Lake) -
 не, и точно това несъответствие е това, което убива процеса.
 
 За процесор по-стар от ~2013 г., или Celeron/Pentium N или Atom, задайте и `GGML_AVX`,
-`GGML_AVX2`, `GGML_FMA` и `GGML_F16C` на `OFF` — по-бавно, но работи. За собствената ви
+`GGML_AVX2`, `GGML_FMA` и `GGML_F16C` на `OFF` - по-бавно, но работи. За собствената ви
 съвременна машина, `GGML_NATIVE=ON` изстисква последните няколко процента. Никога не правете
 това за бинарен файл, който разпространявате.
 
 Два капана при промяна на тези флагове:
 
 * `whisper-rs-sys` не декларира `cargo:rerun-if-env-changed` за `GGML_*`, така че кеширана
-  `target/` тихо пази предишните флагове — компилация може да изглежда поправена, докато
+  `target/` тихо пази предишните флагове - компилация може да изглежда поправена, докато
   доставя стария набор инструкции. Изтрийте `target/` (и всеки CI кеш) след промяната им.
 * Логовият ред „процесорни инструкции: ...“ (изписан при зареждане на модел) показва с какво
   всъщност е компилиран ggml. Проверявайте там, а не да се доверявате на build конфигурацията.
@@ -121,13 +121,13 @@ cargo clippy --target x86_64-pc-windows-msvc --no-default-features --workspace -
 
 ## Отстраняване на проблеми
 
-**`cmake` не е намерен / whisper.cpp не успява да се компилира** — инсталирайте CMake и C++
+**`cmake` не е намерен / whisper.cpp не успява да се компилира** - инсталирайте CMake и C++
 workload-а на Visual Studio Build Tools, след което отворете нов терминал, за да се обнови
 `PATH`.
 
-**`error: linker link.exe not found`** — липсват MSVC build tools; инсталирайте C++ workload-а.
+**`error: linker link.exe not found`** - липсват MSVC build tools; инсталирайте C++ workload-а.
 
-**Компилацията минава, но прозорецът е бял** — WebView2 runtime-ът липсва или е остарял.
+**Компилацията минава, но прозорецът е бял** - WebView2 runtime-ът липсва или е остарял.
 
-**Антивирус маркира новата компилация** — неподписани бинарни файлове от непознат издател са
+**Антивирус маркира новата компилация** - неподписани бинарни файлове от непознат издател са
 чест фалшив положителен резултат; вижте бележката за SmartScreen в README.

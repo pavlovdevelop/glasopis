@@ -101,7 +101,7 @@ export function RecognitionPage() {
             value={settings.cloud.model}
             options={models.map((model) => ({
               value: model.id,
-              label: `${t(MODEL_LABELS[model.id] ?? model.id)} — ${model.word_error_rate}% ${t(
+              label: `${t(MODEL_LABELS[model.id] ?? model.id)} - ${model.word_error_rate}% ${t(
                 "recognition.modelAccuracy",
               )}`,
             }))}

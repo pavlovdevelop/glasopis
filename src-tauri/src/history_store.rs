@@ -17,7 +17,7 @@ pub fn load(app: &AppHandle) -> History {
     }
 }
 
-/// Appends a transcript — but only when the user switched history on.
+/// Appends a transcript - but only when the user switched history on.
 pub fn record(app: &AppHandle, settings: &Settings, text: &str) {
     if !settings.privacy.keep_history {
         return;

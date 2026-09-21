@@ -133,7 +133,7 @@ pub fn pad_to_min_duration(mut samples: Vec<f32>, sample_rate: u32, min_seconds:
 /// `seconds`.
 ///
 /// Whisper always pads audio to 30 seconds and, by default, runs the encoder
-/// over the full 1500-token context — a three second dictation costs as much
+/// over the full 1500-token context - a three second dictation costs as much
 /// as a thirty second one. Trimming the context to what the audio actually
 /// needs (with a margin, because cutting it too close degrades the text) makes
 /// short dictations several times cheaper, which is what a voice typing tool

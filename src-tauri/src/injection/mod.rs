@@ -3,10 +3,10 @@
 //! Glasopis never integrates with a specific application. It inserts text the
 //! way Windows itself does it:
 //!
-//! 1. **Clipboard** — put the text on the clipboard as UTF-16 and send
+//! 1. **Clipboard** - put the text on the clipboard as UTF-16 and send
 //!    `Ctrl+V`. This is the primary strategy because it is independent of the
 //!    active keyboard layout, which is exactly what Bulgarian Cyrillic needs.
-//! 2. **Keyboard simulation** — send the text as Unicode key events
+//! 2. **Keyboard simulation** - send the text as Unicode key events
 //!    (`KEYEVENTF_UNICODE`). Used as a fallback and for applications that do
 //!    not accept `Ctrl+V`.
 

@@ -23,8 +23,8 @@
     "publisher": "Pavel Pavlov",
     "copyright": "Copyright (c) 2026 Pavel Pavlov",
     "category": "Productivity",
-    "shortDescription": "Ти говориш — Аз пиша.",
-    "longDescription": "Безплатно гласово въвеждане на български език за Windows. Говорете и Glasopis въвежда текста в активното приложение. Разпознаването на реч е локално — гласът не напуска компютъра ви.",
+    "shortDescription": "Ти говориш - Аз пиша.",
+    "longDescription": "Безплатно гласово въвеждане на български език за Windows. Говорете и Glasopis въвежда текста в активното приложение. Разпознаването на реч е локално - гласът не напуска компютъра ви.",
     "licenseFile": "../LICENSE",
     "icon": [
       "icons/32x32.png",

@@ -42,7 +42,7 @@ pub fn create(app: &AppHandle) -> Result<()> {
 
     TrayIconBuilder::with_id(TRAY_ID)
         .icon(icon)
-        .tooltip("Glasopis: Ти говориш — Аз пиша.")
+        .tooltip("Glasopis: Ти говориш - Аз пиша.")
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(handle_menu_event)

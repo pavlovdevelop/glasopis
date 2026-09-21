@@ -1,4 +1,4 @@
-//! The dictation flow — the heart of Glasopis.
+//! The dictation flow - the heart of Glasopis.
 //!
 //! ```text
 //! hotkey -> remember the focused window -> record -> transcribe locally
@@ -245,7 +245,7 @@ fn transcribe_and_insert(
                 .transcribe(&model_path, &samples, &settings.voice.language, threads)?
         }
     };
-    // Записът вече не е нужен — освобождава се възможно най-рано.
+    // Записът вече не е нужен - освобождава се възможно най-рано.
     drop(samples);
 
     let text = process_transcript(&raw, &PipelineOptions::from(settings));
