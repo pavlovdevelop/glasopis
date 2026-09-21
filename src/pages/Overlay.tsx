@@ -1,3 +1,4 @@
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppState } from "../hooks/useAppState";
 import { useOverlayDrag } from "../hooks/useOverlayDrag";
 import { useStatus } from "../hooks/useStatus";
@@ -36,8 +37,12 @@ export function Overlay() {
   return (
     <div
       className={`overlay-ball overlay-ball--${status.state}`}
-      data-tauri-drag-region
       title={detail ? `${title} — ${detail}` : title}
+      onMouseDown={(event) => {
+        if (event.button !== 0) return;
+        event.preventDefault();
+        void getCurrentWindow().startDragging();
+      }}
     >
       {status.state === "listening" && (
         <span

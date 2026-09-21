@@ -11,9 +11,11 @@ pub const OVERLAY_WINDOW: &str = "overlay";
 /// A small draggable badge, not a window-sized panel — big enough for the
 /// icon and a thin level ring, small enough to stay out of the way.
 const OVERLAY_SIZE: f64 = 64.0;
-/// Distance from the bottom edge of the work area, used only the first time
-/// the overlay is shown (before the user has dragged it anywhere).
-const OVERLAY_BOTTOM_MARGIN: f64 = 96.0;
+/// Distance from the bottom edge of the monitor, used only the first time the
+/// overlay is shown (before the user has dragged it anywhere). `monitor.size()`
+/// is the full display resolution, not the work area — this has to clear the
+/// Windows taskbar (and a taller one, at 150%+ scaling) on its own.
+const OVERLAY_BOTTOM_MARGIN: f64 = 160.0;
 
 /// Shows (and creates, if needed) the settings window.
 pub fn show_main_window(app: &AppHandle) -> Result<WebviewWindow> {
