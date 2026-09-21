@@ -94,6 +94,10 @@ pub struct GeneralSettings {
     pub play_sounds: bool,
     /// Language of the Glasopis user interface (`bg` or `en`).
     pub ui_language: String,
+    /// Last position the user dragged the floating overlay to (logical
+    /// pixels, top-left corner). `None` until the user moves it, in which
+    /// case a default bottom-centre position is used.
+    pub overlay_position: Option<(i32, i32)>,
 }
 
 impl Default for GeneralSettings {
@@ -104,6 +108,7 @@ impl Default for GeneralSettings {
             show_floating_window: true,
             play_sounds: true,
             ui_language: "bg".to_string(),
+            overlay_position: None,
         }
     }
 }

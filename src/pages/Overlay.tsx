@@ -1,11 +1,15 @@
-import { LevelMeter } from "../components/ui";
 import { useAppState } from "../hooks/useAppState";
+import { useOverlayDrag } from "../hooks/useOverlayDrag";
 import { useStatus } from "../hooks/useStatus";
 
-/** Плаващият прозорец, който се показва по време на диктовка. */
+/**
+ * Малка плаваща „топка“, която се показва по време на диктовка. Влачи се
+ * навсякъде по екрана (позицията се запомня) и не отнема клавиатурния фокус.
+ */
 export function Overlay() {
   const { t } = useAppState();
   const { status, level } = useStatus();
+  useOverlayDrag();
 
   const title =
     status.state === "listening"
@@ -27,23 +31,26 @@ export function Overlay() {
           ? status.text
           : null;
 
+  const icon = status.state === "error" ? "⚠" : status.state === "done" ? "✓" : "🎙";
+
   return (
-    <div className={`overlay overlay--${status.state}`}>
-      <div className="overlay__row">
-        <span className="overlay__icon" aria-hidden="true">
-          {status.state === "error" ? "⚠" : status.state === "done" ? "✓" : "🎙"}
-        </span>
-        <span className="overlay__title">{title}</span>
-      </div>
-      {status.state === "listening" ? (
-        <LevelMeter level={level} bars={16} />
-      ) : status.state === "processing" ? (
-        <div className="overlay__progress" aria-hidden="true">
-          <span />
-        </div>
-      ) : (
-        detail && <p className="overlay__detail">{detail}</p>
+    <div
+      className={`overlay-ball overlay-ball--${status.state}`}
+      data-tauri-drag-region
+      title={detail ? `${title} — ${detail}` : title}
+    >
+      {status.state === "listening" && (
+        <span
+          className="overlay-ball__ring"
+          style={{ transform: `scale(${1 + level * 0.35})` }}
+          aria-hidden="true"
+        />
       )}
+      {status.state === "processing" && <span className="overlay-ball__spinner" aria-hidden="true" />}
+      <span className="overlay-ball__icon" aria-hidden="true">
+        {icon}
+      </span>
+      <span className="sr-only">{detail ? `${title} — ${detail}` : title}</span>
     </div>
   );
 }
