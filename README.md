@@ -2,151 +2,164 @@
 
 **Говориш. То пише.**
 
-Free and open-source system-wide Bulgarian voice typing for Windows.
+Безплатно гласово въвеждане на български език за Windows, с отворен код.
 
-Speak Bulgarian and type anywhere.
+Говорете на български и пишете навсякъде.
 
-[Български README](README.bg.md) · [Architecture](docs/architecture.md) · [Building](docs/building.md) · [Privacy](docs/privacy.md)
+### 📥 [⬇ Изтегли GlasopisSetup.exe](https://github.com/pavlovdevelop/glasopis/releases/latest/download/GlasopisSetup.exe)
+
+Директен линк към последната компилация от `main`. За версионирани издания виж страницата
+[Releases](https://github.com/pavlovdevelop/glasopis/releases).
+
+[English README](README.en.md) · [Архитектура](docs/architecture.md) · [Компилиране](docs/building.md) · [Поверителност](docs/privacy.md)
 
 ---
 
-Glasopis is a small Windows utility that lives in the system tray. Put the cursor in *any*
-text field — Chrome, Word, Outlook, VS Code, Discord, an ERP form — press a global hotkey,
-speak Bulgarian, and the recognized text is typed into that field. There is no per-app
-integration: Glasopis inserts text the way Windows itself does.
+Glasopis е малко приложение за Windows, което работи в системния трей. Поставете курсора
+в *което и да е* текстово поле — Chrome, Word, Outlook, VS Code, Discord, формуляр в ERP —
+натиснете клавишната комбинация, говорете на български и разпознатият текст се въвежда там.
+Няма нужда от отделна интеграция за всяко приложение: Glasopis въвежда текст по същия начин,
+по който го прави самият Windows.
 
-Speech recognition runs through [Groq](https://groq.com) (`whisper-large-v3-turbo`), which
-returns a sentence in well under a second. A local engine — [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
-running on your own CPU — is available as a build option.
+Разпознаването на реч минава през [Groq](https://groq.com) (`whisper-large-v3-turbo`) и връща
+изречение за части от секундата. Локален двигател — [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
+на вашия процесор — е наличен като опция при компилиране.
 
-## What it costs, and what it requires
+## Колко струва и какво изисква
 
-Glasopis itself is free and open source, and there is no subscription, no upgrade screen and no
-telemetry. The default recognition engine, however, is a cloud service:
+Самият Glasopis е безплатен софтуер с отворен код: няма абонамент, няма платени функции, няма
+телеметрия. Двигателят по подразбиране обаче е облачна услуга:
 
-| | Groq (default) | Local build |
+| | Groq (по подразбиране) | Локална компилация |
 | --- | --- | --- |
-| Speed | a sentence in well under a second | seconds, depending on your CPU |
-| Account | a free Groq account and an API key | none |
-| Internet | required for every dictation | only to download a model, once |
-| Your voice | uploaded to Groq for recognition | never leaves the computer |
-| Limits | Groq's free-tier rate limits apply | none |
+| Скорост | изречение за под секунда | секунди, според процесора |
+| Регистрация | безплатен акаунт в Groq и API ключ | няма |
+| Интернет | нужен при всяка диктовка | само веднъж, за модела |
+| Гласът ви | качва се към Groq за разпознаване | не напуска компютъра |
+| Ограничения | лимитите на безплатния слой на Groq | няма |
 
-If your audio must not leave your machine, build with the `whisper` feature and switch the engine
-to "Локално" in Settings → Разпознаване; see [docs/building.md](docs/building.md).
+Ако аудиото ви не бива да напуска машината, компилирайте с feature `whisper` и превключете
+двигателя на „Локално“ в Настройки → Разпознаване. Вижте [docs/building.md](docs/building.md).
 
-## Screenshots
+## Екранни снимки
 
-> Screenshots are added with the first tagged release.
+> Екранните снимки се добавят при първото таг-нато издание.
 
-| Settings | Floating microphone | Model manager |
+| Настройки | Плаващ микрофон | Мениджър на модели |
 | --- | --- | --- |
 | _screenshots/settings.png_ | _screenshots/overlay.png_ | _screenshots/models.png_ |
 
-## Features
+## Възможности
 
-- **System-wide voice typing** — works in any Windows application that accepts keyboard input.
-- **Bulgarian first** — `bg-BG` is the default language; the interface is Bulgarian by default.
-- **Two engines** — Groq in the cloud for speed, whisper.cpp locally for privacy.
-- **Layout independent Cyrillic** — text is inserted as Unicode, so Cyrillic arrives correctly
-  even when the active Windows keyboard layout is English.
-- **Two recording modes** — toggle (`Ctrl+Alt+Space`) and push-to-talk (`Ctrl+Alt+D`).
-- **Bulgarian voice commands** — „точка“, „запетая“, „въпросителен знак“, „нов ред“,
-  „нов параграф“, „изтрий последната дума“, „изтрий последното изречение“ and more.
-- **Automatic punctuation** from the speech model, with the voice commands as an explicit override.
-- **Personal dictionary** — map what you say to how it should be written (`гит хъб` → `GitHub`).
-- **Model manager** — download, verify (SHA-256), select and delete speech models.
-- **Floating microphone overlay** with a live level meter that never steals keyboard focus.
-- **No telemetry**, history off by default, audio kept in memory and never written to disk.
+- **Системно гласово въвеждане** — работи във всяко приложение, което приема клавиатурен вход.
+- **Българският е основен език** — `bg-BG` по подразбиране, интерфейсът също е на български.
+- **Два двигателя** — Groq в облака за скорост, whisper.cpp локално за поверителност.
+- **Кирилица независимо от подредбата** — текстът се въвежда като Unicode, така че кирилицата
+  е коректна дори когато активната клавиатурна подредба е английска.
+- **Два режима на запис** — превключване (`Ctrl+Alt+Space`) и задържане (`Ctrl+Alt+D`).
+- **Гласови команди** — „точка“, „запетая“, „въпросителен знак“, „нов ред“, „нов параграф“,
+  „изтрий последната дума“, „изтрий последното изречение“ и други.
+- **Автоматична пунктуация** от модела, като гласовите команди остават изричен вариант.
+- **Личен речник** — картографирайте изговореното към това как да се изпише (напр. „гит хъб“ → `GitHub`).
+- **Мениджър на модели** — изтегляне, проверка (SHA-256), избор и изтриване на модели за реч.
+- **Плаващ прозорец за микрофон** с индикатор на живо за нивото на звука, който никога не отнема
+  фокуса от клавиатурата.
+- **Без телеметрия**, историята е изключена по подразбиране, аудиото се пази само в паметта и
+  никога не се записва на диска.
 
-## Installation
+## Инсталиране
 
-1. Download `GlasopisSetup.exe` from the [Releases](https://github.com/pavlovdevelop/glasopis/releases) page.
-2. Run it. The installer does not require administrator rights (per-user install).
-3. On first launch the onboarding wizard helps you pick a microphone, paste a Groq API key
-   (free, from [console.groq.com/keys](https://console.groq.com/keys)) and confirm the hotkey.
+1. Изтеглете `GlasopisSetup.exe` от страницата [Releases](https://github.com/pavlovdevelop/glasopis/releases)
+   (или директно от [линка по-горе](https://github.com/pavlovdevelop/glasopis/releases/latest/download/GlasopisSetup.exe)).
+2. Стартирайте инсталатора — не са необходими администраторски права (инсталация за текущия потребител).
+3. При първото стартиране помощникът ще ви преведе през избор на микрофон, въвеждане на
+   безплатен API ключ от [console.groq.com/keys](https://console.groq.com/keys) и потвърждение на
+   клавишната комбинация.
 
-> Community builds are **not code-signed** (a certificate costs money, and Glasopis is free).
-> Windows SmartScreen may therefore show "Windows protected your PC" — choose
-> *More info → Run anyway*. You can always build from source instead.
+> Общностните компилации **не са подписани с цифров сертификат** (сертификатът струва пари, а
+> Glasopis е безплатен). Затова Windows SmartScreen може да покаже „Windows защити вашия
+> компютър“ — изберете *Повече информация → Изпълни въпреки това*. Алтернативата е да
+> компилирате сами от изходния код.
 
-## Usage
+## Употреба
 
-1. Click into any text field.
-2. Press `Ctrl + Alt + Space`.
-3. Speak Bulgarian. The floating window shows `Слушам...`.
-4. Press `Ctrl + Alt + Space` again.
-5. Glasopis transcribes locally (`Обработвам...`) and inserts the text where your cursor was.
+1. Щракнете в текстово поле.
+2. Натиснете `Ctrl + Alt + Space`.
+3. Говорете на български — плаващият прозорец показва `Слушам...`.
+4. Натиснете `Ctrl + Alt + Space` отново.
+5. Glasopis разпознава локално (`Обработвам...`) и въвежда текста там, където е бил курсорът.
 
-Glasopis never presses Enter for you and never executes what you dictate — it only inserts text.
+Glasopis никога не натиска Enter вместо вас и никога не изпълнява продиктуваното — той само
+въвежда текст.
 
-### Keyboard shortcuts
+### Клавишни комбинации
 
-| Action | Default | Configurable |
+| Действие | По подразбиране | Може да се променя |
 | --- | --- | --- |
-| Start / stop dictation | `Ctrl + Alt + Space` | yes |
-| Push-to-talk (hold) | `Ctrl + Alt + D` (off by default) | yes |
+| Старт/стоп на диктовката | `Ctrl + Alt + Space` | да |
+| Задържане за говорене | `Ctrl + Alt + D` (изключено по подразбиране) | да |
 
-Windows registers global hotkeys as *combinations*, so a bare modifier (Right Ctrl alone)
-cannot be used as a push-to-talk key.
+Windows регистрира глобалните клавишни комбинации като *комбинации*, затова самостоятелен
+модификатор (само десен Ctrl) не може да се използва за задържане.
 
-## Supported Windows versions
+## Поддържани версии на Windows
 
-- Windows 11 x64 (primary target)
-- Windows 10 x64 (version 1809 or newer, with WebView2 installed — the installer adds it)
+- Windows 11 x64 (основна цел)
+- Windows 10 x64 (версия 1809 или по-нова, с инсталиран WebView2 — инсталаторът го добавя)
 
-## Privacy
+## Поверителност
 
-- In the default (Groq) mode the recording is uploaded to Groq's servers for recognition and
-  handled under their terms. Glasopis writes no audio to disk and keeps it in memory only.
-- In a local build nothing is uploaded at all.
-- Dictation history is **off** by default and never stores audio.
-- No telemetry, no accounts with us, no ads. See [docs/privacy.md](docs/privacy.md).
+- В режима по подразбиране (Groq) записът се качва към сървърите на Groq за разпознаване и се
+  обработва според техните условия. Glasopis не записва аудио на диска — то съществува само в
+  паметта.
+- В локална компилация нищо не се качва никъде.
+- Историята на диктовките е **изключена** по подразбиране и никога не пази аудио.
+- Без телеметрия, без акаунти при нас, без реклами. Вижте [docs/privacy.md](docs/privacy.md).
 
-## Offline usage
+## Работа офлайн
 
-The default mode needs internet for every dictation. A build with the `whisper` feature works
-completely offline once a model has been downloaded.
+Режимът по подразбиране изисква интернет при всяка диктовка. Компилация с feature `whisper`
+работи изцяло офлайн, след като моделът е изтеглен веднъж.
 
-## Building from source
+## Компилиране от изходния код
 
 ```bash
 git clone https://github.com/pavlovdevelop/glasopis.git
 cd glasopis
 npm install
-npm run tauri dev      # development
-npm run tauri build    # Windows installer in target/release/bundle/nsis/
+npm run tauri dev      # разработка
+npm run tauri build    # инсталатор за Windows в target/release/bundle/nsis/
 ```
 
-Prerequisites (Windows): Git, Node.js 20+, Rust (MSVC toolchain), Visual Studio Build Tools
-with the C++ workload, CMake, WebView2. Full instructions — including what can be built and
-tested on Linux — are in [docs/building.md](docs/building.md).
+Необходими инструменти (Windows): Git, Node.js 20+, Rust (MSVC toolchain), Visual Studio Build
+Tools с C++ компонент, CMake, WebView2. Пълните инструкции — включително какво може да се
+компилира и тества на Linux — са в [docs/building.md](docs/building.md).
 
-## Project architecture
+## Архитектура на проекта
 
 ```text
 glasopis/
-├── src/                     React + TypeScript UI (settings, onboarding, overlay)
-├── crates/glasopis-core/    platform independent logic (settings, commands, models, audio math)
-├── src-tauri/               Windows application: audio, speech, injection, tray, hotkeys
-└── docs/                    architecture, privacy, building, QA, roadmap
+├── src/                     React + TypeScript интерфейс (настройки, начална конфигурация, overlay)
+├── crates/glasopis-core/    платформено независима логика (настройки, команди, модели, аудио математика)
+├── src-tauri/               Windows приложение: аудио, реч, въвеждане на текст, трей, клавишни комбинации
+└── docs/                    архитектура, поверителност, компилиране, QA, roadmap
 ```
 
-The details — and why each decision was made — are in [docs/architecture.md](docs/architecture.md).
+Подробностите — и защо е взето всяко решение — са в [docs/architecture.md](docs/architecture.md).
 
-## Contributing
+## Принос към проекта
 
-Pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and run
-`cargo fmt`, `cargo clippy`, `cargo test` and `npm test` before opening one.
+Pull request-и са добре дошли. Моля прочетете [CONTRIBUTING.md](CONTRIBUTING.md) и пуснете
+`cargo fmt`, `cargo clippy`, `cargo test` и `npm test`, преди да го отворите.
 
 ## Roadmap
 
-Planned, in rough order: streaming transcription, richer editing commands, personal dictionary UI,
-optional GPU acceleration, English UI polish, dictation history search. See
-[docs/roadmap.md](docs/roadmap.md). Cloud or paid AI processing will always remain optional and
-will never replace the free local mode.
+Планирано, в приблизителен ред: streaming транскрипция, по-богати команди за редакция, интерфейс
+за личния речник, опционално GPU ускорение, изчистване на английския интерфейс, търсене в
+историята на диктовките. Вижте [docs/roadmap.md](docs/roadmap.md). Обработката в облак или срещу
+плащане ще остане винаги опционална и никога няма да замени безплатния локален режим.
 
-## License
+## Лиценз
 
-MIT © 2026 Pavel Pavlov. See [LICENSE](LICENSE) and
+MIT © 2026 Pavel Pavlov. Вижте [LICENSE](LICENSE) и
 [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).

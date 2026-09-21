@@ -1,153 +1,160 @@
-# Architecture
+# Архитектура
 
-Glasopis is a Tauri 2 desktop application. The code is split into three layers:
+Glasopis е десктоп приложение върху Tauri 2. Кодът е разделен на три слоя:
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │ src/               React + TypeScript                       │
-│                    settings, onboarding, floating overlay   │
+│                    настройки, начална конфигурация, overlay  │
 ├─────────────────────────────────────────────────────────────┤
-│ src-tauri/         Rust, Windows specific                   │
-│                    audio · speech · injection · hotkeys     │
-│                    tray · model manager · settings storage  │
+│ src-tauri/         Rust, специфично за Windows               │
+│                    аудио · реч · въвеждане · клавишни комб.  │
+│                    трей · мениджър на модели · настройки     │
 ├─────────────────────────────────────────────────────────────┤
-│ crates/glasopis-core/  Rust, platform independent           │
-│                    settings model · Bulgarian commands      │
-│                    dictionary · model catalogue · audio math│
+│ crates/glasopis-core/  Rust, платформено независимо          │
+│                    модел на настройки · български команди    │
+│                    речник · каталог с модели · аудио математика│
 └─────────────────────────────────────────────────────────────┘
 ```
 
-`glasopis-core` exists so the parts that decide what text the user gets can be unit tested on
-any platform, including the Linux CI runner. It has no dependency on Tauri, Windows or a
-sound card.
+`glasopis-core` съществува, за да могат частите, които решават какъв текст получава
+потребителят, да се тестват на всяка платформа, включително Linux CI runner-а. Не зависи от
+Tauri, Windows или звукова карта.
 
-## The dictation flow
+## Потокът на диктовката
 
 ```text
-hotkey (Ctrl+Alt+Space)
-  └─ remember the foreground window        injection::focus
-  └─ start recording                       audio::recorder (cpal, own thread)
-       └─ level events to the overlay      glasopis://level
-hotkey again
-  └─ stop recording → Vec<f32> 16 kHz mono audio helpers in glasopis-core
-  └─ background worker thread
-       ├─ whisper.cpp transcription        speech::whisper_engine
-       ├─ personal dictionary              core::dictionary
-       ├─ Bulgarian voice commands         core::commands
-       ├─ normalisation / capitalisation   core::text
-       ├─ optional history entry           history_store
-       ├─ restore the remembered window    injection::focus
-       └─ insert the text                  injection::clipboard / keyboard
+клавишна комбинация (Ctrl+Alt+Space)
+  └─ запомня активния прозорец            injection::focus
+  └─ стартира запис                       audio::recorder (cpal, отделна нишка)
+       └─ събития за нивото към overlay    glasopis://level
+клавишната комбинация отново
+  └─ спира записа → Vec<f32> 16 kHz mono аудио помощни функции в glasopis-core
+  └─ фонова работна нишка
+       ├─ транскрипция чрез whisper.cpp    speech::whisper_engine
+       ├─ личен речник                     core::dictionary
+       ├─ български гласови команди        core::commands
+       ├─ нормализация / главни букви      core::text
+       ├─ опционален запис в историята     history_store
+       ├─ възстановява запомнения прозорец  injection::focus
+       └─ въвежда текста                   injection::clipboard / keyboard
 ```
 
-Nothing heavy happens on the UI thread: recording lives on its own thread (a WASAPI stream is
-not `Send`), and transcription runs on a second one. The windows only receive events.
+Нищо тежко не се случва в UI нишката: записът живее в собствена нишка (WASAPI stream-ът не е
+`Send`), а транскрипцията работи във втора. Прозорците само получават събития.
 
-## Key decisions
+## Ключови решения
 
-### Why Tauri 2 instead of Electron or WinUI
+### Защо Tauri 2, а не Electron или WinUI
 
-A tray utility should be small and cheap to run. Tauri uses the WebView2 runtime that Windows
-already has, which keeps the installer in the tens of megabytes and the idle memory low, while
-the backend stays plain Rust — where the Windows APIs we need (SendInput, clipboard,
-foreground window) are one call away.
+Помощна програма в трея трябва да е малка и евтина за изпълнение. Tauri използва WebView2
+runtime-а, който Windows вече има, което държи инсталатора в порядъка на десетки мегабайти, а
+паметта в покой — ниска, докато бекендът остава чист Rust — където Windows API-тата, от които
+се нуждаем (SendInput, клипборд, активен прозорец), са на едно извикване разстояние.
 
-### Two engines, one interface
+### Два двигателя, един интерфейс
 
-`speech::groq` sends the recording to Groq; `speech::whisper_engine` runs whisper.cpp locally
-behind the `whisper` cargo feature. The dictation flow picks one based on
-`settings.voice.engine`, and everything after the transcript — dictionary, commands,
-normalisation, injection — is identical either way.
+`speech::groq` изпраща записа към Groq; `speech::whisper_engine` изпълнява whisper.cpp локално
+зад cargo feature `whisper`. Потокът на диктовката избира един от двата според
+`settings.voice.engine`, а всичко след транскрипта — речник, команди, нормализация,
+въвеждане — е еднакво и в двата случая.
 
-Groq is the default because speed decides whether a voice typing tool gets used: recognition
-comes back in well under a second instead of the seconds a CPU needs for the same model. The
-price is an account, an API key, an internet connection for every dictation, and the recording
-leaving the machine. That trade-off is the user's to make, so the interface states it plainly
-and the local engine stays a supported build option rather than a historical curiosity.
+Groq е двигателят по подразбиране, защото скоростта решава дали инструмент за гласово
+въвеждане изобщо ще се ползва: разпознаването се връща за части от секундата вместо
+секундите, необходими на процесор за същия модел. Цената е акаунт, API ключ, интернет връзка
+при всяка диктовка и записът, напускащ машината. Този компромис е избор на потребителя, затова
+интерфейсът го посочва ясно, а локалният двигател остава поддържана опция при компилиране, а
+не историческа рядкост.
 
-The default build does not compile whisper.cpp at all, which is why the installer is small and
-the build needs no C/C++ toolchain.
+Компилацията по подразбиране изобщо не компилира whisper.cpp, затова инсталаторът е малък и
+компилирането не изисква C/C++ toolchain.
 
-### Why whisper.cpp through `whisper-rs`
+### Защо whisper.cpp през `whisper-rs`
 
-Bulgarian support in free, locally executable speech recognition is effectively Whisper.
-whisper.cpp runs Whisper on the CPU with no Python, no CUDA and no service. `whisper-rs`
-(Unlicense) is a maintained binding and links the library statically, so the installer ships one
-executable. The trade-off is a C/C++ toolchain requirement when building from source.
+Поддръжката на български в безплатно, локално изпълнимо разпознаване на реч на практика
+означава Whisper. whisper.cpp изпълнява Whisper на процесора без Python, без CUDA и без
+услуга. `whisper-rs` (Unlicense) е поддържан binding и слинква библиотеката статично, така че
+инсталаторът доставя един изпълним файл. Компромисът е изискване за C/C++ toolchain при
+компилиране от изходния код.
 
-The `SpeechEngine` trait keeps the local engine swappable; the cloud engine is a plain function
-because it holds no state between dictations.
+Trait-ът `SpeechEngine` пази локалния двигател заменим; облачният двигател е обикновена
+функция, защото не пази състояние между диктовките.
 
-### Why the clipboard is the primary insertion strategy
+### Защо клипбордът е основната стратегия за въвеждане
 
-`Ctrl+V` pastes UTF-16 text. That makes the result independent of the active Windows keyboard
-layout, which is the whole point for Cyrillic: with an English layout active, sending scan codes
-would produce Latin letters. The previous clipboard content is read before pasting and restored
-on a timer afterwards (default 800 ms) so the target application has time to process the paste.
+`Ctrl+V` поставя UTF-16 текст. Това прави резултата независим от активната клавиатурна подредба
+на Windows, което е целият смисъл за кирилицата: при активна английска подредба, изпращането на
+scan codes би произвело латински букви. Предишното съдържание на клипборда се прочита преди
+поставянето и се възстановява по таймер след това (по подразбиране 800 ms), за да има целевото
+приложение време да обработи поставянето.
 
-Keyboard simulation (`KEYEVENTF_UNICODE`) is the fallback and can also be selected explicitly for
-applications that do not accept `Ctrl+V`.
+Симулацията на клавиатура (`KEYEVENTF_UNICODE`) е резервният вариант и може да бъде избрана
+изрично и за приложения, които не приемат `Ctrl+V`.
 
-### Why the foreground window is remembered before anything is shown
+### Защо активният прозорец се запомня, преди каквото и да е да бъде показано
 
-The overlay is created without activation, but a floating window is still a window. Glasopis
-stores the `HWND` that had focus when the hotkey was pressed and calls `SetForegroundWindow`
-(with the usual `AttachThreadInput` dance) right before inserting, so the text lands where the
-user was typing.
+Overlay-ят се създава без активиране, но плаващ прозорец пак си е прозорец. Glasopis пази
+`HWND`-а, който е имал фокус при натискане на клавишната комбинация, и извиква
+`SetForegroundWindow` (с обичайния трик с `AttachThreadInput`) точно преди въвеждането, така
+че текстът да попадне там, където потребителят е печатал.
 
-### Why voice commands are a separate module
+### Защо гласовите команди са отделен модул
 
-The command processor takes a `&str` and returns a `String`. It knows nothing about Whisper,
-audio or Windows, which makes the entire text behaviour of the product testable:
-`cargo test -p glasopis-core` covers punctuation, new lines, deletions, the dictionary and the
-normalisation rules.
+Обработчикът на команди приема `&str` и връща `String`. Не знае нищо за Whisper, аудиото или
+Windows, което прави цялото текстово поведение на продукта тестваемо:
+`cargo test -p glasopis-core` покрива пунктуацията, новите редове, изтриванията, речника и
+правилата за нормализация.
 
-### Why models are downloaded instead of bundled
+### Защо моделите се изтеглят, а не се пакетират
 
-A usable multilingual model is 180 MB – 1.5 GB. Bundling one would make the installer enormous
-and would force everyone to take the same accuracy/speed trade-off. The model manager downloads
-from the whisper.cpp repository on Hugging Face (no account, no key), verifies the SHA-256
-checksum recorded in `glasopis-core::models`, and stores the file in
-`%LOCALAPPDATA%\Glasopis\models\`. A download URL that does not start with the known host is
-rejected.
+Използваем многоезичен модел е 180 MB – 1.5 GB. Пакетирането на такъв би направило инсталатора
+огромен и би принудило всички да приемат един и същ компромис между точност и скорост.
+Мениджърът на модели изтегля от хранилището на whisper.cpp в Hugging Face (без акаунт, без
+ключ), проверява SHA-256 контролната сума, записана в `glasopis-core::models`, и съхранява
+файла в `%LOCALAPPDATA%\Glasopis\models\`. URL за изтегляне, който не започва с познатия хост,
+се отхвърля.
 
-## Data locations
+## Местоположения на данните
 
-| What | Where |
+| Какво | Къде |
 | --- | --- |
-| Settings | `%APPDATA%\com.glasopis.app\settings.json` |
-| History (opt-in) | `%APPDATA%\com.glasopis.app\history.json` |
-| Speech models | `%LOCALAPPDATA%\com.glasopis.app\models\` |
-| Logs | `%LOCALAPPDATA%\com.glasopis.app\logs\` |
+| Настройки | `%APPDATA%\com.glasopis.app\settings.json` |
+| История (опционална) | `%APPDATA%\com.glasopis.app\history.json` |
+| Модели за реч | `%LOCALAPPDATA%\com.glasopis.app\models\` |
+| Логове | `%LOCALAPPDATA%\com.glasopis.app\logs\` |
 
-Settings are written atomically (temporary file + rename) and every field has a default, so a
-file from an older version keeps working and a damaged file falls back to the defaults instead of
-blocking startup.
+Настройките се записват атомарно (временен файл + преименуване) и всяко поле има стойност по
+подразбиране, така че файл от по-стара версия продължава да работи, а повреден файл се връща
+към стойностите по подразбиране, вместо да блокира стартирането.
 
-## Threads
+## Нишки
 
-| Thread | Purpose |
+| Нишка | Предназначение |
 | --- | --- |
-| main | Tauri event loop, tray, windows |
-| `glasopis-recorder` | owns the cpal input stream for the duration of one dictation |
-| `glasopis-level` | pushes the input level to the overlay every 60 ms |
-| `glasopis-transcribe` | whisper.cpp + text pipeline + insertion |
-| `glasopis-model-download` | one per model download |
+| main | Tauri event loop, трей, прозорци |
+| `glasopis-recorder` | държи cpal входния поток за продължителността на една диктовка |
+| `glasopis-level` | изпраща нивото на входния сигнал към overlay-я на всеки 60 ms |
+| `glasopis-transcribe` | whisper.cpp + текстов pipeline + въвеждане |
+| `glasopis-model-download` | по една за всяко изтегляне на модел |
 
-The speech model is kept loaded between dictations (`EngineHolder`) and released when the user
-selects a different model, changes the thread count or deletes the file.
+Моделът за реч се пази зареден между диктовките (`EngineHolder`) и се освобождава, когато
+потребителят избере друг модел, промени броя нишки или изтрие файла.
 
-## Known limitations (v0.1.0)
+## Известни ограничения (v0.1.0)
 
-- Text cannot be inserted into an application running elevated unless Glasopis is elevated too
-  (Windows UIPI blocks the input). The text stays on the clipboard and the user is told.
-- A bare modifier key cannot be a global hotkey, so push-to-talk uses a combination.
-- Recognition is batch, not streaming: the text appears after you stop speaking.
-- Recording is capped at 5 minutes per dictation.
-- whisper.cpp runs in-process, so a hard failure inside it (an unsupported CPU instruction, an
-  out-of-memory abort with a large model) terminates Glasopis instead of showing an error. This
-  is why release builds must keep `GGML_NATIVE=OFF` (see docs/building.md). Running the engine
-  in a separate process would make this recoverable and is on the roadmap.
-- Backend error messages are Bulgarian even when the interface language is English.
-- `нов ред` inside a single dictation is inserted as a line break in the text; the text is then
-  pasted as a whole, so applications that submit on Enter are unaffected.
+- Текст не може да се въвежда в приложение, работещо с повишени права, освен ако и Glasopis не
+  е с повишени права (Windows UIPI блокира входа). Текстът остава в клипборда и потребителят
+  бива уведомен.
+- Самостоятелен модификатор не може да бъде глобална клавишна комбинация, затова задържането
+  за говорене използва комбинация.
+- Разпознаването е пакетно, не streaming: текстът се появява, след като спрете да говорите.
+- Записът е ограничен до 5 минути на диктовка.
+- whisper.cpp работи в същия процес, затова тежък срив вътре в него (неподдържана процесорна
+  инструкция, прекратяване поради недостиг на памет при голям модел) прекратява Glasopis
+  вместо да покаже грешка. Затова release компилациите трябва да пазят `GGML_NATIVE=OFF`
+  (вижте docs/building.md). Изпълнението на двигателя в отделен процес би направило това
+  възстановимо и е в roadmap-а.
+- Съобщенията за грешка от бекенда са на български дори когато езикът на интерфейса е
+  английски.
+- „нов ред“ в рамките на една диктовка се вмъква като нов ред в текста; текстът след това се
+  поставя наведнъж, така че приложенията, които изпращат при Enter, не са засегнати.

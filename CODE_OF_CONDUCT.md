@@ -1,41 +1,41 @@
-# Code of Conduct
+# Кодекс на поведение
 
-## Our pledge
+## Нашият обет
 
-We as members, contributors and maintainers pledge to make participation in the Glasopis
-project a harassment-free experience for everyone, regardless of age, body size, visible or
-invisible disability, ethnicity, sex characteristics, gender identity and expression, level of
-experience, education, socio-economic status, nationality, personal appearance, race, religion,
-or sexual identity and orientation.
+Ние, като членове, участници и поддръжници, се обещаваме да направим участието в проекта
+Glasopis свободен от тормоз опит за всички, независимо от възраст, телосложение, видимо или
+невидимо увреждане, етническа принадлежност, полови характеристики, полова идентичност и
+изразяване, ниво на опит, образование, социално-икономически статус, националност, външен вид,
+раса, религия или сексуална идентичност и ориентация.
 
-## Our standards
+## Нашите стандарти
 
-Examples of behaviour that contributes to a positive environment:
+Примери за поведение, което допринася за положителна среда:
 
-- Using welcoming and inclusive language, in Bulgarian or English.
-- Being respectful of differing viewpoints and experiences.
-- Accepting constructive criticism gracefully.
-- Focusing on what is best for the users of the project.
+- Използване на приветлив и включващ език, на български или английски.
+- Уважение към различни гледни точки и опит.
+- Приемане на конструктивна критика с достойнство.
+- Фокус върху това, което е най-добро за потребителите на проекта.
 
-Examples of unacceptable behaviour:
+Примери за неприемливо поведение:
 
-- Sexualised language or imagery, and unwelcome sexual attention.
-- Trolling, insulting or derogatory comments, and personal or political attacks.
-- Public or private harassment.
-- Publishing others' private information without explicit permission.
+- Сексуализиран език или образи и нежелано сексуално внимание.
+- Тролене, обидни или пренебрежителни коментари и лични или политически нападки.
+- Публичен или личен тормоз.
+- Публикуване на чужда лична информация без изрично разрешение.
 
-## Enforcement
+## Прилагане
 
-Instances of abusive, harassing or otherwise unacceptable behaviour may be reported to the
-project maintainer through a GitHub issue or by contacting the repository owner. All complaints
-will be reviewed and investigated promptly and fairly. Maintainers are obligated to respect the
-privacy and security of the reporter.
+Случаи на злоупотребяващо, тормозещо или по друг начин неприемливо поведение могат да бъдат
+докладвани на поддръжника на проекта чрез GitHub issue или чрез контакт със собственика на
+хранилището. Всички оплаквания ще бъдат прегледани и разследвани своевременно и справедливо.
+Поддръжниците са задължени да зачитат поверителността и сигурността на подалия сигнала.
 
-Maintainers may remove, edit or reject comments, commits, code, issues and other contributions
-that are not aligned with this Code of Conduct, and may temporarily or permanently ban any
-contributor for behaviour they deem inappropriate.
+Поддръжниците могат да премахват, редактират или отхвърлят коментари, commit-и, код, issue-та
+и други приноси, които не съответстват на този Кодекс на поведение, и могат временно или
+постоянно да отстранят участник за поведение, което смятат за неприемливо.
 
-## Attribution
+## Признание
 
-This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org),
-version 2.1.
+Този Кодекс на поведение е адаптиран от [Contributor Covenant](https://www.contributor-covenant.org),
+версия 2.1.

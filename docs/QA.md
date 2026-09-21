@@ -1,88 +1,91 @@
-# Manual QA checklist
+# Ръчен QA чеклист
 
-Automated tests cover the text pipeline, the settings format and the frontend helpers. The
-parts that need a real Windows desktop are checked by hand before a release. Tick everything
-below on a clean Windows 11 x64 machine and, if possible, once on Windows 10 x64.
+Автоматичните тестове покриват текстовия pipeline, формата на настройките и frontend
+помощните функции. Частите, които изискват истински Windows десктоп, се проверяват на ръка
+преди издание. Отметнете всичко по-долу на чиста машина с Windows 11 x64 и, ако е възможно,
+веднъж на Windows 10 x64.
 
-## Installation
+## Инсталация
 
-- [ ] `GlasopisSetup.exe` installs without administrator rights.
-- [ ] Glasopis appears in the Start menu and in the system tray.
-- [ ] Uninstalling from "Apps & features" removes the application.
-- [ ] Settings survive an uninstall/reinstall cycle (they live in `%APPDATA%`).
+- [ ] `GlasopisSetup.exe` се инсталира без администраторски права.
+- [ ] Glasopis се появява в менюто Старт и в системния трей.
+- [ ] Деинсталирането от „Приложения и функции“ премахва приложението.
+- [ ] Настройките оцеляват цикъл деинсталация/преинсталация (живеят в `%APPDATA%`).
 
-## First run
+## Първо стартиране
 
-- [ ] The onboarding wizard opens automatically.
-- [ ] The microphone list shows the real devices; the level meter moves when you speak.
-- [ ] The recommended model downloads, shows progress and is verified.
-- [ ] A corrupted download is rejected (rename a `.bin` file, re-select it, expect an error).
-- [ ] After finishing, the wizard does not appear again.
+- [ ] Помощникът за начална конфигурация се отваря автоматично.
+- [ ] Списъкът с микрофони показва реалните устройства; индикаторът за нивото се движи, докато
+      говорите.
+- [ ] Препоръчаният модел се изтегля, показва прогрес и се проверява.
+- [ ] Повреден файл при изтегляне се отхвърля (преименувайте `.bin` файл, изберете го отново,
+      очаквайте грешка).
+- [ ] След приключване, помощникът не се появява отново.
 
-## Core dictation flow
+## Основен поток на диктовка
 
-For each application: click into the text field, press `Ctrl+Alt+Space`, dictate
-„Здравей, това е тест на български език.“, press the hotkey again.
+За всяко приложение: щракнете в текстовото поле, натиснете `Ctrl+Alt+Space`, продиктувайте
+„Здравей, това е тест на български език.“, натиснете отново клавишната комбинация.
 
 - [ ] Notepad
-- [ ] Google Chrome — address bar and a `<textarea>` (e.g. a chat box)
+- [ ] Google Chrome — адресната лента и `<textarea>` (напр. поле за чат)
 - [ ] Microsoft Edge
 - [ ] Microsoft Word
-- [ ] Excel (a cell)
-- [ ] Outlook (message body)
-- [ ] VS Code / Cursor (editor and terminal)
-- [ ] Claude Code / a terminal prompt — text is inserted, **Enter is not pressed**
+- [ ] Excel (клетка)
+- [ ] Outlook (тяло на съобщение)
+- [ ] VS Code / Cursor (редактор и терминал)
+- [ ] Claude Code / промпт в терминал — текстът се въвежда, **Enter не се натиска**
 - [ ] Discord / Telegram / Messenger
-- [ ] A browser form field on a random website
+- [ ] Поле на форма в браузър на случаен сайт
 
-## Bulgarian text quality
+## Качество на българския текст
 
-- [ ] Cyrillic is correct with the **English** keyboard layout active.
-- [ ] Cyrillic is correct with the **Bulgarian** keyboard layout active.
-- [ ] „точка“, „запетая“, „въпросителен знак“ produce `.` `,` `?`.
-- [ ] „нов ред“ and „нов параграф“ produce one and two line breaks.
-- [ ] „изтрий последната дума“ removes the previous word.
-- [ ] Sentences start with a capital letter.
-- [ ] A multiline dictation is inserted as multiline text.
+- [ ] Кирилицата е коректна при активна **английска** клавиатурна подредба.
+- [ ] Кирилицата е коректна при активна **българска** клавиатурна подредба.
+- [ ] „точка“, „запетая“, „въпросителен знак“ произвеждат `.` `,` `?`.
+- [ ] „нов ред“ и „нов параграф“ произвеждат един и два реда.
+- [ ] „изтрий последната дума“ премахва предишната дума.
+- [ ] Изреченията започват с главна буква.
+- [ ] Многоредова диктовка се въвежда като многоредов текст.
 
-## Modes and settings
+## Режими и настройки
 
-- [ ] Push-to-talk records while held and stops on release.
-- [ ] Changing the toggle hotkey takes effect immediately, without a restart.
-- [ ] Insertion mode "Симулация на клавиатура" also inserts Cyrillic correctly.
-- [ ] Turning off the floating window keeps dictation working.
-- [ ] Switching the interface language to English translates the UI.
-- [ ] All settings are still there after restarting the application.
-- [ ] All settings are still there after restarting Windows.
+- [ ] Задържането за говорене записва, докато е натиснато, и спира при отпускане.
+- [ ] Промяната на клавишната комбинация за превключване действа веднага, без рестарт.
+- [ ] Режимът на въвеждане „Симулация на клавиатура“ също въвежда кирилица коректно.
+- [ ] Изключването на плаващия прозорец не пречи на диктовката да работи.
+- [ ] Смяната на езика на интерфейса на английски превежда UI-я.
+- [ ] Всички настройки са запазени след рестарт на приложението.
+- [ ] Всички настройки са запазени след рестарт на Windows.
 
-## Microphone edge cases
+## Гранични случаи с микрофона
 
-- [ ] Selecting a specific microphone is respected.
-- [ ] Unplugging the selected USB microphone produces a Bulgarian error, not a crash.
-- [ ] Connecting/disconnecting a Bluetooth headset while running does not crash the app.
-- [ ] Denying microphone permission in Windows settings shows
+- [ ] Изборът на конкретен микрофон се спазва.
+- [ ] Изключването на избран USB микрофон произвежда българска грешка, не срив.
+- [ ] Свързването/разкачването на Bluetooth слушалки по време на работа не срива приложението.
+- [ ] Отказ на разрешение за микрофон в настройките на Windows показва
       „Glasopis няма достъп до микрофона.“
 
-## System integration
+## Системна интеграция
 
-- [ ] Tray menu: every item opens the right screen.
-- [ ] Double-clicking the tray icon opens the settings window.
-- [ ] Closing the settings window keeps Glasopis running in the tray.
-- [ ] "Стартирай с Windows" survives a reboot and starts minimized.
-- [ ] Launching Glasopis a second time focuses the existing instance.
-- [ ] "Изход" really exits (no process left behind).
+- [ ] Менюто в трея: всеки елемент отваря правилния екран.
+- [ ] Двойно щракване върху иконата в трея отваря прозореца с настройки.
+- [ ] Затварянето на прозореца с настройки оставя Glasopis да работи в трея.
+- [ ] „Стартирай с Windows“ оцелява рестарт и стартира минимизиран.
+- [ ] Повторното стартиране на Glasopis фокусира съществуващия екземпляр.
+- [ ] „Изход“ наистина излиза (без остатъчен процес).
 
-## Failure handling
+## Обработка на грешки
 
-- [ ] With no model selected, starting a dictation opens the model page with a clear message.
-- [ ] Silence produces „Не беше чута реч.“ instead of invented text.
-- [ ] Insertion into an elevated window (e.g. an admin PowerShell) fails gracefully: the text is
-      on the clipboard and the message says so.
-- [ ] With the network disconnected, the app starts and dictation still works.
+- [ ] Без избран модел, стартирането на диктовка отваря страницата с модели с ясно съобщение.
+- [ ] Тишина произвежда „Не беше чута реч.“ вместо измислен текст.
+- [ ] Въвеждането в прозорец с повишени права (напр. администраторски PowerShell) се проваля
+      грациозно: текстът е в клипборда, а съобщението го казва.
+- [ ] При изключена мрежа приложението стартира и диктовката все още работи (локален режим).
 
-## Performance
+## Производителност
 
-- [ ] Idle CPU usage is ~0%.
-- [ ] The UI stays responsive while „Обработвам...“ is shown.
-- [ ] A 30 second dictation is transcribed in a reasonable time on the balanced model.
-- [ ] Multiple monitors and 150% DPI scaling: the overlay appears in the right place.
+- [ ] Употребата на процесора в покой е ~0%.
+- [ ] UI-ят остава отзивчив, докато се показва „Обработвам...“.
+- [ ] 30-секундна диктовка се транскрибира за разумно време на балансирания модел.
+- [ ] Множество монитори и 150% DPI мащабиране: overlay-ят се появява на правилното място.

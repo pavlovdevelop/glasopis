@@ -1,49 +1,49 @@
-# Third-party licenses
+# Лицензи на трети страни
 
-Glasopis itself is MIT licensed (see [LICENSE](LICENSE), Copyright (c) 2026 Pavel Pavlov).
-It is built on the following third-party work. Every component below is free of charge and
-free to redistribute as part of an MIT-licensed application; none of them requires an account,
-an API key or a subscription.
+Самият Glasopis е лицензиран под MIT (вижте [LICENSE](LICENSE), Copyright (c) 2026 Pavel Pavlov).
+Изграден е върху следния труд на трети страни. Всеки компонент по-долу е безплатен и свободен
+за разпространение като част от приложение с MIT лиценз; никой от тях не изисква акаунт, API
+ключ или абонамент.
 
-Versions are the ones pinned when v0.1.0 was prepared; run `cargo metadata` and `npm ls` for the
-exact set in your checkout.
+Версиите са тези, фиксирани при подготовката на v0.1.0; изпълнете `cargo metadata` и `npm ls`
+за точния набор във вашата работна копия.
 
-## Speech recognition service
+## Услуга за разпознаване на реч
 
-The default engine is [Groq](https://groq.com), used through its OpenAI-compatible
-`/openai/v1/audio/transcriptions` endpoint with the `whisper-large-v3-turbo` model. Groq is a
-third-party service, not a dependency of this repository: no Groq code is distributed with
-Glasopis. Use is governed by Groq's own terms of service and privacy policy, and requires an
-account and an API key that the user creates and holds.
+Двигателят по подразбиране е [Groq](https://groq.com), използван през неговия
+OpenAI-съвместим `/openai/v1/audio/transcriptions` endpoint с модела `whisper-large-v3-turbo`.
+Groq е услуга на трета страна, не зависимост на това хранилище: с Glasopis не се разпространява
+никакъв код на Groq. Употребата се управлява от собствените условия за ползване и политика за
+поверителност на Groq и изисква акаунт и API ключ, които потребителят създава и пази.
 
-## Local speech recognition (optional `whisper` feature)
+## Локално разпознаване на реч (опционален feature `whisper`)
 
-| Component | Version | License | Notes |
+| Компонент | Версия | Лиценз | Бележки |
 | --- | --- | --- | --- |
-| [whisper.cpp](https://github.com/ggml-org/whisper.cpp) | vendored by whisper-rs-sys | MIT | C/C++ inference engine, statically linked |
-| [ggml](https://github.com/ggml-org/ggml) | part of whisper.cpp | MIT | tensor library used by whisper.cpp |
-| [whisper-rs](https://codeberg.org/tazz4843/whisper-rs) | 0.16.0 | Unlicense (public domain) | Rust bindings |
-| whisper-rs-sys | 0.15.0 | Unlicense (public domain) | build/FFI layer |
+| [whisper.cpp](https://github.com/ggml-org/whisper.cpp) | вграден от whisper-rs-sys | MIT | C/C++ engine за извод, статично слинкован |
+| [ggml](https://github.com/ggml-org/ggml) | част от whisper.cpp | MIT | библиотека за тензори, използвана от whisper.cpp |
+| [whisper-rs](https://codeberg.org/tazz4843/whisper-rs) | 0.16.0 | Unlicense (обществено достояние) | Rust bindings |
+| whisper-rs-sys | 0.15.0 | Unlicense (обществено достояние) | слой за build/FFI |
 
-### Speech models
+### Модели за реч
 
-In a build with the `whisper` feature, Glasopis downloads OpenAI Whisper weights converted to
-the ggml format and published by the whisper.cpp project:
+В компилация с feature `whisper` Glasopis изтегля тежести на OpenAI Whisper, конвертирани във
+формат ggml и публикувани от проекта whisper.cpp:
 
-| Model | File | License |
+| Модел | Файл | Лиценз |
 | --- | --- | --- |
-| Whisper small (q5_1) | `ggml-small-q5_1.bin` | MIT (OpenAI Whisper weights) |
-| Whisper large-v3-turbo (q5_0) | `ggml-large-v3-turbo-q5_0.bin` | MIT (OpenAI Whisper weights) |
-| Whisper medium | `ggml-medium.bin` | MIT (OpenAI Whisper weights) |
+| Whisper small (q5_1) | `ggml-small-q5_1.bin` | MIT (тежести на OpenAI Whisper) |
+| Whisper large-v3-turbo (q5_0) | `ggml-large-v3-turbo-q5_0.bin` | MIT (тежести на OpenAI Whisper) |
+| Whisper medium | `ggml-medium.bin` | MIT (тежести на OpenAI Whisper) |
 
-OpenAI released the Whisper models and code under the MIT license, which permits local use and
-redistribution. The model files are **not** bundled with Glasopis and are **not** committed to
-this repository; they are downloaded by the user from
-`https://huggingface.co/ggerganov/whisper.cpp` and verified against a SHA-256 checksum.
+OpenAI публикува моделите и кода на Whisper под MIT лиценз, който позволява локална употреба и
+разпространение. Файловете на моделите **не** са пакетирани с Glasopis и **не** са commit-нати
+в това хранилище; те се изтеглят от потребителя от
+`https://huggingface.co/ggerganov/whisper.cpp` и се проверяват спрямо SHA-256 контролна сума.
 
-## Rust dependencies
+## Rust зависимости
 
-| Crate | Version | License |
+| Crate | Версия | Лиценз |
 | --- | --- | --- |
 | tauri | 2.11 | Apache-2.0 OR MIT |
 | tauri-plugin-global-shortcut | 2.3 | Apache-2.0 OR MIT |
@@ -53,19 +53,19 @@ this repository; they are downloaded by the user from
 | tauri-plugin-log | 2.9 | Apache-2.0 OR MIT |
 | cpal | 0.17 | Apache-2.0 |
 | reqwest | 0.13 | MIT OR Apache-2.0 |
-| native-tls (Schannel on Windows) | 0.2 | MIT OR Apache-2.0 |
+| native-tls (Schannel на Windows) | 0.2 | MIT OR Apache-2.0 |
 | sha2 | 0.10 | MIT OR Apache-2.0 |
 | windows | 0.62 | MIT OR Apache-2.0 |
 | serde, serde_json | 1.x | MIT OR Apache-2.0 |
 | parking_lot | 0.12 | MIT OR Apache-2.0 |
 | anyhow, thiserror, log | 1.x / 2.x | MIT OR Apache-2.0 |
 
-Transitive dependencies of the above carry permissive licenses (MIT, Apache-2.0, BSD, ISC,
-Zlib, Unicode-3.0 or Unlicense).
+Преходните (transitive) зависимости на изброените по-горе носят разрешителни лицензи (MIT,
+Apache-2.0, BSD, ISC, Zlib, Unicode-3.0 или Unlicense).
 
-## Frontend dependencies
+## Frontend зависимости
 
-| Package | Version | License |
+| Пакет | Версия | Лиценз |
 | --- | --- | --- |
 | react, react-dom | 19 | MIT |
 | @tauri-apps/api, @tauri-apps/cli | 2 | MIT OR Apache-2.0 |
@@ -73,14 +73,14 @@ Zlib, Unicode-3.0 or Unlicense).
 | vitest | 3 | MIT |
 | typescript | 5 | Apache-2.0 |
 
-## Windows components
+## Windows компоненти
 
-| Component | License |
+| Компонент | Лиценз |
 | --- | --- |
-| Microsoft Edge WebView2 Runtime | [Microsoft Developer Services Agreement / redistributable terms](https://developer.microsoft.com/microsoft-edge/webview2/) — redistributed by the Tauri NSIS installer, not by this repository |
+| Microsoft Edge WebView2 Runtime | [Microsoft Developer Services Agreement / условия за разпространение](https://developer.microsoft.com/microsoft-edge/webview2/) — разпространява се от NSIS инсталатора на Tauri, не от това хранилище |
 
-## Fonts and assets
+## Шрифтове и ресурси
 
-No third-party fonts are bundled; the interface uses the Segoe UI family already present on
-Windows, falling back to the system UI font. The application icon in `src-tauri/icons/` was
-generated for this project and is covered by the project's MIT license.
+Не се пакетират шрифтове на трети страни; интерфейсът използва семейството Segoe UI, вече
+налично в Windows, с резервен вариант системния UI шрифт. Иконата на приложението в
+`src-tauri/icons/` е генерирана за този проект и е обхваната от MIT лиценза на проекта.
