@@ -43,7 +43,7 @@ export function VoicePage() {
             { value: "", label: t("common.notSelected") },
             ...downloaded.map((model) => ({
               value: model.id,
-              label: `${model.label} — ${model.technical_name}`,
+              label: `${model.label} - ${model.technical_name}`,
             })),
           ]}
           onChange={(model_id) => update({ model_id: model_id === "" ? null : model_id })}

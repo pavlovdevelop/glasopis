@@ -1,8 +1,8 @@
 //! Downloading and managing the local speech models.
 //!
 //! Models are plain files in `%LOCALAPPDATA%\Glasopis\models\`. They are
-//! downloaded from the whisper.cpp model repository on Hugging Face — no
-//! account, no API key, no payment — and every download is verified against the
+//! downloaded from the whisper.cpp model repository on Hugging Face - no
+//! account, no API key, no payment - and every download is verified against the
 //! SHA-256 checksum stored in the catalogue.
 
 use std::io::{Read, Write};
@@ -180,7 +180,7 @@ pub fn download(app: &AppHandle, id: &str) -> Result<()> {
 }
 
 /// A freshly downloaded model becomes the active one when nothing is selected
-/// yet — otherwise the user downloads a model, tries to dictate and is told
+/// yet - otherwise the user downloads a model, tries to dictate and is told
 /// that no model is selected.
 fn activate_if_none(app: &AppHandle, id: &str) {
     let state = app.state::<AppState>();

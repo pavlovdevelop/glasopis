@@ -165,7 +165,7 @@ export function Onboarding({ onFinished }: { onFinished: () => void }) {
           {recommended && (
             <div className="onboarding__model">
               <p>
-                <strong>{recommended.label}</strong> — {recommended.technical_name} ·{" "}
+                <strong>{recommended.label}</strong> - {recommended.technical_name} ·{" "}
                 {formatBytes(recommended.size_bytes)}
               </p>
               {progress !== null ? (

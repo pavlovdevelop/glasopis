@@ -91,7 +91,7 @@ function Page({ route }: { route: Route }) {
   }
 }
 
-/** Compact, app-wide notice — the full details/progress live on the About page. */
+/** Compact, app-wide notice - the full details/progress live on the About page. */
 function UpdateBanner({ onOpenAbout }: { onOpenAbout: () => void }) {
   const { t } = useAppState();
   const { state } = useUpdater();

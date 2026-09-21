@@ -1,6 +1,6 @@
 [package]
 name = "glasopis"
-description = "Glasopis — Bulgarian voice typing for Windows"
+description = "Glasopis - Bulgarian voice typing for Windows"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -18,7 +18,7 @@ crate-type = ["lib"]
 # инсталаторът е малък и компилацията не изисква C/C++ инструменти.
 #
 # `whisper` добавя локално разпознаване на този компютър (whisper.cpp). За него
-# са нужни CMake и Visual Studio Build Tools — вижте docs/building.md.
+# са нужни CMake и Visual Studio Build Tools - вижте docs/building.md.
 default = []
 whisper = ["dep:whisper-rs"]
 

@@ -11,7 +11,7 @@ target/
 src-tauri/target/
 src-tauri/gen/
 
-# Speech models — never commit these, they are downloaded at runtime
+# Speech models - never commit these, they are downloaded at runtime
 models/
 *.bin
 !src-tauri/icons/*.ico

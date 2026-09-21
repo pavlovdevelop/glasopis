@@ -1,6 +1,6 @@
 //! Optional local dictation history.
 //!
-//! Disabled by default. Only the recognised text and a timestamp are stored —
+//! Disabled by default. Only the recognised text and a timestamp are stored -
 //! never audio. The file lives next to the settings in the application data
 //! folder and can be cleared from the settings window.
 

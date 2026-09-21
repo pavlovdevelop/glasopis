@@ -4,7 +4,7 @@
 
 # <img src="docs/assets/flag-bg.svg" width="28" height="19" alt="BG"> Glasopis
 
-**Ти говориш — Аз пиша.**
+**Ти говориш - Аз пиша.**
 
 Free and open-source system-wide Bulgarian voice typing for Windows.
 
@@ -20,13 +20,13 @@ Direct link to the latest build from `main`. For versioned releases see the
 ---
 
 Glasopis is a small Windows utility that lives in the system tray. Put the cursor in *any*
-text field — Chrome, Word, Outlook, VS Code, Discord, an ERP form — press a global hotkey,
+text field - Chrome, Word, Outlook, VS Code, Discord, an ERP form - press a global hotkey,
 speak Bulgarian, and the recognized text is typed into that field. There is no per-app
 integration: Glasopis inserts text the way Windows itself does.
 
 Speech recognition runs through [Groq](https://groq.com) (`whisper-large-v3-turbo`), which
-returns a sentence in well under a second. A local engine — [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
-running on your own CPU — is available as a build option.
+returns a sentence in well under a second. A local engine - [whisper.cpp](https://github.com/ggml-org/whisper.cpp)
+running on your own CPU - is available as a build option.
 
 ## What it costs, and what it requires
 
@@ -54,20 +54,20 @@ to "Локално" in Settings → Разпознаване; see [docs/building
 
 ## Features
 
-- **System-wide voice typing** — works in any Windows application that accepts keyboard input.
-- **Bulgarian first** — `bg-BG` is the default language; the interface is Bulgarian by default.
-- **Two engines** — Groq in the cloud for speed, whisper.cpp locally for privacy.
-- **Layout independent Cyrillic** — text is inserted as Unicode, so Cyrillic arrives correctly
+- **System-wide voice typing** - works in any Windows application that accepts keyboard input.
+- **Bulgarian first** - `bg-BG` is the default language; the interface is Bulgarian by default.
+- **Two engines** - Groq in the cloud for speed, whisper.cpp locally for privacy.
+- **Layout independent Cyrillic** - text is inserted as Unicode, so Cyrillic arrives correctly
   even when the active Windows keyboard layout is English.
-- **Two recording modes** — toggle (`Ctrl+Alt+Space`) and push-to-talk (`Ctrl+Alt+D`).
-- **Bulgarian voice commands** — „точка“, „запетая“, „въпросителен знак“, „нов ред“,
+- **Two recording modes** - toggle (`Ctrl+Alt+Space`) and push-to-talk (`Ctrl+Alt+D`).
+- **Bulgarian voice commands** - „точка“, „запетая“, „въпросителен знак“, „нов ред“,
   „нов параграф“, „изтрий последната дума“, „изтрий последното изречение“ and more.
 - **Automatic punctuation** from the speech model, with the voice commands as an explicit override.
-- **Personal dictionary** — map what you say to how it should be written (`гит хъб` → `GitHub`).
-- **Model manager** — download, verify (SHA-256), select and delete speech models.
+- **Personal dictionary** - map what you say to how it should be written (`гит хъб` → `GitHub`).
+- **Model manager** - download, verify (SHA-256), select and delete speech models.
 - **Floating microphone overlay** with a live level meter that never steals keyboard focus.
 - **No telemetry**, history off by default, audio kept in memory and never written to disk.
-- **Automatic updates** — Glasopis checks for a new version and offers a one-click install
+- **Automatic updates** - Glasopis checks for a new version and offers a one-click install
   (can be turned off). Every downloaded installer is verified against a digital signature.
 
 ## Installation
@@ -79,7 +79,7 @@ to "Локално" in Settings → Разпознаване; see [docs/building
    (free, from [console.groq.com/keys](https://console.groq.com/keys)) and confirm the hotkey.
 
 > Community builds are **not code-signed** (a certificate costs money, and Glasopis is free).
-> Windows SmartScreen may therefore show "Windows protected your PC" — choose
+> Windows SmartScreen may therefore show "Windows protected your PC" - choose
 > *More info → Run anyway*. You can always build from source instead.
 
 ## Usage
@@ -90,7 +90,7 @@ to "Локално" in Settings → Разпознаване; see [docs/building
 4. Press `Ctrl + Alt + Space` again.
 5. Glasopis transcribes locally (`Обработвам...`) and inserts the text where your cursor was.
 
-Glasopis never presses Enter for you and never executes what you dictate — it only inserts text.
+Glasopis never presses Enter for you and never executes what you dictate - it only inserts text.
 
 ### Keyboard shortcuts
 
@@ -105,7 +105,7 @@ cannot be used as a push-to-talk key.
 ## Supported Windows versions
 
 - Windows 11 x64 (primary target)
-- Windows 10 x64 (version 1809 or newer, with WebView2 installed — the installer adds it)
+- Windows 10 x64 (version 1809 or newer, with WebView2 installed - the installer adds it)
 
 ## Privacy
 
@@ -131,8 +131,8 @@ npm run tauri build    # Windows installer in target/release/bundle/nsis/
 ```
 
 Prerequisites (Windows): Git, Node.js 20+, Rust (MSVC toolchain), Visual Studio Build Tools
-with the C++ workload, CMake, WebView2. Full instructions — including what can be built and
-tested on Linux — are in [docs/building.md](docs/building.md).
+with the C++ workload, CMake, WebView2. Full instructions - including what can be built and
+tested on Linux - are in [docs/building.md](docs/building.md).
 
 ## Project architecture
 
@@ -144,7 +144,7 @@ glasopis/
 └── docs/                    architecture, privacy, building, QA, roadmap
 ```
 
-The details — and why each decision was made — are in [docs/architecture.md](docs/architecture.md).
+The details - and why each decision was made - are in [docs/architecture.md](docs/architecture.md).
 
 ## Contributing
 

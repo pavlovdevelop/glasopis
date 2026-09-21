@@ -50,7 +50,7 @@ function WarningIcon() {
   );
 }
 
-/** Мини еквалайзер вместо статична икона, докато Glasopis слуша — реагира на
+/** Мини еквалайзер вместо статична икона, докато Glasopis слуша - реагира на
  * нивото на звука и никога не спира да мърда, дори в пълна тишина. */
 function Waveform({ level }: { level: number }) {
   const bars = [0, 1, 2, 3];
@@ -121,7 +121,7 @@ export function Overlay() {
     <div
       className={`overlay-ball overlay-ball--${status.state}`}
       style={style}
-      title={detail ? `${title} — ${detail}` : title}
+      title={detail ? `${title} - ${detail}` : title}
       onMouseDown={(event) => {
         if (event.button !== 0) return;
         event.preventDefault();
@@ -130,7 +130,7 @@ export function Overlay() {
     >
       {status.state === "processing" && <span className="overlay-ball__spinner" aria-hidden="true" />}
       <span className="overlay-ball__icon">{icon}</span>
-      <span className="sr-only">{detail ? `${title} — ${detail}` : title}</span>
+      <span className="sr-only">{detail ? `${title} - ${detail}` : title}</span>
     </div>
   );
 }

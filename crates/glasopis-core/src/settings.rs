@@ -99,7 +99,7 @@ pub struct GeneralSettings {
     /// case a default bottom-centre position is used.
     pub overlay_position: Option<(i32, i32)>,
     /// Check GitHub Releases for a newer build on startup and offer to
-    /// install it. The only network call Glasopis makes on its own — see
+    /// install it. The only network call Glasopis makes on its own - see
     /// docs/privacy.md. On by default; the user can turn it off.
     pub check_for_updates: bool,
 }

@@ -2,9 +2,9 @@
 //!
 //! Two independent shortcuts:
 //!
-//! * **toggle** — press once to start, once more to stop (the default
+//! * **toggle** - press once to start, once more to stop (the default
 //!   `Ctrl+Alt+Space`);
-//! * **push-to-talk** — record while the combination is held down.
+//! * **push-to-talk** - record while the combination is held down.
 //!
 //! Both are configurable. Windows registers global hotkeys as combinations, so
 //! a bare modifier key (Right Ctrl on its own) cannot be used; the default

@@ -77,7 +77,7 @@ Apache-2.0, BSD, ISC, Zlib, Unicode-3.0 или Unlicense).
 
 | Компонент | Лиценз |
 | --- | --- |
-| Microsoft Edge WebView2 Runtime | [Microsoft Developer Services Agreement / условия за разпространение](https://developer.microsoft.com/microsoft-edge/webview2/) — разпространява се от NSIS инсталатора на Tauri, не от това хранилище |
+| Microsoft Edge WebView2 Runtime | [Microsoft Developer Services Agreement / условия за разпространение](https://developer.microsoft.com/microsoft-edge/webview2/) - разпространява се от NSIS инсталатора на Tauri, не от това хранилище |
 
 ## Шрифтове и ресурси
 

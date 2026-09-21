@@ -47,7 +47,7 @@ pub fn models_dir(app: &AppHandle) -> Result<PathBuf> {
 
 /// Written right before handing off to the updater's silent installer, so
 /// the freshly-relaunched process knows to show its window even if the user
-/// normally starts minimized — see `commands::mark_pending_relaunch`.
+/// normally starts minimized - see `commands::mark_pending_relaunch`.
 pub fn update_marker_file(app: &AppHandle) -> Result<PathBuf> {
     Ok(config_dir(app)?.join(".update-relaunch"))
 }

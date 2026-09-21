@@ -147,7 +147,7 @@ pub fn check_api_key(state: State<'_, AppState>) -> Result<()> {
     crate::speech::groq::check_api_key(&settings.cloud.api_key, &settings.cloud.model)
 }
 
-/// Records only for the level meter — no model and no text insertion.
+/// Records only for the level meter - no model and no text insertion.
 #[tauri::command]
 pub fn start_microphone_test(app: AppHandle) -> Result<()> {
     dictation::start_microphone_test(&app)
@@ -217,7 +217,7 @@ pub fn open_folder(app: AppHandle, which: String) -> Result<()> {
 }
 
 /// Отваря адрес в браузъра. Позволени са само адресите, които самият
-/// интерфейс показва — командата не е общ „отвори каквото ти кажат“.
+/// интерфейс показва - командата не е общ „отвори каквото ти кажат“.
 #[tauri::command]
 pub fn open_url(app: AppHandle, url: String) -> Result<()> {
     const ALLOWED: &[&str] = &[
@@ -264,7 +264,7 @@ pub fn take_update_notice(state: State<'_, AppState>) -> Option<String> {
 
 /// Called right before the updater hands off to the silent installer. On
 /// Windows that installer relaunches Glasopis, but a normal launch starts
-/// minimized to the tray if the user has that setting on — leaving no
+/// minimized to the tray if the user has that setting on - leaving no
 /// visible sign the update actually finished. The marker makes the next
 /// startup show the window once, regardless of that setting.
 #[tauri::command]

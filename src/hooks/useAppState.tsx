@@ -49,7 +49,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setError(null);
     } catch (err) {
       setError(errorMessage(err));
-      // Настройките в бекенда не са променени — връщаме показаните.
+      // Настройките в бекенда не са променени - връщаме показаните.
       try {
         setSettings(await api.getSettings());
       } catch {

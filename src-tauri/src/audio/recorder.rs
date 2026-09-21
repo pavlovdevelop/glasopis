@@ -25,7 +25,7 @@ pub const MAX_RECORDING_SECONDS: f32 = 300.0;
 
 #[derive(Debug, Clone)]
 pub struct CapturedAudio {
-    /// Mono, 16 kHz, f32 samples — exactly what whisper.cpp expects.
+    /// Mono, 16 kHz, f32 samples - exactly what whisper.cpp expects.
     pub samples: Vec<f32>,
     pub seconds: f32,
 }

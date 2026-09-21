@@ -2,7 +2,7 @@
   "name": "glasopis",
   "private": true,
   "version": "0.1.0",
-  "description": "Ти говориш — Аз пиша. Безплатно гласово въвеждане на български за Windows",
+  "description": "Ти говориш - Аз пиша. Безплатно гласово въвеждане на български за Windows",
   "license": "MIT",
   "type": "module",
   "scripts": {
