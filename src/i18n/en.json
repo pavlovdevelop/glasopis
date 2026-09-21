@@ -164,6 +164,7 @@
     "downloading": "Downloading... {percent}%",
     "downloadingUnknown": "Downloading...",
     "ready": "Installing — Glasopis will restart.",
+    "justUpdated": "Glasopis was updated to version {version} — you're on the latest version.",
     "error": "The update check failed.",
     "notes": "What's new"
   },
