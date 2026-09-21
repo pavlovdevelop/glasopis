@@ -15,7 +15,7 @@ import {
 const TOTAL_STEPS = 5;
 
 export function Onboarding({ onFinished }: { onFinished: () => void }) {
-  const { settings, save, t, setError, error } = useAppState();
+  const { settings, save, reload, t, setError, error } = useAppState();
   const { status, level } = useStatus();
   const [step, setStep] = useState(0);
   const [devices, setDevices] = useState<InputDevice[]>([]);
@@ -252,6 +252,7 @@ export function Onboarding({ onFinished }: { onFinished: () => void }) {
                 onClick={async () => {
                   try {
                     await api.completeOnboarding();
+                    await reload();
                     onFinished();
                   } catch (err) {
                     setError(errorMessage(err));
