@@ -26,6 +26,7 @@ export interface Settings {
     play_sounds: boolean;
     ui_language: string;
     overlay_position: [number, number] | null;
+    check_for_updates: boolean;
   };
   voice: {
     engine: SpeechEngineKind;

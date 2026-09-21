@@ -25,10 +25,42 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - run: npm ci
+
+      - name: Compute the build version
+        id: version
+        shell: pwsh
+        run: |
+          # Версионирани тагове (v0.2.0) носят точно тази версия. Всеки push в
+          # main получава 0.1.<run_number> — расте монотонно, за да може
+          # updater-ът (сравнение по semver) винаги да разпознае "по-нова".
+          if ("${{ github.ref }}" -like "refs/tags/v*") {
+            $version = "${{ github.ref_name }}".TrimStart("v")
+          } else {
+            $version = "0.1.${{ github.run_number }}"
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Set the version in tauri.conf.json
+        shell: pwsh
+        run: |
+          $path = "src-tauri/tauri.conf.json"
+          $content = Get-Content -Raw -Path $path
+          $updated = $content -replace '"version": "0\.1\.0"', '"version": "${{ steps.version.outputs.version }}"'
+          if ($updated -eq $content) { throw "version field not found/replaced in $path" }
+          Set-Content -Path $path -Value $updated -NoNewline
+
       - name: Build the application and the installer
+        # Задава двата GitHub secrets, за да подпише Tauri ъпдейт артефакта
+        # (updater/latest.json подпис) — виж https://v2.tauri.app/plugin/updater/.
+        # Това НЕ е Windows Authenticode сертификат: SmartScreen продължава
+        # да показва предупреждение, защото такъв сертификат струва пари.
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run tauri build
 
       - name: Rename the installer
+        id: installer
         shell: pwsh
         run: |
           # Проектът е Cargo workspace, затова bundle излиза в target/ в корена.
@@ -40,6 +72,28 @@ jobs:
           Get-FileHash artifacts/GlasopisSetup.exe -Algorithm SHA256 |
             ForEach-Object { "$($_.Hash.ToLower())  GlasopisSetup.exe" } |
             Out-File -Encoding ascii artifacts/GlasopisSetup.exe.sha256
+
+          $sig = Get-ChildItem -Path target -Recurse -Filter "$($installer.Name).sig" |
+            Select-Object -First 1
+          "has_signature=$([bool]$sig)" >> $env:GITHUB_OUTPUT
+          if ($sig) { Copy-Item $sig.FullName artifacts/GlasopisSetup.exe.sig }
+
+      - name: Build the update manifest (latest.json)
+        if: github.ref == 'refs/heads/main' && steps.installer.outputs.has_signature == 'True'
+        shell: pwsh
+        run: |
+          $manifest = @{
+            version   = "${{ steps.version.outputs.version }}"
+            notes     = "Автоматична компилация от main (${{ github.sha }})."
+            pub_date  = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+            platforms = @{
+              "windows-x86_64" = @{
+                signature = (Get-Content -Raw artifacts/GlasopisSetup.exe.sig).Trim()
+                url       = "https://github.com/pavlovdevelop/glasopis/releases/download/latest/GlasopisSetup.exe"
+              }
+            }
+          }
+          $manifest | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 artifacts/latest.json
 
       - name: Publish the versioned release
         if: startsWith(github.ref, 'refs/tags/v')

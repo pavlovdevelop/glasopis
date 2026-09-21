@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Row } from "../components/ui";
+import { Banner, Button, Card, Row } from "../components/ui";
 import { useAppState } from "../hooks/useAppState";
+import { useUpdater } from "../hooks/useUpdater";
 import { api, errorMessage, type AppInfo } from "../services/api";
 
 const REPOSITORY = "https://github.com/pavlovdevelop/glasopis";
@@ -8,10 +9,17 @@ const REPOSITORY = "https://github.com/pavlovdevelop/glasopis";
 export function AboutPage() {
   const { t, setError, settings } = useAppState();
   const [info, setInfo] = useState<AppInfo | null>(null);
+  const updater = useUpdater();
 
   useEffect(() => {
     api.getAppInfo().then(setInfo).catch((err) => setError(errorMessage(err)));
   }, [setError]);
+
+  const autoCheck = settings?.general.check_for_updates ?? false;
+  const { check } = updater;
+  useEffect(() => {
+    if (autoCheck) void check();
+  }, [autoCheck, check]);
 
   const openFolder = (which: "models" | "logs" | "config") => {
     api.openFolder(which).catch((err) => setError(errorMessage(err)));
@@ -24,6 +32,53 @@ export function AboutPage() {
       <Row label={t("about.version")}>
         <span>{info?.version ?? "—"}</span>
       </Row>
+      <Row label={t("update.title")}>
+        {updater.state.phase === "idle" || updater.state.phase === "up-to-date" ? (
+          <Button onClick={() => void updater.check()}>{t("update.checkNow")}</Button>
+        ) : updater.state.phase === "checking" ? (
+          <span className="hint">{t("update.checking")}</span>
+        ) : updater.state.phase === "error" ? (
+          <span className="hint">{t("update.error")}</span>
+        ) : null}
+      </Row>
+      {updater.state.phase === "up-to-date" && (
+        <Banner kind="success">{t("update.upToDate")}</Banner>
+      )}
+      {updater.state.phase === "error" && (
+        <Banner kind="error">{updater.state.message}</Banner>
+      )}
+      {updater.state.phase === "available" && (
+        <Banner kind="info">
+          <p>{t("update.available", { version: updater.state.version })}</p>
+          {updater.state.notes && (
+            <details>
+              <summary>{t("update.notes")}</summary>
+              <p className="hint">{updater.state.notes}</p>
+            </details>
+          )}
+          <Button variant="primary" onClick={() => void updater.install()}>
+            {t("update.install")}
+          </Button>
+        </Banner>
+      )}
+      {updater.state.phase === "downloading" && (
+        <Banner kind="info">
+          {updater.state.progress !== null ? (
+            <div className="progress">
+              <div
+                className="progress__bar"
+                style={{ width: `${Math.round(updater.state.progress * 100)}%` }}
+              />
+              <span className="progress__label">
+                {t("update.downloading", { percent: Math.round(updater.state.progress * 100) })}
+              </span>
+            </div>
+          ) : (
+            <p>{t("update.downloadingUnknown")}</p>
+          )}
+        </Banner>
+      )}
+      {updater.state.phase === "ready" && <Banner kind="success">{t("update.ready")}</Banner>}
       <Row label={t("about.speechEngine")}>
         <span>
           {settings?.voice.engine === "local"

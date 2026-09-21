@@ -67,6 +67,8 @@ to "Локално" in Settings → Разпознаване; see [docs/building
 - **Model manager** — download, verify (SHA-256), select and delete speech models.
 - **Floating microphone overlay** with a live level meter that never steals keyboard focus.
 - **No telemetry**, history off by default, audio kept in memory and never written to disk.
+- **Automatic updates** — Glasopis checks for a new version and offers a one-click install
+  (can be turned off). Every downloaded installer is verified against a digital signature.
 
 ## Installation
 

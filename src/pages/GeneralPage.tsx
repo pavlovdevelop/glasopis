@@ -36,6 +36,12 @@ export function GeneralPage() {
         checked={general.play_sounds}
         onChange={(play_sounds) => update({ play_sounds })}
       />
+      <Toggle
+        id="check-for-updates"
+        label={t("general.checkForUpdates")}
+        checked={general.check_for_updates}
+        onChange={(check_for_updates) => update({ check_for_updates })}
+      />
       <Select<Language>
         id="ui-language"
         label={t("general.uiLanguage")}
