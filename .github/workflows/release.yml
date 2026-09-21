@@ -72,7 +72,10 @@ jobs:
           target_commitish: ${{ github.sha }}
           files: artifacts/*
           draft: false
-          prerelease: true
+          # GitHub's /releases/latest (и от там /releases/latest/download/...)
+          # сочи само към release, който НЕ е prerelease и НЕ е draft — затова
+          # тук трябва да е false, иначе линкът "latest" води до 404.
+          prerelease: false
           body: |
             Автоматична компилация от последния commit в `main` (${{ github.sha }}).
             Обновява се при всеки push — не е официално издание.
