@@ -4,7 +4,7 @@
 
 # <img src="docs/assets/flag-bg.svg" width="28" height="19" alt="BG"> Glasopis
 
-**Говориш. То пише.**
+**Ти говориш — Аз пиша.**
 
 Free and open-source system-wide Bulgarian voice typing for Windows.
 
