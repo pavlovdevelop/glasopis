@@ -59,6 +59,11 @@ export interface Settings {
   };
   dictionary: { entries: DictionaryEntry[] };
   recording_mode: RecordingMode;
+  assistant: {
+    enabled: boolean;
+    hotkey: string;
+    speak_replies: boolean;
+  };
   onboarding_completed: boolean;
 }
 
@@ -66,6 +71,7 @@ export type Status =
   | { state: "idle" }
   | { state: "listening" }
   | { state: "processing" }
+  | { state: "confirming"; question: string }
   | { state: "done"; text: string; clipboard_only: boolean }
   | { state: "error"; message: string };
 

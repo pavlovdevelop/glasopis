@@ -14,8 +14,8 @@ use glasopis_core::settings::Settings;
 use tauri::AppHandle;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
-use crate::dictation;
 use crate::errors::{GlasopisError, Result};
+use crate::{assistant, dictation};
 
 /// Registers the hotkeys from the settings, replacing any previous ones.
 pub fn register_all(app: &AppHandle, settings: &Settings) -> Result<()> {
@@ -54,6 +54,25 @@ pub fn register_all(app: &AppHandle, settings: &Settings) -> Result<()> {
             .map_err(|err| {
                 GlasopisError::other(format!(
                     "Комбинацията за задържане „{ptt}“ не може да бъде регистрирана: {err}"
+                ))
+            })?;
+    }
+
+    let assistant_key = settings.assistant.hotkey.trim().to_string();
+    if settings.assistant.enabled
+        && !assistant_key.is_empty()
+        && assistant_key != settings.hotkeys.toggle.trim()
+        && assistant_key != settings.hotkeys.push_to_talk.trim()
+    {
+        shortcuts
+            .on_shortcut(assistant_key.as_str(), move |app, _shortcut, event| {
+                if event.state == ShortcutState::Pressed {
+                    assistant::toggle(app);
+                }
+            })
+            .map_err(|err| {
+                GlasopisError::other(format!(
+                    "Комбинацията за асистента „{assistant_key}“ не може да бъде регистрирана: {err}"
                 ))
             })?;
     }

@@ -66,6 +66,10 @@ whisper-rs = { version = "0.16", optional = true }
 [target.'cfg(windows)'.dependencies]
 tauri-plugin-autostart = "2"
 tauri-plugin-single-instance = "2"
+# Blocking `IAsyncOperation<T>::Status`/`GetResults` wait, matched to the
+# `windows` crate's own `windows-future` version below - one instance of the
+# type, not two incompatible ones.
+windows-future = { version = "0.3.2", default-features = false }
 windows = { version = "0.62", features = [
   "Win32_Foundation",
   "Win32_Globalization",
@@ -77,7 +81,14 @@ windows = { version = "0.62", features = [
   "Win32_System_Diagnostics_Debug",
   "Win32_UI_Input_KeyboardAndMouse",
   "Win32_UI_WindowsAndMessaging",
+  "Win32_UI_Shell",
   "Win32_Media_Audio",
+  # WinRT: говоримият отговор на асистента (вграден Windows TTS, локално).
+  "Foundation",
+  "Media_Core",
+  "Media_Playback",
+  "Media_SpeechSynthesis",
+  "Storage_Streams",
 ] }
 
 [dev-dependencies]

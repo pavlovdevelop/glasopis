@@ -27,6 +27,8 @@ pub enum Status {
     Listening,
     /// Transcribing ("Обработвам...").
     Processing,
+    /// The assistant proposes `question` and waits for a yes/no reply.
+    Confirming { question: String },
     /// Finished; `text` is what was inserted.
     Done { text: String, clipboard_only: bool },
     /// Something went wrong; `message` is shown to the user in Bulgarian.
@@ -49,6 +51,10 @@ pub struct AppState {
     /// relaunch; the frontend reads it (via `take_update_notice`) to show a
     /// one-time "updated to vX" banner, and reading it clears it.
     just_updated: Mutex<Option<String>>,
+    /// Where the voice assistant is in its command -> confirm -> execute
+    /// flow. `None` means it is idle (any active recording belongs to an
+    /// ordinary dictation instead - the two never run at once).
+    assistant_phase: Mutex<Option<crate::assistant::AssistantPhase>>,
 }
 
 impl AppState {
@@ -62,7 +68,16 @@ impl AppState {
             target_window: Mutex::new(None),
             cancel_flags: Mutex::new(std::collections::HashMap::new()),
             just_updated: Mutex::new(None),
+            assistant_phase: Mutex::new(None),
         }
+    }
+
+    pub fn assistant_phase(&self) -> Option<crate::assistant::AssistantPhase> {
+        self.assistant_phase.lock().clone()
+    }
+
+    pub fn set_assistant_phase(&self, phase: Option<crate::assistant::AssistantPhase>) {
+        *self.assistant_phase.lock() = phase;
     }
 
     pub fn set_just_updated(&self, version: String) {

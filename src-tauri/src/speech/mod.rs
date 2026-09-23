@@ -10,9 +10,12 @@
 
 use std::path::{Path, PathBuf};
 
+use glasopis_core::settings::{Settings, SpeechEngineKind};
 use parking_lot::Mutex;
+use tauri::{AppHandle, Manager};
 
 use crate::errors::{GlasopisError, Result};
+use crate::state::AppState;
 
 pub mod groq;
 
@@ -104,6 +107,40 @@ fn create_engine(_model_path: &Path, _threads: u32) -> Result<Box<dyn SpeechEngi
     Err(GlasopisError::other(
         "Тази компилация е без вградено разпознаване на реч (feature `whisper`).".to_string(),
     ))
+}
+
+/// Transcribes `samples` with whichever engine `settings.voice.engine`
+/// selects. Shared by the dictation flow and the voice assistant so both
+/// pick up engine changes and the personal dictionary the same way.
+pub fn transcribe_with_settings(
+    app: &AppHandle,
+    settings: &Settings,
+    samples: &[f32],
+) -> Result<String> {
+    match settings.voice.engine {
+        SpeechEngineKind::Groq => {
+            let prompt = glasopis_core::dictionary::build_prompt(
+                &settings.dictionary,
+                &settings.cloud.terms,
+            );
+            groq::transcribe(
+                samples,
+                &settings.voice.language,
+                &settings.cloud.api_key,
+                &settings.cloud.model,
+                &prompt,
+            )
+        }
+        SpeechEngineKind::Local => {
+            let model_path =
+                crate::models_manager::active_model_path(app, settings.voice.model_id.as_deref())?;
+            let threads = settings.voice.threads.unwrap_or_else(default_threads);
+            let state = app.state::<AppState>();
+            state
+                .engine
+                .transcribe(&model_path, samples, &settings.voice.language, threads)
+        }
+    }
 }
 
 /// Number of threads to use when the user has not chosen a value.

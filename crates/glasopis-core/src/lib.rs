@@ -12,7 +12,9 @@
 //! * [`history`] - the optional local dictation history
 //! * [`audio`] - pure audio helpers (mixdown, resampling, level metering)
 //! * [`wav`] - WAV encoding for the cloud transcription request
+//! * [`assistant`] - the voice assistant's whitelist and AI-response parsing
 
+pub mod assistant;
 pub mod audio;
 pub mod cloud_models;
 pub mod commands;

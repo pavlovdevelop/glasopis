@@ -34,6 +34,22 @@ function CheckIcon() {
   );
 }
 
+function QuestionIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        d="M9 9a3 3 0 1 1 4.5 2.6c-.9.5-1.5 1-1.5 2.1"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="18" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
 function WarningIcon() {
   return (
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
@@ -86,24 +102,30 @@ export function Overlay() {
       ? t("overlay.listening")
       : status.state === "processing"
         ? t("overlay.processing")
-        : status.state === "done"
-          ? t("overlay.done")
-          : status.state === "error"
-            ? t("overlay.error")
-            : t("status.idle");
+        : status.state === "confirming"
+          ? t("overlay.confirming")
+          : status.state === "done"
+            ? t("overlay.done")
+            : status.state === "error"
+              ? t("overlay.error")
+              : t("status.idle");
 
   const detail =
     status.state === "error"
       ? status.message
-      : status.state === "done" && status.clipboard_only
-        ? t("overlay.clipboardOnly")
-        : status.state === "done"
-          ? status.text
-          : null;
+      : status.state === "confirming"
+        ? status.question
+        : status.state === "done" && status.clipboard_only
+          ? t("overlay.clipboardOnly")
+          : status.state === "done"
+            ? status.text
+            : null;
 
   const icon =
     status.state === "error" ? (
       <WarningIcon />
+    ) : status.state === "confirming" ? (
+      <QuestionIcon />
     ) : status.state === "done" ? (
       <CheckIcon />
     ) : status.state === "listening" ? (

@@ -69,6 +69,10 @@ to "Локално" in Settings → Разпознаване; see [docs/building
 - **No telemetry**, history off by default, audio kept in memory and never written to disk.
 - **Automatic updates** - Glasopis checks for a new version and offers a one-click install
   (can be turned off). Every downloaded installer is verified against a digital signature.
+- **Voice assistant** (off by default, a separate mode with its own hotkey) - say a command, the
+  assistant proposes an action with speech and text ("Open Chrome?") and only carries it out
+  after you say "yes". In `v1` it can only open a small set of known applications - see
+  [SECURITY.md](SECURITY.md) for the threat model.
 
 ## Installation
 
@@ -91,6 +95,8 @@ to "Локално" in Settings → Разпознаване; see [docs/building
 5. Glasopis transcribes locally (`Обработвам...`) and inserts the text where your cursor was.
 
 Glasopis never presses Enter for you and never executes what you dictate - it only inserts text.
+The one exception is the separate, off-by-default voice assistant, which only ever acts after
+explicit spoken confirmation - see above.
 
 ### Keyboard shortcuts
 
@@ -98,6 +104,7 @@ Glasopis never presses Enter for you and never executes what you dictate - it on
 | --- | --- | --- |
 | Start / stop dictation | `Ctrl + Alt + Space` | yes |
 | Push-to-talk (hold) | `Ctrl + Alt + D` (off by default) | yes |
+| Voice assistant | `Ctrl + Alt + K` (off by default) | yes |
 
 Windows registers global hotkeys as *combinations*, so a bare modifier (Right Ctrl alone)
 cannot be used as a push-to-talk key.

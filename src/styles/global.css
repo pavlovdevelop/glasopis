@@ -10,6 +10,7 @@
   --border: #e3e5ea;
   --danger: #dc2626;
   --success: #15803d;
+  --warn: #d97706;
   --radius: 12px;
   --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06);
   font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -160,6 +161,11 @@ code {
 
 .statusbar__dot--processing {
   background: #f59e0b;
+}
+
+.statusbar__dot--confirming {
+  background: var(--warn);
+  animation: pulse 1.2s ease-in-out infinite;
 }
 
 .statusbar__dot--done {
@@ -700,6 +706,11 @@ code {
   50% {
     transform: scaleY(1);
   }
+}
+
+.overlay-ball--confirming {
+  border-color: var(--warn);
+  color: var(--warn);
 }
 
 .overlay-ball--error {
