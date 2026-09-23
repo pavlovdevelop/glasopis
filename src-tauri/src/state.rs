@@ -55,6 +55,11 @@ pub struct AppState {
     /// flow. `None` means it is idle (any active recording belongs to an
     /// ordinary dictation instead - the two never run at once).
     assistant_phase: Mutex<Option<crate::assistant::AssistantPhase>>,
+    /// The overlay's position just before `ui::expand_overlay_for_question`
+    /// grew it (and possibly shifted it, to keep the wider box on screen), so
+    /// `ui::shrink_overlay` can put it back exactly rather than leaving it
+    /// wherever the edge-clamp moved it to.
+    overlay_pre_expand_position: Mutex<Option<(f64, f64)>>,
 }
 
 impl AppState {
@@ -69,11 +74,20 @@ impl AppState {
             cancel_flags: Mutex::new(std::collections::HashMap::new()),
             just_updated: Mutex::new(None),
             assistant_phase: Mutex::new(None),
+            overlay_pre_expand_position: Mutex::new(None),
         }
     }
 
     pub fn assistant_phase(&self) -> Option<crate::assistant::AssistantPhase> {
         self.assistant_phase.lock().clone()
+    }
+
+    pub fn set_overlay_pre_expand_position(&self, x: f64, y: f64) {
+        *self.overlay_pre_expand_position.lock() = Some((x, y));
+    }
+
+    pub fn take_overlay_pre_expand_position(&self) -> Option<(f64, f64)> {
+        self.overlay_pre_expand_position.lock().take()
     }
 
     pub fn set_assistant_phase(&self, phase: Option<crate::assistant::AssistantPhase>) {

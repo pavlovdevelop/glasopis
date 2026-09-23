@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAppState } from "../hooks/useAppState";
 import { useOverlayDrag } from "../hooks/useOverlayDrag";
@@ -139,20 +139,34 @@ export function Overlay() {
       ? ({ "--level": level } as CSSProperties)
       : undefined;
 
+  const startDrag = (event: ReactMouseEvent) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    void getCurrentWindow().startDragging();
+  };
+
+  // Спрян асистент чака гласов отговор ("да"/"не") на въпроса си - ако
+  // единственият начин да го прочетете е да задържите мишката върху топката,
+  // това не е разговор. Затова докато чака, въпросът стои изписан открито.
+  const showQuestionBubble = status.state === "confirming";
+
   return (
-    <div
-      className={`overlay-ball overlay-ball--${status.state}`}
-      style={style}
-      title={detail ? `${title} - ${detail}` : title}
-      onMouseDown={(event) => {
-        if (event.button !== 0) return;
-        event.preventDefault();
-        void getCurrentWindow().startDragging();
-      }}
-    >
-      {status.state === "processing" && <span className="overlay-ball__spinner" aria-hidden="true" />}
-      <span className="overlay-ball__icon">{icon}</span>
-      <span className="sr-only">{detail ? `${title} - ${detail}` : title}</span>
+    <div className="overlay-root">
+      <div
+        className={`overlay-ball overlay-ball--${status.state}`}
+        style={style}
+        title={detail ? `${title} - ${detail}` : title}
+        onMouseDown={startDrag}
+      >
+        {status.state === "processing" && <span className="overlay-ball__spinner" aria-hidden="true" />}
+        <span className="overlay-ball__icon">{icon}</span>
+        <span className="sr-only">{detail ? `${title} - ${detail}` : title}</span>
+      </div>
+      {showQuestionBubble && (
+        <div className="overlay-question" onMouseDown={startDrag}>
+          {status.question}
+        </div>
+      )}
     </div>
   );
 }

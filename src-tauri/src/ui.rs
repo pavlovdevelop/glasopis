@@ -17,6 +17,12 @@ const OVERLAY_SIZE: f64 = 72.0;
 /// is the full display resolution, not the work area - this has to clear the
 /// Windows taskbar (and a taller one, at 150%+ scaling) on its own.
 const OVERLAY_BOTTOM_MARGIN: f64 = 160.0;
+/// Size the overlay grows to while the assistant asks a yes/no question - big
+/// enough for a short Bulgarian sentence next to the ball. Otherwise the
+/// question is only reachable by hovering the tiny ball with a mouse, which
+/// defeats the point of a *voice* assistant (see `assistant::AssistantPhase`).
+const OVERLAY_QUESTION_WIDTH: f64 = 280.0;
+const OVERLAY_QUESTION_HEIGHT: f64 = 96.0;
 
 /// Shows (and creates, if needed) the settings window.
 pub fn show_main_window(app: &AppHandle) -> Result<WebviewWindow> {
@@ -130,5 +136,54 @@ pub fn show_overlay(app: &AppHandle) {
 pub fn hide_overlay(app: &AppHandle) {
     if let Some(window) = app.get_webview_window(OVERLAY_WINDOW) {
         let _ = window.hide();
+    }
+}
+
+/// Grows the overlay so the assistant's yes/no question is readable next to
+/// the ball, shifting it on screen if needed so the wider box stays visible.
+/// Remembers the pre-expand position in [`AppState`] so [`shrink_overlay`]
+/// can put the ball back exactly where the user left it, rather than wherever
+/// the edge-clamp moved it to.
+pub fn expand_overlay_for_question(app: &AppHandle) {
+    let Some(window) = app.get_webview_window(OVERLAY_WINDOW) else {
+        return;
+    };
+    let scale = window.scale_factor().unwrap_or(1.0);
+    let Ok(before) = window.outer_position() else {
+        let _ = window.set_size(tauri::LogicalSize::new(
+            OVERLAY_QUESTION_WIDTH,
+            OVERLAY_QUESTION_HEIGHT,
+        ));
+        return;
+    };
+    let before = before.to_logical::<f64>(scale);
+    app.state::<AppState>()
+        .set_overlay_pre_expand_position(before.x, before.y);
+    let _ = window.set_size(tauri::LogicalSize::new(
+        OVERLAY_QUESTION_WIDTH,
+        OVERLAY_QUESTION_HEIGHT,
+    ));
+    let Ok(Some(monitor)) = window.current_monitor() else {
+        return;
+    };
+    let msize = monitor.size().to_logical::<f64>(scale);
+    let mpos = monitor.position().to_logical::<f64>(scale);
+    let max_x = mpos.x + msize.width - OVERLAY_QUESTION_WIDTH;
+    let max_y = mpos.y + msize.height - OVERLAY_QUESTION_HEIGHT;
+    let x = before.x.clamp(mpos.x, max_x.max(mpos.x));
+    let y = before.y.clamp(mpos.y, max_y.max(mpos.y));
+    let _ = window.set_position(tauri::LogicalPosition::new(x, y));
+}
+
+/// Returns the overlay to the small-ball size, restoring the exact position
+/// it had before `expand_overlay_for_question` (if any) - never letting an
+/// edge-clamp permanently nudge where the ball ends up sitting.
+pub fn shrink_overlay(app: &AppHandle) {
+    let Some(window) = app.get_webview_window(OVERLAY_WINDOW) else {
+        return;
+    };
+    let _ = window.set_size(tauri::LogicalSize::new(OVERLAY_SIZE, OVERLAY_SIZE));
+    if let Some((x, y)) = app.state::<AppState>().take_overlay_pre_expand_position() {
+        let _ = window.set_position(tauri::LogicalPosition::new(x, y));
     }
 }
