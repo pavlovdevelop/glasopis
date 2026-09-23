@@ -29,6 +29,9 @@ export function PrivacyPage() {
       <p className="hint">{t("privacy.noTelemetry")}</p>
       <p className="hint">{t("privacy.audioDeleted")}</p>
       {cloud && <p className="hint">{t("privacy.switchToLocal")}</p>}
+      {settings.assistant.enabled && (
+        <Banner kind="info">{t("privacy.assistantText")}</Banner>
+      )}
       <Toggle
         id="keep-history"
         label={t("privacy.keepHistory")}

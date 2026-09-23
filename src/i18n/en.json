@@ -28,6 +28,7 @@
     "general": "General",
     "voice": "Voice",
     "hotkeys": "Hotkeys",
+    "assistant": "Assistant",
     "insertion": "Text insertion",
     "models": "Speech models",
     "microphone": "Microphone",
@@ -44,6 +45,7 @@
   "overlay": {
     "listening": "Listening...",
     "processing": "Processing...",
+    "confirming": "Confirmation",
     "done": "Done",
     "error": "Error",
     "clipboardOnly": "The text is on the clipboard - press Ctrl+V."
@@ -81,6 +83,18 @@
     "press": "Press a combination...",
     "invalid": "This combination is not valid.",
     "modifierHint": "Windows requires a combination with Ctrl, Alt or Shift - a single key cannot be registered globally."
+  },
+  "assistant": {
+    "title": "Assistant",
+    "description": "A separate mode, off by default: say a command, the assistant proposes an action, and only carries it out after you confirm by voice.",
+    "confirmHint": "The assistant always asks before doing anything - e.g. \"Open Chrome?\" - and only acts once you say \"yes\".",
+    "enable": "Enable the voice assistant",
+    "enableHint": "A separate mode from ordinary dictation - toggled with its own second hotkey.",
+    "hotkey": "Assistant hotkey",
+    "hotkeyHint": "Press once to speak a command; press again to answer yes/no.",
+    "speakReplies": "Speak questions and replies aloud",
+    "speakRepliesHint": "Through Windows' built-in speech synthesizer - local, no network. If no Bulgarian voice is installed, the assistant continues with text only.",
+    "needsApiKey": "A Groq key is needed (Settings → Recognition) - the assistant uses the same AI model to understand commands."
   },
   "insertion": {
     "title": "Text insertion",
@@ -130,7 +144,8 @@
     "historyLimit": "Maximum number of entries",
     "cloud": "Cloud processing",
     "cloudText": "Recognition is currently performed by Groq. The recording is sent to their servers and processed there under their terms. No audio is written to your disk.",
-    "switchToLocal": "For processing that never leaves this computer, switch the engine in the Recognition section (requires a build with the local model)."
+    "switchToLocal": "For processing that never leaves this computer, switch the engine in the Recognition section (requires a build with the local model).",
+    "assistantText": "The voice assistant is enabled: the commands you speak to it are also sent to Groq so an AI model can understand them. Nothing is carried out without your spoken confirmation."
   },
   "history": {
     "title": "Dictation history",
@@ -190,6 +205,7 @@
     "idle": "Ready",
     "listening": "Listening...",
     "processing": "Processing...",
+    "confirming": "Confirmation",
     "done": "Done",
     "error": "Error"
   },

@@ -6,6 +6,7 @@ import { api, errorMessage } from "./services/api";
 import { GeneralPage } from "./pages/GeneralPage";
 import { VoicePage } from "./pages/VoicePage";
 import { HotkeysPage } from "./pages/HotkeysPage";
+import { AssistantPage } from "./pages/AssistantPage";
 import { InsertionPage } from "./pages/InsertionPage";
 import { ModelsPage } from "./pages/ModelsPage";
 import { MicrophonePage } from "./pages/MicrophonePage";
@@ -22,6 +23,7 @@ type Route =
   | "recognition"
   | "voice"
   | "hotkeys"
+  | "assistant"
   | "insertion"
   | "models"
   | "microphone"
@@ -38,6 +40,7 @@ const ROUTES: { id: Route; labelKey: string }[] = [
   { id: "microphone", labelKey: "nav.microphone" },
   { id: "models", labelKey: "nav.models" },
   { id: "hotkeys", labelKey: "nav.hotkeys" },
+  { id: "assistant", labelKey: "nav.assistant" },
   { id: "insertion", labelKey: "nav.insertion" },
   { id: "privacy", labelKey: "nav.privacy" },
   { id: "history", labelKey: "nav.history" },
@@ -74,6 +77,8 @@ function Page({ route }: { route: Route }) {
       return <VoicePage />;
     case "hotkeys":
       return <HotkeysPage />;
+    case "assistant":
+      return <AssistantPage />;
     case "insertion":
       return <InsertionPage />;
     case "models":
@@ -131,9 +136,11 @@ function StatusBar() {
       ? t("status.listening")
       : status.state === "processing"
         ? t("status.processing")
-        : status.state === "error"
-          ? status.message
-          : t("status.idle");
+        : status.state === "confirming"
+          ? status.question
+          : status.state === "error"
+            ? status.message
+            : t("status.idle");
 
   const recording = status.state === "listening";
 

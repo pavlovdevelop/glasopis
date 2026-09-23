@@ -2,6 +2,7 @@
 //!
 //! Ти говориш - Аз пиша.
 
+mod assistant;
 mod audio;
 mod autostart;
 mod commands;
@@ -17,6 +18,7 @@ mod sounds;
 mod speech;
 mod state;
 mod tray;
+mod tts;
 mod ui;
 
 use tauri::{Manager, WindowEvent};

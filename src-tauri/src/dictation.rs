@@ -17,7 +17,6 @@ use tauri::{AppHandle, Emitter, Manager};
 
 use crate::errors::{GlasopisError, Result};
 use crate::injection::{self, InjectionOptions, InjectionOutcome};
-use crate::speech::default_threads;
 use crate::state::{AppState, Status, LEVEL_EVENT};
 use crate::{history_store, models_manager, sounds, ui};
 
@@ -47,6 +46,9 @@ pub fn start(app: &AppHandle) {
     if state.recorder.is_recording() {
         return;
     }
+    // A stale "waiting for yes/no" from the assistant must not resurface
+    // once an unrelated dictation starts and finishes.
+    crate::assistant::cancel(app);
     let settings = state.settings();
 
     // Проверката е преди записа: да запишем и чак после да кажем „няма ключ“
@@ -221,30 +223,7 @@ fn transcribe_and_insert(
         MIN_TRANSCRIPTION_SECONDS,
     );
 
-    let raw = match settings.voice.engine {
-        SpeechEngineKind::Groq => {
-            let prompt = glasopis_core::dictionary::build_prompt(
-                &settings.dictionary,
-                &settings.cloud.terms,
-            );
-            crate::speech::groq::transcribe(
-                &samples,
-                &settings.voice.language,
-                &settings.cloud.api_key,
-                &settings.cloud.model,
-                &prompt,
-            )?
-        }
-        SpeechEngineKind::Local => {
-            let model_path =
-                models_manager::active_model_path(app, settings.voice.model_id.as_deref())?;
-            let threads = settings.voice.threads.unwrap_or_else(default_threads);
-            let state = app.state::<AppState>();
-            state
-                .engine
-                .transcribe(&model_path, &samples, &settings.voice.language, threads)?
-        }
-    };
+    let raw = crate::speech::transcribe_with_settings(app, settings, &samples)?;
     // Записът вече не е нужен - освобождава се възможно най-рано.
     drop(samples);
 

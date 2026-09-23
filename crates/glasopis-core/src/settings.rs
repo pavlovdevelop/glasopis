@@ -212,6 +212,35 @@ impl Default for PrivacySettings {
     }
 }
 
+pub const DEFAULT_ASSISTANT_HOTKEY: &str = "Ctrl+Alt+K";
+
+/// The voice assistant: a separate, opt-in mode from ordinary dictation (see
+/// `crate::assistant`). Off by default — it sends the transcribed command to
+/// an AI model for interpretation, which is a second network call beyond
+/// plain speech recognition and worth a deliberate opt-in.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct AssistantSettings {
+    pub enabled: bool,
+    /// Accelerator that starts/stops listening for a command, and later for
+    /// the yes/no confirmation. Independent of `hotkeys.toggle`.
+    pub hotkey: String,
+    /// Speak the confirmation question and the result out loud (Windows'
+    /// built-in voices) in addition to showing them. Falls back to text-only
+    /// automatically when no Bulgarian voice is installed.
+    pub speak_replies: bool,
+}
+
+impl Default for AssistantSettings {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            hotkey: DEFAULT_ASSISTANT_HOTKEY.to_string(),
+            speak_replies: true,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
@@ -224,6 +253,7 @@ pub struct Settings {
     pub cloud: CloudSettings,
     pub dictionary: Dictionary,
     pub recording_mode: RecordingMode,
+    pub assistant: AssistantSettings,
     /// Set to true once the onboarding wizard has been completed.
     pub onboarding_completed: bool,
 }
@@ -240,6 +270,7 @@ impl Default for Settings {
             cloud: CloudSettings::default(),
             dictionary: Dictionary::default(),
             recording_mode: RecordingMode::default(),
+            assistant: AssistantSettings::default(),
             onboarding_completed: false,
         }
     }
@@ -284,6 +315,9 @@ impl Settings {
         }
         if self.hotkeys.toggle.trim().is_empty() {
             self.hotkeys.toggle = DEFAULT_TOGGLE_HOTKEY.into();
+        }
+        if self.assistant.hotkey.trim().is_empty() {
+            self.assistant.hotkey = DEFAULT_ASSISTANT_HOTKEY.into();
         }
         if !crate::cloud_models::is_known(self.cloud.model.trim()) {
             self.cloud.model = DEFAULT_CLOUD_MODEL.into();

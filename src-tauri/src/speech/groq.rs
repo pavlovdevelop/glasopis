@@ -131,3 +131,70 @@ pub fn check_api_key(api_key: &str, model: &str) -> Result<()> {
     let silence = vec![0.0f32; glasopis_core::audio::WHISPER_SAMPLE_RATE as usize / 2];
     transcribe(&silence, "bg", api_key, model, "").map(|_| ())
 }
+
+const CHAT_ENDPOINT: &str = "https://api.groq.com/openai/v1/chat/completions";
+/// Бърз, поддържа JSON режим на отговор - достатъчно за едно кратко решение.
+const ASSISTANT_MODEL: &str = "llama-3.3-70b-versatile";
+const CHAT_TIMEOUT_SECONDS: u64 = 30;
+
+/// Изпраща разпознатата команда на AI модел, който я превръща в едно от
+/// позволените действия (виж `glasopis_core::assistant`). Връща суровия JSON
+/// текст на отговора - парсенето и проверката срещу белия списък е в
+/// `glasopis_core::assistant::parse_model_response`, не тук, защото това
+/// решение няма нужда от мрежа и трябва да е тествано на Linux CI.
+pub fn interpret_command(api_key: &str, command_text: &str) -> Result<String> {
+    let api_key = api_key.trim();
+    if api_key.is_empty() {
+        return Err(GlasopisError::MissingApiKey);
+    }
+
+    let body = serde_json::json!({
+        "model": ASSISTANT_MODEL,
+        "temperature": 0,
+        "response_format": { "type": "json_object" },
+        "messages": [
+            { "role": "system", "content": glasopis_core::assistant::build_system_prompt() },
+            { "role": "user", "content": command_text },
+        ],
+    });
+
+    let client = reqwest::blocking::Client::builder()
+        .user_agent(concat!("Glasopis/", env!("CARGO_PKG_VERSION")))
+        .timeout(std::time::Duration::from_secs(CHAT_TIMEOUT_SECONDS))
+        .build()
+        .map_err(|err| GlasopisError::other(format!("Неуспешна мрежова заявка: {err}")))?;
+
+    let response = client
+        .post(CHAT_ENDPOINT)
+        .bearer_auth(api_key)
+        .json(&body)
+        .send()
+        .map_err(|err| {
+            log::error!("мрежова грешка към Groq (асистент): {err}");
+            if err.is_timeout() {
+                GlasopisError::other(
+                    "Groq не отговори навреме. Проверете интернет връзката.".to_string(),
+                )
+            } else {
+                GlasopisError::NetworkUnavailable
+            }
+        })?;
+
+    let status = response.status();
+    let text = response.text().unwrap_or_default();
+    if !status.is_success() {
+        return Err(api_error(status, &text));
+    }
+
+    let parsed: serde_json::Value = serde_json::from_str(&text)
+        .map_err(|_| GlasopisError::other("Groq върна неочакван отговор.".to_string()))?;
+    let content = parsed
+        .get("choices")
+        .and_then(|choices| choices.get(0))
+        .and_then(|choice| choice.get("message"))
+        .and_then(|message| message.get("content"))
+        .and_then(|content| content.as_str())
+        .ok_or_else(|| GlasopisError::other("Groq върна отговор без съдържание.".to_string()))?;
+
+    Ok(content.to_string())
+}
