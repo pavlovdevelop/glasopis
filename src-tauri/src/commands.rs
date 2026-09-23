@@ -68,7 +68,7 @@ pub fn save_settings(
     state.replace_settings(settings.clone());
     settings_store::save(&app, &settings)?;
 
-    if previous.hotkeys != settings.hotkeys {
+    if previous.hotkeys != settings.hotkeys || previous.assistant != settings.assistant {
         hotkeys::register_all(&app, &settings)?;
     }
     Ok(settings)
