@@ -134,7 +134,9 @@ pub fn check_api_key(api_key: &str, model: &str) -> Result<()> {
 
 const CHAT_ENDPOINT: &str = "https://api.groq.com/openai/v1/chat/completions";
 /// Бърз, поддържа JSON режим на отговор - достатъчно за едно кратко решение.
-const ASSISTANT_MODEL: &str = "llama-3.3-70b-versatile";
+/// `llama-3.3-70b-versatile` беше изведен от употреба от Groq на 16.08.2026 -
+/// `openai/gpt-oss-20b` е препоръчаната от тях замяна.
+const ASSISTANT_MODEL: &str = "openai/gpt-oss-20b";
 const CHAT_TIMEOUT_SECONDS: u64 = 30;
 
 /// Изпраща разпознатата команда на AI модел, който я превръща в едно от
