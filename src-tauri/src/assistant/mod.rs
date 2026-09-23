@@ -84,6 +84,7 @@ pub fn cancel(app: &AppHandle) {
         state.recorder.cancel();
     }
     state.set_assistant_phase(None);
+    ui::shrink_overlay(app);
 }
 
 fn start_listening_command(app: &AppHandle) {
@@ -138,6 +139,7 @@ fn stop_listening_command(app: &AppHandle) {
                     speak_if_enabled(&settings, &question);
                     state.set_assistant_phase(Some(AssistantPhase::AwaitingConfirmation(action)));
                     state.set_status(&app_handle, Status::Confirming { question });
+                    ui::expand_overlay_for_question(&app_handle);
                 }
                 Ok(ProposedAction::Unknown) => {
                     let message = "Не разбрах командата.".to_string();
@@ -164,6 +166,7 @@ fn stop_listening_command(app: &AppHandle) {
 fn start_listening_confirmation(app: &AppHandle, action: ProposedAction) {
     let state = app.state::<AppState>();
     let settings = state.settings();
+    ui::shrink_overlay(app);
     if let Err(err) = state.recorder.start(selected_device(&settings)) {
         state.set_assistant_phase(None);
         report(app, err);
@@ -295,14 +298,20 @@ fn selected_device(settings: &Settings) -> Option<String> {
 }
 
 fn speak_if_enabled(settings: &Settings, text: &str) {
-    if settings.assistant.speak_replies && crate::tts::is_available() {
-        if let Err(err) = crate::tts::speak(text) {
-            log::info!("говоримият отговор не бе възможен: {err}");
-        }
+    if !settings.assistant.speak_replies {
+        return;
+    }
+    if !crate::tts::is_available() {
+        log::info!("говоримият отговор пропуснат - няма инсталиран български глас в Windows");
+        return;
+    }
+    if let Err(err) = crate::tts::speak(text) {
+        log::info!("говоримият отговор не бе възможен: {err}");
     }
 }
 
 fn report_message(app: &AppHandle, message: String) {
+    ui::shrink_overlay(app);
     let state = app.state::<AppState>();
     state.set_status(
         app,
@@ -315,6 +324,7 @@ fn report_message(app: &AppHandle, message: String) {
 }
 
 fn report(app: &AppHandle, err: GlasopisError) {
+    ui::shrink_overlay(app);
     log::error!("асистентът приключи с грешка: {err}");
     let state = app.state::<AppState>();
     state.set_status(
