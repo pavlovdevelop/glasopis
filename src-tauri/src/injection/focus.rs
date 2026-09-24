@@ -5,11 +5,15 @@
 //! foreground window *before* anything of Glasopis appears and to put the focus
 //! back there right before the text is inserted.
 
-use windows::Win32::Foundation::HWND;
-use windows::Win32::System::Threading::{AttachThreadInput, GetCurrentThreadId};
+use windows::core::{BOOL, PWSTR};
+use windows::Win32::Foundation::{CloseHandle, HWND, LPARAM};
+use windows::Win32::System::Threading::{
+    AttachThreadInput, GetCurrentThreadId, OpenProcess, QueryFullProcessImageNameW,
+    PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION,
+};
 use windows::Win32::UI::WindowsAndMessaging::{
-    GetForegroundWindow, GetWindowTextW, GetWindowThreadProcessId, IsIconic, IsWindow,
-    SetForegroundWindow, ShowWindow, SW_RESTORE,
+    EnumWindows, GetForegroundWindow, GetWindow, GetWindowTextW, GetWindowThreadProcessId,
+    IsIconic, IsWindow, IsWindowVisible, SetForegroundWindow, ShowWindow, GW_OWNER, SW_RESTORE,
 };
 
 /// A remembered window handle. Stored as `isize` so it can be moved between
@@ -78,4 +82,76 @@ pub fn current_foreground_window() -> Option<TargetWindow> {
         return None;
     }
     Some(TargetWindow(hwnd.0 as isize))
+}
+
+/// The executable file name (e.g. `"chrome.exe"`) that owns `hwnd`, or `None`
+/// if it cannot be determined - a window closing mid-lookup is normal, not
+/// an error worth surfacing.
+fn owning_exe_name(hwnd: HWND) -> Option<String> {
+    let mut pid = 0u32;
+    unsafe { GetWindowThreadProcessId(hwnd, Some(&mut pid)) };
+    if pid == 0 {
+        return None;
+    }
+    let process = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid) }.ok()?;
+    let mut buffer = [0u16; 260];
+    let mut len = buffer.len() as u32;
+    let result = unsafe {
+        QueryFullProcessImageNameW(
+            process,
+            PROCESS_NAME_WIN32,
+            PWSTR(buffer.as_mut_ptr()),
+            &mut len,
+        )
+    };
+    unsafe {
+        let _ = CloseHandle(process);
+    }
+    result.ok()?;
+    let path = String::from_utf16_lossy(&buffer[..len as usize]);
+    path.rsplit(['\\', '/'])
+        .next()
+        .map(|name| name.to_lowercase())
+}
+
+struct WindowSearch {
+    exe_name: String,
+    found: Option<HWND>,
+}
+
+unsafe extern "system" fn enum_window_proc(hwnd: HWND, lparam: LPARAM) -> BOOL {
+    let search = unsafe { &mut *(lparam.0 as *mut WindowSearch) };
+    let is_top_level = match unsafe { GetWindow(hwnd, GW_OWNER) } {
+        Ok(owner) => owner.0.is_null(),
+        Err(_) => true,
+    };
+    if is_top_level
+        && unsafe { IsWindowVisible(hwnd) }.as_bool()
+        && owning_exe_name(hwnd).as_deref() == Some(search.exe_name.as_str())
+    {
+        search.found = Some(hwnd);
+        return BOOL(0); // Stop enumeration - a match was found.
+    }
+    BOOL(1) // Keep looking.
+}
+
+/// Finds a visible, top-level window belonging to `exe_name` (e.g.
+/// `"chrome.exe"`) and brings it to the foreground. Used by the assistant's
+/// whitelisted actions that must type into a *specific* application, rather
+/// than whatever currently has focus.
+pub fn activate_process_window(exe_name: &str) -> bool {
+    let mut search = WindowSearch {
+        exe_name: exe_name.to_lowercase(),
+        found: None,
+    };
+    let _ = unsafe {
+        EnumWindows(
+            Some(enum_window_proc),
+            LPARAM(std::ptr::addr_of_mut!(search) as isize),
+        )
+    };
+    match search.found {
+        Some(hwnd) => TargetWindow(hwnd.0 as isize).restore_focus(),
+        None => false,
+    }
 }

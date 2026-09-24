@@ -71,8 +71,8 @@ to "Локално" in Settings → Разпознаване; see [docs/building
   (can be turned off). Every downloaded installer is verified against a digital signature.
 - **Voice assistant** (off by default, a separate mode with its own hotkey) - say a command, the
   assistant proposes an action with speech and text ("Open Chrome?") and only carries it out
-  after you say "yes". In `v1` it can only open a small set of known applications - see
-  [SECURITY.md](SECURITY.md) for the threat model.
+  after you say "yes". In `v1` it can only open a small set of known applications or search
+  something in Chrome - see [SECURITY.md](SECURITY.md) for the threat model.
 
 ## Installation
 

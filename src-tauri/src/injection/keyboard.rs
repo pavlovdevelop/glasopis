@@ -2,8 +2,8 @@
 
 use windows::Win32::UI::Input::KeyboardAndMouse::{
     GetKeyState, SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP,
-    KEYEVENTF_UNICODE, VIRTUAL_KEY, VK_CONTROL, VK_LWIN, VK_MENU, VK_RETURN, VK_RWIN, VK_SHIFT,
-    VK_V,
+    KEYEVENTF_UNICODE, VIRTUAL_KEY, VK_CONTROL, VK_L, VK_LWIN, VK_MENU, VK_RETURN, VK_RWIN,
+    VK_SHIFT, VK_V,
 };
 
 use crate::errors::{GlasopisError, Result};
@@ -92,6 +92,31 @@ pub fn send_paste() -> Result<()> {
         key_input(VK_V, true),
         key_input(VK_CONTROL, true),
     ])?;
+    std::thread::sleep(std::time::Duration::from_millis(AFTER_PASTE_MS));
+    Ok(())
+}
+
+/// Sends `Ctrl+L`, which focuses the address/search bar in every major
+/// browser (Chrome, Edge, Firefox) - a known, predictable place to type a
+/// search query into, rather than guessing where a search box is on the page.
+pub fn send_focus_address_bar() -> Result<()> {
+    release_stuck_modifiers();
+    if is_down(VK_CONTROL) {
+        let _ = send(&[key_input(VK_CONTROL, true)]);
+    }
+    send(&[
+        key_input(VK_CONTROL, false),
+        key_input(VK_L, false),
+        key_input(VK_L, true),
+        key_input(VK_CONTROL, true),
+    ])?;
+    std::thread::sleep(std::time::Duration::from_millis(AFTER_PASTE_MS));
+    Ok(())
+}
+
+/// Sends `Enter`.
+pub fn send_enter() -> Result<()> {
+    send(&[key_input(VK_RETURN, false), key_input(VK_RETURN, true)])?;
     std::thread::sleep(std::time::Duration::from_millis(AFTER_PASTE_MS));
     Ok(())
 }
