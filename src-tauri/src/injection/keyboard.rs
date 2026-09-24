@@ -10,6 +10,12 @@ use crate::errors::{GlasopisError, Result};
 
 /// Small pause that gives the target application time to process the input.
 const AFTER_PASTE_MS: u64 = 30;
+/// `Ctrl+L` changes which control has keyboard focus inside the browser
+/// (main window -> address bar), not just which window is foreground - typing
+/// too soon after it drops the first characters into the void. Longer than
+/// `AFTER_PASTE_MS` on purpose: observed in practice to lose 1-2 leading
+/// characters at 30ms, especially right after a cold-started browser.
+const AFTER_FOCUS_ADDRESS_BAR_MS: u64 = 200;
 
 fn key_input(vk: VIRTUAL_KEY, up: bool) -> INPUT {
     INPUT {
@@ -110,7 +116,7 @@ pub fn send_focus_address_bar() -> Result<()> {
         key_input(VK_L, true),
         key_input(VK_CONTROL, true),
     ])?;
-    std::thread::sleep(std::time::Duration::from_millis(AFTER_PASTE_MS));
+    std::thread::sleep(std::time::Duration::from_millis(AFTER_FOCUS_ADDRESS_BAR_MS));
     Ok(())
 }
 

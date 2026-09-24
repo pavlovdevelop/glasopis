@@ -59,6 +59,14 @@ mod imp {
         Ok(())
     }
 
+    /// Window activation succeeding does not mean the browser is done
+    /// rendering and ready to react to `Ctrl+L` - especially true for a
+    /// freshly-launched, still cold-starting process. A short settle pause
+    /// here is what actually made `Ctrl+L` reliably land on the address bar
+    /// in practice, rather than a keystroke or two vanishing into a window
+    /// that was foreground but not yet interactive.
+    const SETTLE_AFTER_ACTIVATION_MS: u64 = 300;
+
     pub fn search_chrome(query: &str) -> Result<()> {
         open("chrome.exe")?;
         if !wait_for_chrome_window() {
@@ -66,6 +74,7 @@ mod imp {
                 "Chrome не се отвори навреме.".to_string(),
             ));
         }
+        std::thread::sleep(std::time::Duration::from_millis(SETTLE_AFTER_ACTIVATION_MS));
         keyboard::send_focus_address_bar()?;
         keyboard::type_text(query)?;
         keyboard::send_enter()?;
