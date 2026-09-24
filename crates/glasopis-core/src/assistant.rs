@@ -74,6 +74,11 @@ pub fn find_known_app(id: &str) -> Option<&'static KnownApp> {
     KNOWN_APPS.iter().find(|app| app.id == id)
 }
 
+/// Longest search query the assistant will type - long enough for a real
+/// sentence, short enough that a model going off the rails cannot turn this
+/// into a way to type arbitrary long text through a "search".
+const MAX_SEARCH_QUERY_LEN: usize = 200;
+
 /// What the AI model proposed, already validated against [`KNOWN_APPS`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ProposedAction {
@@ -83,9 +88,24 @@ pub enum ProposedAction {
         app: &'static KnownApp,
         question: String,
     },
+    /// Open Chrome (if needed), focus its address bar and search for `query`;
+    /// `question` is what the assistant should ask before actually doing it.
+    SearchChrome { query: String, question: String },
     /// The model could not match the command to anything on the whitelist,
     /// or its response could not be parsed/validated.
     Unknown,
+}
+
+impl ProposedAction {
+    /// The confirmation question to ask before acting, or `None` for
+    /// [`ProposedAction::Unknown`] - there is nothing to confirm.
+    pub fn question(&self) -> Option<&str> {
+        match self {
+            ProposedAction::OpenApp { question, .. } => Some(question),
+            ProposedAction::SearchChrome { question, .. } => Some(question),
+            ProposedAction::Unknown => None,
+        }
+    }
 }
 
 /// The system prompt sent to the AI model — instructs it to answer with a
@@ -106,7 +126,11 @@ pub fn build_system_prompt() -> String {
 Ако командата означава \"отвори <приложение>\" и приложението е в списъка по-долу, отговори:\n\
 {{\"action\": \"open_app\", \"target\": \"<точното id от списъка>\", \"question\": \"<кратък \
 въпрос на български, питащ дали да отвориш точно това приложение>\"}}\n\n\
-Ако командата не съвпада с нищо познато, е неясна, или иска нещо друго, отговори:\n\
+Ако командата означава \"потърси/провери в Chrome/Google <нещо>\", отговори:\n\
+{{\"action\": \"search_chrome\", \"query\": \"<кратък текст за търсене>\", \"question\": \"<кратък \
+въпрос на български, питащ дали да потърсиш точно това>\"}}\n\n\
+Ако командата не съвпада с нищо познато, е неясна, или иска нещо друго (напр. писане на \
+произволен текст, кликане, промяна на настройки), отговори:\n\
 {{\"action\": \"unknown\"}}\n\n\
 Позволени приложения (target трябва да е точно едно от тези id стойности):\n{apps}"
     )
@@ -116,6 +140,7 @@ pub fn build_system_prompt() -> String {
 struct RawResponse {
     action: String,
     target: Option<String>,
+    query: Option<String>,
     question: Option<String>,
 }
 
@@ -127,20 +152,39 @@ pub fn parse_model_response(raw: &str) -> ProposedAction {
     let Ok(parsed) = serde_json::from_str::<RawResponse>(raw.trim()) else {
         return ProposedAction::Unknown;
     };
-    if parsed.action != "open_app" {
-        return ProposedAction::Unknown;
+    match parsed.action.as_str() {
+        "open_app" => {
+            let Some(target) = parsed.target.as_deref() else {
+                return ProposedAction::Unknown;
+            };
+            let Some(app) = find_known_app(target) else {
+                return ProposedAction::Unknown;
+            };
+            let question = parsed
+                .question
+                .filter(|q| !q.trim().is_empty())
+                .unwrap_or_else(|| format!("Да отворя ли {}?", app.label_bg));
+            ProposedAction::OpenApp { app, question }
+        }
+        "search_chrome" => {
+            let query = parsed
+                .query
+                .map(|q| q.trim().to_string())
+                .filter(|q| !q.is_empty());
+            let Some(query) = query else {
+                return ProposedAction::Unknown;
+            };
+            // A model going off the rails should not be able to turn "search
+            // for X" into typing an arbitrarily long block of text.
+            let query: String = query.chars().take(MAX_SEARCH_QUERY_LEN).collect();
+            let question = parsed
+                .question
+                .filter(|q| !q.trim().is_empty())
+                .unwrap_or_else(|| format!("Да потърся ли \"{query}\" в Chrome?"));
+            ProposedAction::SearchChrome { query, question }
+        }
+        _ => ProposedAction::Unknown,
     }
-    let Some(target) = parsed.target.as_deref() else {
-        return ProposedAction::Unknown;
-    };
-    let Some(app) = find_known_app(target) else {
-        return ProposedAction::Unknown;
-    };
-    let question = parsed
-        .question
-        .filter(|q| !q.trim().is_empty())
-        .unwrap_or_else(|| format!("Да отворя ли {}?", app.label_bg));
-    ProposedAction::OpenApp { app, question }
 }
 
 /// A spoken yes/no reply to the assistant's confirmation question.
@@ -226,7 +270,7 @@ mod tests {
                 assert_eq!(app.id, "chrome");
                 assert_eq!(question, "Да отворя ли Chrome?");
             }
-            ProposedAction::Unknown => panic!("expected OpenApp"),
+            other => panic!("expected OpenApp, got {other:?}"),
         }
     }
 
@@ -235,7 +279,52 @@ mod tests {
         let raw = r#"{"action":"open_app","target":"notepad"}"#;
         match parse_model_response(raw) {
             ProposedAction::OpenApp { question, .. } => assert!(question.contains("Бележник")),
-            ProposedAction::Unknown => panic!("expected OpenApp"),
+            other => panic!("expected OpenApp, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn valid_search_chrome_response_is_parsed() {
+        let raw = r#"{"action":"search_chrome","query":"котки","question":"Да потърся ли котки?"}"#;
+        match parse_model_response(raw) {
+            ProposedAction::SearchChrome { query, question } => {
+                assert_eq!(query, "котки");
+                assert_eq!(question, "Да потърся ли котки?");
+            }
+            other => panic!("expected SearchChrome, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn search_chrome_without_question_gets_a_default_one() {
+        let raw = r#"{"action":"search_chrome","query":"времето"}"#;
+        match parse_model_response(raw) {
+            ProposedAction::SearchChrome { question, .. } => assert!(question.contains("времето")),
+            other => panic!("expected SearchChrome, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn search_chrome_without_a_query_is_unknown() {
+        assert_eq!(
+            parse_model_response(r#"{"action":"search_chrome"}"#),
+            ProposedAction::Unknown
+        );
+        assert_eq!(
+            parse_model_response(r#"{"action":"search_chrome","query":"   "}"#),
+            ProposedAction::Unknown
+        );
+    }
+
+    #[test]
+    fn an_overlong_search_query_is_truncated_not_rejected() {
+        let long_query = "а".repeat(500);
+        let raw = format!(r#"{{"action":"search_chrome","query":"{long_query}"}}"#);
+        match parse_model_response(&raw) {
+            ProposedAction::SearchChrome { query, .. } => {
+                assert_eq!(query.chars().count(), MAX_SEARCH_QUERY_LEN);
+            }
+            other => panic!("expected SearchChrome, got {other:?}"),
         }
     }
 

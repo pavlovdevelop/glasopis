@@ -131,21 +131,21 @@ fn stop_listening_command(app: &AppHandle) {
             let state = app_handle.state::<AppState>();
             state.busy.store(false, std::sync::atomic::Ordering::SeqCst);
             match outcome {
-                Ok(action @ ProposedAction::OpenApp { .. }) => {
-                    let question = match &action {
-                        ProposedAction::OpenApp { question, .. } => question.clone(),
-                        ProposedAction::Unknown => unreachable!(),
-                    };
-                    speak_if_enabled(&settings, &question);
-                    state.set_assistant_phase(Some(AssistantPhase::AwaitingConfirmation(action)));
-                    state.set_status(&app_handle, Status::Confirming { question });
-                    ui::expand_overlay_for_question(&app_handle);
-                }
                 Ok(ProposedAction::Unknown) => {
                     let message = "Не разбрах командата.".to_string();
                     speak_if_enabled(&settings, &message);
                     state.set_assistant_phase(None);
                     report_message(&app_handle, message);
+                }
+                Ok(action) => {
+                    let question = action
+                        .question()
+                        .expect("Unknown is handled above")
+                        .to_string();
+                    speak_if_enabled(&settings, &question);
+                    state.set_assistant_phase(Some(AssistantPhase::AwaitingConfirmation(action)));
+                    state.set_status(&app_handle, Status::Confirming { question });
+                    ui::expand_overlay_for_question(&app_handle);
                 }
                 Err(err) => {
                     state.set_assistant_phase(None);
@@ -228,6 +228,7 @@ fn stop_listening_confirmation(app: &AppHandle, action: ProposedAction) {
 fn execute(app: &AppHandle, settings: &Settings, action: ProposedAction) {
     let result = match &action {
         ProposedAction::OpenApp { app: known, .. } => actions::open_app(known),
+        ProposedAction::SearchChrome { query, .. } => actions::search_chrome(query),
         ProposedAction::Unknown => Err(GlasopisError::other("Няма какво да изпълня.".to_string())),
     };
     match result {

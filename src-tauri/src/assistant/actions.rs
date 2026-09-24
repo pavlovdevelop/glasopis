@@ -16,6 +16,16 @@ pub fn open_app(app: &KnownApp) -> Result<String> {
     Ok(format!("Отворих {}.", app.label_bg))
 }
 
+/// Opens Chrome (if it is not already running), focuses its address bar and
+/// searches for `query`. `query` is free text from the AI model, but it is
+/// only ever *typed* - never interpreted as a command, path or shell
+/// argument - the same guarantee dictation already gives the rest of the
+/// system.
+pub fn search_chrome(query: &str) -> Result<String> {
+    imp::search_chrome(query)?;
+    Ok(format!("Търся \"{query}\" в Chrome."))
+}
+
 #[cfg(windows)]
 mod imp {
     use windows::core::HSTRING;
@@ -23,6 +33,12 @@ mod imp {
     use windows::Win32::UI::WindowsAndMessaging::SW_SHOWNORMAL;
 
     use crate::errors::{GlasopisError, Result};
+    use crate::injection::{focus, keyboard};
+
+    /// How long to wait for Chrome's window to appear after a cold start,
+    /// before giving up on typing into it.
+    const WINDOW_WAIT_ATTEMPTS: u32 = 15;
+    const WINDOW_WAIT_DELAY_MS: u64 = 200;
 
     /// `exe` is always one of the hardcoded `KnownApp::exe` values - a bare
     /// executable name, never anything derived from what the user said or
@@ -42,6 +58,32 @@ mod imp {
         }
         Ok(())
     }
+
+    pub fn search_chrome(query: &str) -> Result<()> {
+        open("chrome.exe")?;
+        if !wait_for_chrome_window() {
+            return Err(GlasopisError::other(
+                "Chrome не се отвори навреме.".to_string(),
+            ));
+        }
+        keyboard::send_focus_address_bar()?;
+        keyboard::type_text(query)?;
+        keyboard::send_enter()?;
+        Ok(())
+    }
+
+    /// Polls for Chrome's window and brings it to the foreground - a fresh
+    /// launch needs a moment before the window (and therefore keyboard
+    /// input) exists at all.
+    fn wait_for_chrome_window() -> bool {
+        for _ in 0..WINDOW_WAIT_ATTEMPTS {
+            if focus::activate_process_window("chrome.exe") {
+                return true;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(WINDOW_WAIT_DELAY_MS));
+        }
+        false
+    }
 }
 
 #[cfg(not(windows))]
@@ -49,6 +91,10 @@ mod imp {
     use crate::errors::{GlasopisError, Result};
 
     pub fn open(_exe: &str) -> Result<()> {
+        Err(GlasopisError::WindowsOnly)
+    }
+
+    pub fn search_chrome(_query: &str) -> Result<()> {
         Err(GlasopisError::WindowsOnly)
     }
 }
