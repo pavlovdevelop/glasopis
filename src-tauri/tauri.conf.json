@@ -46,7 +46,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYyNjhGQzkzOEQzM0Q3OTAKUldTUTF6T05rL3hvWWlHUmdDMDFLK2JVOWRKd1crUnYvc3YwQUJRK2dVUitXdXp3UWRla3JhZU8K",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IERERTM0RDhDMjdFRDdBODcKUldTSGV1MG5qRTNqM1l5ckxGSjBOaFBpTkJoQjhBcE10VXZ2cWFaUWQ5ZUtMcVZFU1JvSU9ueGoK",
       "endpoints": [
         "https://github.com/pavlovdevelop/glasopis/releases/latest/download/latest.json"
       ]
